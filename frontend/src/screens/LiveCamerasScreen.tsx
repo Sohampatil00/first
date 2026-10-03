@@ -22,7 +22,13 @@ import {
   Sparkles,
   Shield,
   UserCheck,
-  Zap
+  Zap,
+  Smartphone,
+  SwitchCamera,
+  QrCode,
+  FlipHorizontal,
+  Copy,
+  ExternalLink
 } from 'lucide-react';
 import { CameraFusionModal } from '../components/CameraFusionModal';
 
@@ -32,6 +38,7 @@ export const LiveCamerasScreen: React.FC = () => {
   const [demoActionStatus, setDemoActionStatus] = useState<string | null>(null);
   const [showFusionModal, setShowFusionModal] = useState<boolean>(false);
   const [showRtspModal, setShowRtspModal] = useState<boolean>(false);
+  const [showMobileModal, setShowMobileModal] = useState<boolean>(false);
   const [showBoxes, setShowBoxes] = useState<boolean>(true);
   const [privacyBlurActive, setPrivacyBlurActive] = useState<boolean>(true);
 
@@ -40,7 +47,13 @@ export const LiveCamerasScreen: React.FC = () => {
   const [engineMetadata, setEngineMetadata] = useState<string>('DEIM-D-FINE-N (CVPR 2025)');
   const [isNmsFree, setIsNmsFree] = useState<boolean>(true);
 
-  // Laptop Webcam Integration State
+  // Multi-Device & Mobile Camera Switching State
+  const [videoDevices, setVideoDevices] = useState<MediaDeviceInfo[]>([]);
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string>('');
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
+  const [isMirrored, setIsMirrored] = useState<boolean>(true);
+
+  // Laptop / Mobile Webcam Integration State
   const [useWebcam, setUseWebcam] = useState<boolean>(false);
   const [webcamStream, setWebcamStream] = useState<MediaStream | null>(null);
   const [webcamError, setWebcamError] = useState<string | null>(null);
@@ -87,24 +100,87 @@ export const LiveCamerasScreen: React.FC = () => {
     };
   }, [webcamStream]);
 
-  // Toggle Laptop Webcam
-  const startWebcam = async () => {
+  // Enumerate connected cameras (Mac FaceTime, iPhone Continuity, USB webcams, Mobile rear/front)
+  const enumerateCameras = async () => {
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoInputs = devices.filter(d => d.kind === 'videoinput');
+        setVideoDevices(videoInputs);
+      }
+    } catch (err) {
+      console.warn("Could not enumerate camera devices:", err);
+    }
+  };
+
+  // Toggle Laptop / Mobile Webcam
+  const startWebcam = async (targetDeviceId?: string, targetFacingMode?: 'user' | 'environment') => {
     try {
       setWebcamError(null);
+      if (webcamStream) {
+        webcamStream.getTracks().forEach(track => track.stop());
+      }
+
+      const activeFacing = targetFacingMode || facingMode;
+      // When explicitly switching facing mode (e.g. front to back), clear any previously locked deviceId
+      const activeDevId = targetFacingMode ? '' : (targetDeviceId !== undefined ? targetDeviceId : selectedDeviceId);
+
+      const videoConstraints: MediaTrackConstraints = activeDevId
+        ? { deviceId: { exact: activeDevId }, width: { ideal: 1280 }, height: { ideal: 720 } }
+        : { facingMode: { ideal: activeFacing }, width: { ideal: 1280 }, height: { ideal: 720 } };
+
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }
+        video: videoConstraints
       });
+
       setWebcamStream(stream);
       setUseWebcam(true);
-      setDemoActionStatus("Laptop webcam activated! Running real-time on-premise YOLOv8 inference.");
+
+      // Extract real browser track capabilities & settings
+      const tracks = stream.getVideoTracks();
+      if (tracks.length > 0) {
+        const settings = tracks[0].getSettings();
+        const resolvedFacing = (settings.facingMode as 'user' | 'environment') || activeFacing;
+        setFacingMode(resolvedFacing);
+        setIsMirrored(resolvedFacing === 'user');
+        if (settings.deviceId) {
+          setSelectedDeviceId(settings.deviceId);
+        }
+      }
+
+      // Refresh camera devices list once permission is granted
+      await enumerateCameras();
+
+      const isMobileBack = (tracks[0]?.getSettings()?.facingMode || activeFacing) === 'environment';
+      setDemoActionStatus(`Camera activated (${isMobileBack ? '📱 Mobile / Back Cam (Unmirrored)' : '💻 Front / Laptop Cam (Mirrored)'}) running ${selectedVisionEngine.toUpperCase()}.`);
       setTimeout(() => setDemoActionStatus(null), 4000);
     } catch (err: any) {
       console.error("Camera access error:", err);
       setWebcamError(
         err.name === 'NotAllowedError' 
           ? "Camera permission denied. Please allow camera permissions in your browser bar."
-          : `Could not access laptop webcam: ${err.message}`
+          : `Could not access camera (${err.name || 'Error'}): ${err.message}`
       );
+    }
+  };
+
+  // Flip facing mode directly (user <-> environment)
+  const flipCameraFacing = async () => {
+    const nextMode: 'user' | 'environment' = facingMode === 'user' ? 'environment' : 'user';
+    await startWebcam('', nextMode);
+  };
+
+  // Switch between connected cameras or flip facing mode
+  const switchCamera = async () => {
+    if (videoDevices.length > 1) {
+      const currentIndex = videoDevices.findIndex(d => d.deviceId === selectedDeviceId);
+      const nextIndex = (currentIndex + 1) % videoDevices.length;
+      const nextDevice = videoDevices[nextIndex];
+      const isBack = /back|rear|environment/i.test(nextDevice.label);
+      const newMode = isBack ? 'environment' : 'user';
+      await startWebcam(nextDevice.deviceId, newMode);
+    } else {
+      await flipCameraFacing();
     }
   };
 
@@ -376,26 +452,75 @@ export const LiveCamerasScreen: React.FC = () => {
             </button>
           </div>
 
-          {/* Main Laptop Webcam Button */}
+          {/* Camera Controls */}
           {useWebcam ? (
-            <button
-              onClick={stopWebcam}
-              className="gov-btn-secondary"
-              style={{ borderColor: '#EF4444', color: '#DC2626' }}
-            >
-              <CameraOff size={14} />
-              <span>Disconnect Laptop Cam</span>
-            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <button
+                onClick={stopWebcam}
+                className="gov-btn-secondary"
+                style={{ borderColor: '#EF4444', color: '#DC2626' }}
+              >
+                <CameraOff size={14} />
+                <span>Disconnect Cam</span>
+              </button>
+
+              <button
+                onClick={switchCamera}
+                className="gov-btn-secondary"
+                style={{ borderColor: '#4F46E5', color: '#4338CA', backgroundColor: '#EEF2FF' }}
+                title="Switch between front/laptop camera and mobile rear camera"
+              >
+                <SwitchCamera size={14} />
+                <span>{facingMode === 'user' ? 'Switch to Back/Mobile Cam' : 'Switch to Front Cam'}</span>
+              </button>
+
+              {videoDevices.length > 1 && (
+                <select
+                  value={selectedDeviceId}
+                  onChange={(e) => startWebcam(e.target.value)}
+                  style={{
+                    backgroundColor: '#FFFFFF',
+                    border: '1px solid #CBD5E1',
+                    borderRadius: '6px',
+                    padding: '6px 10px',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    color: '#1E293B',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {videoDevices.map((d, i) => (
+                    <option key={d.deviceId || i} value={d.deviceId}>
+                      {d.label || `Camera ${i + 1}`}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
           ) : (
             <button
-              onClick={startWebcam}
+              onClick={() => startWebcam()}
               className="gov-btn-primary"
               style={{ backgroundColor: '#2563EB' }}
             >
               <CameraIcon size={14} />
-              <span>Use My Laptop Cam</span>
+              <span>Use Camera</span>
             </button>
           )}
+
+          {/* Connect Mobile Camera Button */}
+          <button
+            onClick={() => setShowMobileModal(true)}
+            className="gov-btn-secondary"
+            style={{
+              borderColor: '#C7D2FE',
+              backgroundColor: '#F5F3FF',
+              color: '#4F46E5'
+            }}
+          >
+            <Smartphone size={14} />
+            <span>Connect Mobile Cam</span>
+          </button>
 
           <button
             onClick={() => setShowFusionModal(true)}
@@ -502,7 +627,7 @@ export const LiveCamerasScreen: React.FC = () => {
             <span>{webcamError}</span>
           </div>
           <button
-            onClick={startWebcam}
+            onClick={() => startWebcam()}
             className="gov-btn-secondary"
             style={{ padding: '4px 10px', fontSize: '11px' }}
           >
@@ -562,10 +687,12 @@ export const LiveCamerasScreen: React.FC = () => {
                 }}>
                   <div>
                     <div style={{ fontWeight: 700, fontSize: '14px', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span>{isDemoCamera && useWebcam ? "💻 My Laptop Webcam (Live Edge Feed)" : cam.name}</span>
+                      <span>{isDemoCamera && useWebcam ? (facingMode === 'environment' ? "📱 Mobile / Back Camera (Live Edge Feed)" : "💻 Laptop / Front Camera (Live Edge Feed)") : cam.name}</span>
                       {isDemoCamera && useWebcam && (
                         <>
-                          <span className="status-badge normal">HARDWARE CAM ACTIVE</span>
+                          <span className="status-badge normal">
+                            {facingMode === 'environment' ? 'MOBILE REAR CAM' : 'FRONT CAM ACTIVE'}
+                          </span>
                           <span style={{
                             padding: '2px 8px',
                             borderRadius: '4px',
@@ -587,9 +714,32 @@ export const LiveCamerasScreen: React.FC = () => {
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {isDemoCamera && useWebcam && (
+                      <button
+                        onClick={switchCamera}
+                        title="Flip between front/laptop camera and mobile rear camera"
+                        style={{
+                          backgroundColor: '#EEF2FF',
+                          border: '1px solid #C7D2FE',
+                          color: '#4338CA',
+                          borderRadius: '4px',
+                          padding: '3px 8px',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                      >
+                        <SwitchCamera size={12} />
+                        <span>{facingMode === 'user' ? 'Switch to Back Cam' : 'Switch to Front Cam'}</span>
+                      </button>
+                    )}
+
                     {isDemoCamera && (
                       <button
-                        onClick={useWebcam ? stopWebcam : startWebcam}
+                        onClick={useWebcam ? stopWebcam : () => startWebcam()}
                         style={{
                           backgroundColor: useWebcam ? '#EFF6FF' : '#F1F5F9',
                           border: `1px solid ${useWebcam ? '#3B82F6' : '#CBD5E1'}`,
@@ -605,7 +755,7 @@ export const LiveCamerasScreen: React.FC = () => {
                         }}
                       >
                         {useWebcam ? <CameraOff size={12} /> : <CameraIcon size={12} />}
-                        <span>{useWebcam ? 'Switch to Demo Clip' : 'Use Laptop Webcam'}</span>
+                        <span>{useWebcam ? 'Disconnect Cam' : 'Use Camera'}</span>
                       </button>
                     )}
 
@@ -640,7 +790,7 @@ export const LiveCamerasScreen: React.FC = () => {
                                 width: '100%',
                                 height: '100%',
                                 objectFit: 'cover',
-                                transform: 'scaleX(-1)' // Mirror mode for natural webcam preview
+                                transform: isMirrored ? 'scaleX(-1)' : 'none'
                               }}
                             />
 
@@ -648,8 +798,8 @@ export const LiveCamerasScreen: React.FC = () => {
                             {showBoxes && (
                               <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 10 }}>
                                 {webcamDetections.map((det, idx) => {
-                                  // Invert X because of mirror transform
-                                  const x = (1 - det.box[2]) * 100;
+                                  // Invert X when mirrored, keep standard orientation when using rear mobile camera
+                                  const x = isMirrored ? (1 - det.box[2]) * 100 : det.box[0] * 100;
                                   const y = det.box[1] * 100;
                                   const w = (det.box[2] - det.box[0]) * 100;
                                   const h = (det.box[3] - det.box[1]) * 100;
@@ -715,7 +865,7 @@ export const LiveCamerasScreen: React.FC = () => {
 
                             {/* Real-time Anatomical Face Privacy Blur (DPDP Act Compliance) */}
                             {privacyBlurActive && webcamBlurBoxes.map((b, bIdx) => {
-                              const left = (1 - b[2]) * 100;
+                              const left = isMirrored ? (1 - b[2]) * 100 : b[0] * 100;
                               const top = b[1] * 100;
                               const width = (b[2] - b[0]) * 100;
                               const height = (b[3] - b[1]) * 100;
@@ -771,6 +921,93 @@ export const LiveCamerasScreen: React.FC = () => {
                                 </div>
                               );
                             })}
+
+                            {/* Floating On-Video Quick Controls */}
+                            <div style={{
+                              position: 'absolute',
+                              top: '10px',
+                              right: '10px',
+                              zIndex: 25,
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px'
+                            }}>
+                              <button
+                                onClick={flipCameraFacing}
+                                style={{
+                                  backgroundColor: 'rgba(15, 23, 42, 0.8)',
+                                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                                  color: '#FFFFFF',
+                                  borderRadius: '6px',
+                                  padding: '4px 10px',
+                                  fontSize: '11px',
+                                  fontWeight: 700,
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '5px',
+                                  backdropFilter: 'blur(8px)',
+                                  boxShadow: '0 2px 8px rgba(0,0,0,0.5)'
+                                }}
+                                title="Flip camera between front and mobile rear lens"
+                              >
+                                <SwitchCamera size={13} color="#38BDF8" />
+                                <span>{facingMode === 'user' ? 'Flip to Rear Cam' : 'Flip to Front Cam'}</span>
+                              </button>
+
+                              <button
+                                onClick={() => setSelectedVisionEngine(selectedVisionEngine === 'deim' ? 'yolo' : 'deim')}
+                                style={{
+                                  backgroundColor: selectedVisionEngine === 'deim' ? 'rgba(37, 99, 235, 0.9)' : 'rgba(79, 70, 229, 0.9)',
+                                  border: '1px solid rgba(255, 255, 255, 0.35)',
+                                  color: '#FFFFFF',
+                                  borderRadius: '6px',
+                                  padding: '4px 10px',
+                                  fontSize: '11px',
+                                  fontWeight: 800,
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  backdropFilter: 'blur(8px)',
+                                  boxShadow: '0 2px 8px rgba(0,0,0,0.5)'
+                                }}
+                                title="Toggle vision engine between DEIM Real-Time DETR and YOLOv8"
+                              >
+                                <Zap size={12} color="#FDE047" />
+                                <span>{selectedVisionEngine === 'deim' ? '⚡ DEIM' : 'YOLO'}</span>
+                              </button>
+                            </div>
+
+                            {/* Floating Camera Mode Indicator (Top-Left) */}
+                            <div style={{
+                              position: 'absolute',
+                              top: '10px',
+                              left: '10px',
+                              zIndex: 25,
+                              backgroundColor: 'rgba(15, 23, 42, 0.8)',
+                              border: '1px solid rgba(255, 255, 255, 0.25)',
+                              color: '#FFFFFF',
+                              borderRadius: '6px',
+                              padding: '3px 8px',
+                              fontSize: '10px',
+                              fontWeight: 700,
+                              fontFamily: 'var(--font-mono)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              backdropFilter: 'blur(8px)',
+                              boxShadow: '0 2px 8px rgba(0,0,0,0.5)'
+                            }}>
+                              <span style={{
+                                width: '7px',
+                                height: '7px',
+                                borderRadius: '50%',
+                                backgroundColor: '#10B981',
+                                display: 'inline-block'
+                              }} />
+                              <span>{facingMode === 'user' ? '💻 FRONT CAM (MIRRORED)' : '📱 MOBILE / REAR CAM'}</span>
+                            </div>
                           </div>
                         ) : (
                           /* Synthetic Demo Video Clip */
@@ -1130,6 +1367,246 @@ export const LiveCamerasScreen: React.FC = () => {
                 className="gov-btn-secondary"
               >
                 Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Camera Pairing & Streaming Modal */}
+      {showMobileModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.65)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1100,
+          backdropFilter: 'blur(5px)',
+          padding: '20px'
+        }}>
+          <div className="gov-card" style={{
+            width: '100%',
+            maxWidth: '640px',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            boxShadow: 'var(--shadow-modal)',
+            borderRadius: '12px'
+          }}>
+            {/* Modal Header */}
+            <div style={{
+              padding: '16px 20px',
+              borderBottom: '1px solid #E2E8F0',
+              backgroundColor: '#F8FAFC',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '8px',
+                  backgroundColor: '#EEF2FF',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#4F46E5'
+                }}>
+                  <Smartphone size={18} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '15px', fontWeight: 800, color: '#0F172A', margin: 0 }}>
+                    Switch to Mobile Phone Camera
+                  </h3>
+                  <div style={{ fontSize: '11px', color: '#64748B' }}>
+                    Stream high-resolution mobile camera feeds directly into DEIM Real-Time DETR
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowMobileModal(false)}
+                style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', fontSize: '18px' }}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ padding: '22px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+              
+              {/* Option 1: Direct Wi-Fi Web Streaming */}
+              <div style={{
+                backgroundColor: '#F8FAFC',
+                border: '1px solid #E2E8F0',
+                borderRadius: '8px',
+                padding: '16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '13px', color: '#1E293B' }}>
+                    <span style={{
+                      backgroundColor: '#2563EB',
+                      color: '#FFFFFF',
+                      width: '20px',
+                      height: '20px',
+                      borderRadius: '50%',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '11px',
+                      fontWeight: 800
+                    }}>1</span>
+                    <span>Direct Mobile Browser Access (Fastest)</span>
+                  </div>
+                  <span style={{ fontSize: '11px', color: '#059669', fontWeight: 700, backgroundColor: '#ECFDF5', padding: '2px 8px', borderRadius: '4px' }}>
+                    RECOMMENDED
+                  </span>
+                </div>
+
+                <p style={{ fontSize: '12px', color: '#475569', margin: 0 }}>
+                  Open this link on your mobile phone (iPhone or Android) connected to the same Wi-Fi network:
+                </p>
+
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  backgroundColor: '#FFFFFF',
+                  border: '1px solid #CBD5E1',
+                  borderRadius: '6px',
+                  padding: '8px 12px'
+                }}>
+                  <input
+                    type="text"
+                    readOnly
+                    value="http://192.168.1.15:3000"
+                    style={{
+                      flex: 1,
+                      border: 'none',
+                      backgroundColor: 'transparent',
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      color: '#2563EB',
+                      outline: 'none'
+                    }}
+                  />
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText('http://192.168.1.15:3000');
+                      setDemoActionStatus("Copied mobile URL to clipboard!");
+                      setTimeout(() => setDemoActionStatus(null), 3000);
+                    }}
+                    className="gov-btn-secondary"
+                    style={{ padding: '3px 8px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '4px' }}
+                  >
+                    <Copy size={12} />
+                    <span>Copy</span>
+                  </button>
+                </div>
+
+                <div style={{ fontSize: '11px', color: '#64748B', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span>👉 On your phone, tap <strong>"Use Camera"</strong>, then tap <strong>"Switch to Back Cam"</strong> to aim at the classroom workspace.</span>
+                </div>
+              </div>
+
+              {/* Option 2: Continuity / Wireless External Cam */}
+              <div style={{
+                backgroundColor: '#F8FAFC',
+                border: '1px solid #E2E8F0',
+                borderRadius: '8px',
+                padding: '16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '13px', color: '#1E293B' }}>
+                  <span style={{
+                    backgroundColor: '#4F46E5',
+                    color: '#FFFFFF',
+                    width: '20px',
+                    height: '20px',
+                    borderRadius: '50%',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '11px',
+                    fontWeight: 800
+                  }}>2</span>
+                  <span>Apple Continuity Camera (macOS + iPhone)</span>
+                </div>
+                <p style={{ fontSize: '12px', color: '#475569', margin: 0 }}>
+                  Bring your unlocked iPhone close to your Mac with Wi-Fi &amp; Bluetooth enabled. macOS will automatically register your iPhone as a webcam input. Select it from the camera dropdown above!
+                </p>
+              </div>
+
+              {/* Option 3: RTSP IP Webcam App */}
+              <div style={{
+                backgroundColor: '#F8FAFC',
+                border: '1px solid #E2E8F0',
+                borderRadius: '8px',
+                padding: '16px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '13px', color: '#1E293B' }}>
+                  <span style={{
+                    backgroundColor: '#9333EA',
+                    color: '#FFFFFF',
+                    width: '20px',
+                    height: '20px',
+                    borderRadius: '50%',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '11px',
+                    fontWeight: 800
+                  }}>3</span>
+                  <span>IP Webcam / DroidCam RTSP Stream</span>
+                </div>
+                <p style={{ fontSize: '12px', color: '#475569', margin: 0 }}>
+                  If using an Android phone with <em>IP Webcam</em> or an iOS device with an RTSP streamer, tap <strong>Test RTSP Stream</strong> and enter the RTSP URI to ingest the stream with drop-frame buffering.
+                </p>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={() => {
+                      setShowMobileModal(false);
+                      setShowRtspModal(true);
+                    }}
+                    className="gov-btn-secondary"
+                    style={{ fontSize: '11px', padding: '4px 10px', color: '#9333EA', borderColor: '#E9D5FF' }}
+                  >
+                    <Radio size={12} />
+                    <span>Open RTSP Tester</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Modal Footer */}
+            <div style={{
+              padding: '12px 20px',
+              backgroundColor: '#F8FAFC',
+              borderTop: '1px solid #E2E8F0',
+              display: 'flex',
+              justifyContent: 'flex-end'
+            }}>
+              <button
+                onClick={() => setShowMobileModal(false)}
+                className="gov-btn-primary"
+                style={{ backgroundColor: '#2563EB' }}
+              >
+                Done
               </button>
             </div>
           </div>
