@@ -25,6 +25,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setCurrentTab, ope
     { id: 'alerts', label: 'Compliance Alerts', icon: AlertTriangle, badge: openAlertsCount },
     { id: 'analytics', label: 'Analytics & Trends', icon: BarChart3 },
     { id: 'audit', label: 'Governance & Audit', icon: ShieldCheck },
+    { id: 'settings', label: 'Policy Settings', icon: Sliders },
   ];
 
   return (

@@ -15,6 +15,7 @@ from backend.api.ai_ingest import router as ai_ingest_router
 from backend.api.alerts import router as alerts_router
 from backend.api.reports import router as reports_router
 from backend.api.demo import router as demo_router
+from backend.api.settings import router as settings_router
 
 # Initialize tables
 Base.metadata.create_all(bind=engine)
@@ -48,6 +49,7 @@ app.include_router(ai_ingest_router)
 app.include_router(alerts_router)
 app.include_router(reports_router)
 app.include_router(demo_router)
+app.include_router(settings_router)
 
 @app.get("/")
 def root():

@@ -8,11 +8,13 @@ import { AlertsScreen } from './screens/AlertsScreen';
 import { LiveCamerasScreen } from './screens/LiveCamerasScreen';
 import { AnalyticsScreen } from './screens/AnalyticsScreen';
 import { AuditScreen } from './screens/AuditScreen';
+import { SettingsScreen } from './screens/SettingsScreen';
 import { AnalyticsOverview, Centre, ComplianceEvent } from './types';
 import { fetchAnalyticsOverview, fetchCentres, fetchAlerts, reviewAlert } from './api';
 
 export function App() {
   const [currentTab, setCurrentTab] = useState<string>('overview');
+  const [currentRole, setCurrentRole] = useState<string>('MINISTRY_OFFICER');
   const [analytics, setAnalytics] = useState<AnalyticsOverview | null>(null);
   const [centres, setCentres] = useState<Centre[]>([]);
   const [alerts, setAlerts] = useState<ComplianceEvent[]>([]);
@@ -135,7 +137,9 @@ export function App() {
         <Header 
           wsConnected={wsConnected} 
           onRefresh={loadData} 
-          openAlertsCount={openAlertsCount} 
+          openAlertsCount={openAlertsCount}
+          currentRole={currentRole}
+          onRoleChange={setCurrentRole}
         />
 
         <main style={{ padding: '28px', flex: 1 }}>
@@ -170,6 +174,10 @@ export function App() {
 
           {currentTab === 'audit' && (
             <AuditScreen />
+          )}
+
+          {currentTab === 'settings' && (
+            <SettingsScreen currentRole={currentRole} />
           )}
         </main>
       </div>

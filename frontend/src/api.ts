@@ -73,3 +73,19 @@ export async function triggerDemoScenario(scenario: string): Promise<any> {
   if (!res.ok) throw new Error('Failed to trigger demo scenario');
   return res.json();
 }
+
+export async function fetchSettings(): Promise<any> {
+  const res = await fetch(`${BASE_URL}/settings`);
+  if (!res.ok) throw new Error('Failed to fetch settings');
+  return res.json();
+}
+
+export async function updateSettings(settings: any): Promise<any> {
+  const res = await fetch(`${BASE_URL}/settings`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(settings)
+  });
+  if (!res.ok) throw new Error('Failed to update settings');
+  return res.json();
+}

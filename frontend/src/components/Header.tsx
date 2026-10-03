@@ -1,13 +1,21 @@
 import React from 'react';
-import { Search, Bell, Shield, Wifi, RefreshCw } from 'lucide-react';
+import { Search, Bell, Shield, Wifi, RefreshCw, UserCheck } from 'lucide-react';
 
 interface HeaderProps {
   wsConnected: boolean;
   onRefresh: () => void;
   openAlertsCount: number;
+  currentRole: string;
+  onRoleChange: (role: string) => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ wsConnected, onRefresh, openAlertsCount }) => {
+export const Header: React.FC<HeaderProps> = ({ 
+  wsConnected, 
+  onRefresh, 
+  openAlertsCount,
+  currentRole,
+  onRoleChange
+}) => {
   return (
     <header style={{
       height: '64px',
@@ -30,12 +38,12 @@ export const Header: React.FC<HeaderProps> = ({ wsConnected, onRefresh, openAler
         border: '1px solid var(--border-subtle)',
         borderRadius: '6px',
         padding: '8px 14px',
-        width: '380px'
+        width: '360px'
       }}>
         <Search size={16} color="var(--text-muted)" />
         <input 
           type="text" 
-          placeholder="Search by Centre Code (e.g. TC-101), District, State..."
+          placeholder="Search by Centre Code (e.g. TC-101), District..."
           style={{
             background: 'transparent',
             border: 'none',
@@ -48,7 +56,7 @@ export const Header: React.FC<HeaderProps> = ({ wsConnected, onRefresh, openAler
       </div>
 
       {/* Right Command Strip */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
         {/* WebSocket Realtime Status */}
         <div style={{
           display: 'flex',
@@ -113,11 +121,11 @@ export const Header: React.FC<HeaderProps> = ({ wsConnected, onRefresh, openAler
           )}
         </div>
 
-        {/* Officer Profile Badge */}
+        {/* RBAC Role Switcher */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
+          gap: '8px',
           paddingLeft: '12px',
           borderLeft: '1px solid var(--border-subtle)'
         }}>
@@ -136,15 +144,32 @@ export const Header: React.FC<HeaderProps> = ({ wsConnected, onRefresh, openAler
           }}>
             <Shield size={16} />
           </div>
+
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
-              Monitoring Officer
+            <span style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Active RBAC Role
             </span>
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-              National Cell • MSDE
-            </span>
+            <select
+              value={currentRole}
+              onChange={(e) => onRoleChange(e.target.value)}
+              style={{
+                backgroundColor: 'transparent',
+                border: 'none',
+                color: 'var(--text-primary)',
+                fontSize: '12px',
+                fontWeight: 600,
+                outline: 'none',
+                cursor: 'pointer',
+                padding: 0
+              }}
+            >
+              <option value="MINISTRY_OFFICER" style={{ background: '#111827', color: '#fff' }}>Ministry Officer (National)</option>
+              <option value="DISTRICT_OFFICER" style={{ background: '#111827', color: '#fff' }}>District Officer (Adjudicator)</option>
+              <option value="CENTRE_ADMIN" style={{ background: '#111827', color: '#fff' }}>Centre Principal (TC-101)</option>
+            </select>
           </div>
         </div>
+
       </div>
     </header>
   );
