@@ -161,6 +161,7 @@ export function App() {
             <AlertsScreen 
               alerts={alerts}
               onSelectAlert={setSelectedAlert}
+              onRefresh={loadData}
             />
           )}
 

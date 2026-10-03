@@ -1,19 +1,38 @@
 import React, { useState } from 'react';
 import { ComplianceEvent } from '../types';
-import { AlertCircle, Filter, Eye, Clock, CheckCircle2 } from 'lucide-react';
+import { AlertCircle, Filter, Eye, Clock, CheckCircle2, ShieldAlert, RefreshCw } from 'lucide-react';
+import { triggerSlaEscalation } from '../api';
 
 interface AlertsScreenProps {
   alerts: ComplianceEvent[];
   onSelectAlert: (alert: ComplianceEvent) => void;
+  onRefresh?: () => void;
 }
 
-export const AlertsScreen: React.FC<AlertsScreenProps> = ({ alerts, onSelectAlert }) => {
+export const AlertsScreen: React.FC<AlertsScreenProps> = ({ alerts, onSelectAlert, onRefresh }) => {
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [escalating, setEscalating] = useState<boolean>(false);
+  const [escalateMessage, setEscalateMessage] = useState<string | null>(null);
 
   const filteredAlerts = alerts.filter(a => {
     if (statusFilter === 'ALL') return true;
     return a.status === statusFilter;
   });
+
+  const handleRunEscalation = async () => {
+    setEscalating(true);
+    setEscalateMessage(null);
+    try {
+      const res = await triggerSlaEscalation();
+      setEscalateMessage(`SLA Scan Complete: ${res.escalated_count} critical alert(s) auto-escalated to State.`);
+      if (onRefresh) onRefresh();
+      setTimeout(() => setEscalateMessage(null), 4000);
+    } catch (e: any) {
+      setEscalateMessage(`Escalation check error: ${e.message}`);
+    } finally {
+      setEscalating(false);
+    }
+  };
 
   const getSeverityBadgeClass = (sev: string) => {
     switch (sev) {
@@ -30,13 +49,18 @@ export const AlertsScreen: React.FC<AlertsScreenProps> = ({ alerts, onSelectAler
       case 'UNDER_REVIEW': return <span className="status-badge review">UNDER REVIEW</span>;
       case 'CONFIRMED': return <span className="status-badge high">CONFIRMED VIOLATION</span>;
       case 'DISMISSED': return <span className="status-badge normal">DISMISSED</span>;
+      case 'ESCALATED_TO_STATE': return (
+        <span className="status-badge critical" style={{ backgroundColor: 'rgba(239, 68, 68, 0.25)', border: '1px solid #ef4444', color: '#f87171' }}>
+          ESCALATED TO STATE
+        </span>
+      );
       default: return <span className="status-badge info">{status}</span>;
     }
   };
 
   return (
     <div>
-      <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)' }}>
             Compliance Discrepancy Alerts
@@ -46,36 +70,77 @@ export const AlertsScreen: React.FC<AlertsScreenProps> = ({ alerts, onSelectAler
           </p>
         </div>
 
-        {/* Filter Tabs */}
-        <div style={{
-          display: 'flex',
-          gap: '6px',
-          backgroundColor: 'var(--bg-secondary)',
-          border: '1px solid var(--border-subtle)',
-          padding: '4px',
-          borderRadius: '8px'
-        }}>
-          {['ALL', 'NEW', 'UNDER_REVIEW', 'CONFIRMED', 'DISMISSED'].map((filter) => (
-            <button
-              key={filter}
-              onClick={() => setStatusFilter(filter)}
-              style={{
-                backgroundColor: statusFilter === filter ? 'var(--bg-card-hover)' : 'transparent',
-                color: statusFilter === filter ? 'var(--accent-cyan)' : 'var(--text-secondary)',
-                border: 'none',
-                padding: '6px 12px',
-                borderRadius: '6px',
-                fontSize: '12px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.15s ease'
-              }}
-            >
-              {filter.replace(/_/g, ' ')}
-            </button>
-          ))}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <button
+            onClick={handleRunEscalation}
+            disabled={escalating}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: 'rgba(220, 38, 38, 0.15)',
+              border: '1px solid rgba(220, 38, 38, 0.4)',
+              color: 'var(--status-critical)',
+              padding: '6px 12px',
+              borderRadius: '6px',
+              fontSize: '12px',
+              fontWeight: 600,
+              cursor: 'pointer'
+            }}
+          >
+            <ShieldAlert size={14} />
+            <span>{escalating ? 'Scanning SLA...' : 'Run SLA Escalation Scan'}</span>
+          </button>
+
+          {/* Filter Tabs */}
+          <div style={{
+            display: 'flex',
+            gap: '4px',
+            backgroundColor: 'var(--bg-secondary)',
+            border: '1px solid var(--border-subtle)',
+            padding: '4px',
+            borderRadius: '8px'
+          }}>
+            {['ALL', 'NEW', 'UNDER_REVIEW', 'ESCALATED_TO_STATE', 'CONFIRMED', 'DISMISSED'].map((filter) => (
+              <button
+                key={filter}
+                onClick={() => setStatusFilter(filter)}
+                style={{
+                  backgroundColor: statusFilter === filter ? 'var(--bg-card-hover)' : 'transparent',
+                  color: statusFilter === filter ? 'var(--accent-cyan)' : 'var(--text-secondary)',
+                  border: 'none',
+                  padding: '6px 10px',
+                  borderRadius: '6px',
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                {filter.replace(/_/g, ' ')}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
+
+      {escalateMessage && (
+        <div style={{
+          backgroundColor: 'rgba(239, 68, 68, 0.12)',
+          border: '1px solid rgba(239, 68, 68, 0.3)',
+          borderRadius: '6px',
+          padding: '8px 14px',
+          marginBottom: '16px',
+          fontSize: '12px',
+          color: 'var(--status-critical)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px'
+        }}>
+          <ShieldAlert size={14} />
+          <span>{escalateMessage}</span>
+        </div>
+      )}
 
       {/* Alerts Table */}
       <div style={{

@@ -90,28 +90,32 @@ Evaluated across 10 held-out benchmark scenarios (Normal, Occluded, Empty, Crowd
 ```text
 SIH 2.0/
 ├── backend/                  # FastAPI backend server
-│   ├── api/                  # REST routers (centres, cameras, attendance, ai_ingest, alerts, demo)
+│   ├── api/                  # REST routers (centres, cameras, attendance, ai_ingest, alerts, settings, demo)
 │   ├── db/                   # Database session & demo seeding script
 │   ├── models/               # SQLAlchemy models & Pydantic v2 schemas
-│   ├── services/             # Compliance rules, alert engine, evidence storage, camera health
-│   └── tests/                # Automated pytest suite (100% pass rate)
+│   ├── services/             # Compliance rules, alert engine, evidence, camera health, escalation
+│   └── tests/                # Automated pytest suite (10/10 passed)
 ├── frontend/                 # React + TypeScript + Vite GovTech Dashboard
-│   ├── src/components/       # Header, Sidebar, KPIStrip, AlertReviewModal
-│   ├── src/screens/          # Overview, Centres, LiveCameras, Alerts, Audit
+│   ├── src/components/       # Header, Sidebar, KPIStrip, AlertReviewModal, CameraFusionModal, ROIConfigModal
+│   ├── src/screens/          # Overview, Centres, LiveCameras, Alerts, Analytics, Audit, Settings
 │   └── src/index.css         # GovTech dark-first design system tokens
 ├── ai/                       # Computer vision & temporal intelligence
 │   ├── tracking/             # MultiObjectTracker (ByteTrack logic)
 │   ├── attendance/           # AttendanceSessionTracker (ROI dwell state machine)
-│   ├── infrastructure/       # InfrastructureMonitor (sliding window consistency)
+│   ├── infrastructure/       # InfrastructureMonitor, CameraTrustDetector, ActivityReasoner
+│   ├── fusion/               # MultiCameraFusionEngine (spatial overlap de-duplication)
 │   ├── datasets/             # Synthetic classroom scenario generator
 │   ├── evaluation/           # Benchmark evaluation harness (MAE, Precision, Recall)
 │   └── inference.py          # Master Edge Inference Pipeline with face blur
 ├── edge/                     # Low-bandwidth edge agent & offline resilience
 │   ├── agent.py              # Standalone edge daemon
+│   ├── stream_capture.py     # Threaded RTSP/IP camera reader with drop-frame latency prevention
 │   ├── spool.py              # Local SQLite queue (edge/spool.db)
 │   ├── sync.py               # Recovery batch synchronizer
 │   └── test_resilience.py    # Automated offline disconnection & recovery test
-├── docs/                     # Specifications & evaluation reports
+├── docs/                     # Specifications, evaluation reports & presentation
+│   ├── EVALUATION_REPORT.md  # Benchmark calibration & accuracy metrics
+│   └── JURY_PRESENTATION_GUIDE.md # 5-minute SIH winning presentation & demo script
 ├── run_pipeline_demo.sh      # Master one-command demo runner script
 └── docker-compose.yml        # Multi-container deployment configuration
 ```

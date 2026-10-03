@@ -81,3 +81,12 @@ def test_demo_scenario_trigger():
     assert res.status_code == 200
     assert res.json()["status"] == "SUCCESS"
     assert res.json()["type"] == "ATTENDANCE_MISMATCH"
+
+def test_alert_auto_escalation():
+    # Trigger an escalation check with force_hours=0 so newly created critical alert escalates immediately
+    res = client.post("/api/alerts/escalate-pending?force_hours=0")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "SUCCESS"
+    assert "escalated_count" in data
+

@@ -76,3 +76,29 @@ async def review_alert(
     })
 
     return event
+
+@router.post("/escalate-pending")
+async def trigger_sla_escalations(
+    force_hours: Optional[float] = Query(None, description="Override SLA hours for testing"),
+    db: Session = Depends(get_db)
+):
+    """
+    Evaluates unreviewed critical compliance alerts against the governance SLA threshold.
+    Any alerts exceeding the threshold are automatically escalated to State Vigilance.
+    """
+    from backend.services.escalation import AlertEscalationService
+    escalated = AlertEscalationService.process_pending_escalations(db, force_hours=force_hours)
+    
+    if escalated:
+        await ws_manager.broadcast({
+            "type": "ALERTS_AUTO_ESCALATED",
+            "count": len(escalated),
+            "escalated": escalated
+        })
+
+    return {
+        "status": "SUCCESS",
+        "escalated_count": len(escalated),
+        "escalated_records": escalated
+    }
+

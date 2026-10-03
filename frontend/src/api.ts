@@ -116,3 +116,13 @@ export async function submitReportedAttendance(data: {
   if (!res.ok) throw new Error('Failed to submit reported attendance');
   return res.json();
 }
+
+export async function triggerSlaEscalation(forceHours?: number): Promise<any> {
+  const url = forceHours !== undefined 
+    ? `${BASE_URL}/alerts/escalate-pending?force_hours=${forceHours}`
+    : `${BASE_URL}/alerts/escalate-pending`;
+  const res = await fetch(url, { method: 'POST' });
+  if (!res.ok) throw new Error('Failed to run SLA escalation check');
+  return res.json();
+}
+
