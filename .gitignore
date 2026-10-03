@@ -1,0 +1,29 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.db
+*.sqlite3
+
+# Node / Frontend
+node_modules/
+.next/
+dist/
+build/
+.env.local
+.env.*.local
+
+# IDE & OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# AI & Data
+models/*.pt
+models/*.onnx
+datasets/raw/
+evidence_storage/
