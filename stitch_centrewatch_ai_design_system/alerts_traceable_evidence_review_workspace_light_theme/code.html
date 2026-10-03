@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "on-primary-container": "#eeefff",
+          "surface-tint": "#0053db",
+          "surface-container-highest": "#d3e4fe",
+          "surface": "#f8f9ff",
+          "surface-dim": "#cbdbf5",
+          "on-secondary-fixed-variant": "#3f465c",
+          "primary-fixed-dim": "#b4c5ff",
+          "surface-container-lowest": "#ffffff",
+          "secondary-fixed": "#dae2fd",
+          "surface-bright": "#f8f9ff",
+          "on-background": "#0b1c30",
+          "on-tertiary-container": "#e7f2ff",
+          "on-surface-variant": "#434655",
+          "inverse-surface": "#213145",
+          "on-tertiary-fixed-variant": "#004b73",
+          "primary-fixed": "#dbe1ff",
+          "outline-variant": "#c3c6d7",
+          "tertiary-fixed": "#cce5ff",
+          "background": "#f8f9ff",
+          "on-primary": "#ffffff",
+          "outline": "#737686",
+          "surface-container-low": "#eff4ff",
+          "on-tertiary-fixed": "#001d31",
+          "on-secondary": "#ffffff",
+          "on-primary-fixed": "#00174b",
+          "inverse-on-surface": "#eaf1ff",
+          "secondary": "#565e74",
+          "inverse-primary": "#b4c5ff",
+          "tertiary-container": "#0073ae",
+          "on-secondary-container": "#5c647a",
+          "tertiary-fixed-dim": "#93ccff",
+          "error": "#ba1a1a",
+          "surface-container": "#e5eeff",
+          "on-error-container": "#93000a",
+          "surface-container-high": "#dce9ff",
+          "surface-variant": "#d3e4fe",
+          "tertiary": "#005a89",
+          "error-container": "#ffdad6",
+          "on-surface": "#0b1c30",
+          "primary": "#004ac6",
+          "primary-container": "#2563eb",
+          "secondary-fixed-dim": "#bec6e0",
+          "on-secondary-fixed": "#131b2e",
+          "secondary-container": "#dae2fd",
+          "on-primary-fixed-variant": "#003ea8",
+          "on-error": "#ffffff",
+          "on-tertiary": "#ffffff"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.125rem",
+          "lg": "0.25rem",
+          "xl": "0.5rem",
+          "full": "0.75rem"
+        },
+        "spacing": {
+          "margin-md": "1.5rem",
+          "gutter-lg": "1.5rem",
+          "space-md": "1rem",
+          "gutter": "1rem",
+          "space-xs": "0.25rem",
+          "space-lg": "1.5rem",
+          "space-sm": "0.5rem",
+          "margin": "1rem",
+          "space-xl": "2rem",
+          "margin-lg": "2rem"
+        },
+        "fontFamily": {
+          "body-lg": [
+            "Inter"
+          ],
+          "body-md": [
+            "Inter"
+          ],
+          "headline-lg": [
+            "Inter"
+          ],
+          "headline-sm": [
+            "Inter"
+          ],
+          "label-sm": [
+            "JetBrains Mono"
+          ],
+          "headline-xl": [
+            "Inter"
+          ],
+          "body-sm": [
+            "Inter"
+          ],
+          "headline-md": [
+            "Inter"
+          ],
+          "headline-xl-mobile": [
+            "Inter"
+          ],
+          "label-md": [
+            "JetBrains Mono"
+          ]
+        },
+        "fontSize": {
+          "body-lg": [
+            "16px",
+            {
+              "lineHeight": "24px",
+              "fontWeight": "400"
+            }
+          ],
+          "body-md": [
+            "14px",
+            {
+              "lineHeight": "20px",
+              "fontWeight": "400"
+            }
+          ],
+          "headline-lg": [
+            "24px",
+            {
+              "lineHeight": "32px",
+              "fontWeight": "600"
+            }
+          ],
+          "headline-sm": [
+            "16px",
+            {
+              "lineHeight": "24px",
+              "fontWeight": "600"
+            }
+          ],
+          "label-sm": [
+            "11px",
+            {
+              "lineHeight": "16px",
+              "fontWeight": "500"
+            }
+          ],
+          "headline-xl": [
+            "32px",
+            {
+              "lineHeight": "40px",
+              "fontWeight": "700"
+            }
+          ],
+          "body-sm": [
+            "13px",
+            {
+              "lineHeight": "18px",
+              "fontWeight": "400"
+            }
+          ],
+          "headline-md": [
+            "20px",
+            {
+              "lineHeight": "28px",
+              "fontWeight": "600"
+            }
+          ],
+          "headline-xl-mobile": [
+            "26px",
+            {
+              "lineHeight": "34px",
+              "fontWeight": "700"
+            }
+          ],
+          "label-md": [
+            "13px",
+            {
+              "lineHeight": "18px",
+              "fontWeight": "500"
+            }
+          ]
+        }
+      },
+    },
+  }
+</script></head><body class="bg-[#F8FAFC] font-body-md text-slate-900 antialiased selection:bg-blue-600 selection:text-white"><aside class="fixed left-0 top-0 h-full w-72 bg-white border-r border-slate-200 z-50 flex flex-col justify-between shadow-sm"><div class="flex flex-col flex-1 min-h-0"><div class="h-16 px-space-md flex items-center gap-space-sm border-b border-slate-100 bg-slate-50/70"><img alt="CentreWatch AI Emblem" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WgBs1BVpCPN5jMWZ74Tldp5I7-LVFTNGDIeNOxtdKpnK_dqEFCNDpzynZbkP6-bbbyCUzIRqG0-dr8GW4osw9bhkLm6NrJbwhbTiMW_Pu4dDQlgN6_NyZJkvTbfaESWe0CKGOmOxlV0ks1onXWho_J2GIEWONYIEllENHRx3hcMSIoHQoAgwubgequSiMiVrw8OTPq2gJnHhxt5YnK9eznuzj0ZpfDcZ1e3BheoZHVqXjcGH76YGSztw"/><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><span class="font-headline-md text-headline-md tracking-tight text-slate-900 font-semibold truncate">CentreWatch AI</span><span class="font-label-sm text-[11px] px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-medium border border-blue-200/60">v2.4</span></div><span class="font-label-md text-xs text-slate-500 truncate">MSDE · Gov of India</span></div></div><div class="px-space-md py-space-sm"><div class="flex items-center justify-between px-space-sm py-1.5 rounded-lg bg-emerald-50/70 border border-emerald-200/60"><div class="flex items-center gap-space-xs"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span><span class="font-label-sm text-[11px] text-emerald-800 uppercase tracking-wider font-semibold">National Mesh Live</span></div><span class="font-label-sm text-[11px] text-emerald-700 font-bold">99.8%</span></div></div><nav class="flex-1 px-space-sm space-y-0.5 overflow-y-auto"><a class="group flex items-center justify-between px-space-md py-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" data-path="overview" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-slate-700 transition-colors">grid_view</span><span class="font-body-md text-sm font-medium">Overview</span></div></a><a class="group flex items-center justify-between px-space-md py-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" data-path="centres" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-slate-700 transition-colors">apartment</span><span class="font-body-md text-sm font-medium">Centres</span></div><span class="font-label-sm text-xs text-slate-400 group-hover:text-slate-700 font-medium">482</span></a><a class="group flex items-center justify-between px-space-md py-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" data-path="live-cameras" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-slate-700 transition-colors">videocam</span><span class="font-body-md text-sm font-medium">Live Cameras</span></div><span class="flex items-center gap-1 font-label-sm text-[11px] text-emerald-600 font-bold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>REC</span></a><a class="group flex items-center justify-between px-space-md py-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" data-path="attendance" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-slate-700 transition-colors">fact_check</span><span class="font-body-md text-sm font-medium">Attendance</span></div></a><a class="group flex items-center justify-between px-space-md py-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" data-path="infrastructure" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-slate-700 transition-colors">domain_verification</span><span class="font-body-md text-sm font-medium">Infrastructure</span></div></a><a aria-current="page" class="group flex items-center justify-between px-space-md py-2 rounded-lg transition-colors bg-blue-50 text-blue-700 font-semibold border border-blue-200/50" data-path="alerts" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-red-600 group-hover:text-red-600 transition-colors">warning</span><span class="font-body-md text-sm font-semibold text-blue-900">Alerts</span></div><span class="px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-label-sm text-xs font-bold">14</span></a><a class="group flex items-center justify-between px-space-md py-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" data-path="reports" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-slate-700 transition-colors">summarize</span><span class="font-body-md text-sm font-medium">Reports</span></div></a><a class="group flex items-center justify-between px-space-md py-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" data-path="analytics" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-slate-700 transition-colors">insights</span><span class="font-body-md text-sm font-medium">Analytics</span></div></a><a class="group flex items-center justify-between px-space-md py-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" data-path="audit-log" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-slate-700 transition-colors">verified_user</span><span class="font-body-md text-sm font-medium">Audit Log</span></div></a><a class="group flex items-center justify-between px-space-md py-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" data-path="settings" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-slate-700 transition-colors">tune</span><span class="font-body-md text-sm font-medium">Settings</span></div></a></nav></div><div class="p-space-md space-y-space-sm bg-slate-50 border-t border-slate-200"><div class="p-space-sm rounded-lg bg-white border border-slate-200/80 shadow-xs space-y-space-xs"><div class="flex items-center justify-between"><span class="font-label-sm text-[11px] text-slate-500 uppercase tracking-wider">Edge Node Network</span><span class="font-label-sm text-[11px] text-emerald-600 font-bold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>SYNCED</span></div><div class="font-label-sm text-xs text-slate-800 font-medium truncate">1,428 Online · 12 Syncing</div><div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden"><div class="bg-blue-600 h-full w-[98.8%] rounded-full"></div></div></div><div class="flex items-center justify-between px-space-sm py-1"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-[18px] text-slate-400">speed</span><span class="font-body-sm text-xs text-slate-600 font-medium">Low-bandwidth</span></div><button class="w-8 h-4 rounded-full bg-slate-200 relative flex items-center px-0.5 transition-colors" type="button"><span class="w-3 h-3 rounded-full bg-slate-400 transition-transform"></span></button></div><a class="flex items-center gap-space-sm px-space-sm py-1.5 text-slate-500 hover:text-slate-900 font-body-sm text-xs font-medium transition-colors" href="#"><span class="material-symbols-outlined text-[18px]">help</span><span>Audit Compliance &amp; Docs</span></a></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-40 flex items-center justify-between px-gutter-lg"><div class="flex items-center gap-space-md min-w-0"><div class="flex items-center gap-space-xs bg-slate-100 hover:bg-slate-200/70 border border-slate-200 px-space-sm py-1.5 rounded-md text-slate-700 font-label-sm text-xs font-medium cursor-pointer transition-colors"><span class="material-symbols-outlined text-[16px] text-blue-600">explore</span><span>All India</span><span class="text-slate-400">/</span><span>Northern Zone</span><span class="text-slate-400">/</span><span class="text-slate-900 font-semibold">NCT Delhi</span><span class="material-symbols-outlined text-[16px] text-slate-400">arrow_drop_down</span></div><div class="hidden xl:flex items-center gap-space-xs px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200 font-label-sm text-[11px] text-emerald-800"><span class="material-symbols-outlined text-[14px] text-emerald-600">shield_lock</span><span class="tracking-wide font-semibold">PRIVACY PROTOCOL: VECTOR METRICS ONLY</span></div></div><div class="flex-1 max-w-xl mx-gutter-lg hidden lg:block"><div class="relative flex items-center"><span class="material-symbols-outlined absolute left-3 text-slate-400 text-[18px]">search</span><input class="w-full bg-slate-50 border border-slate-200 text-slate-900 font-body-sm text-sm pl-10 pr-48 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 placeholder:text-slate-400" placeholder="Search centres, camera UID, alerts, or audit ref (Ctrl+K)..." type="text"/><div class="absolute right-2 flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-700 font-label-sm text-[11px] font-semibold"><span class="material-symbols-outlined text-[14px]">verified</span><span>Aggregate Mode · No Facial ID</span></div></div></div><div class="flex items-center gap-gutter"><div class="hidden 2xl:flex items-center gap-space-md pl-space-xs font-label-sm text-xs"><div class="flex items-center gap-1.5 text-slate-500"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span><span>Pipeline: <strong class="text-emerald-700 font-semibold">24ms</strong></span></div><div class="text-slate-300">|</div><div class="text-slate-500">Sync: <span class="text-slate-800 font-medium">14:32:08 IST</span></div></div><div class="flex items-center gap-space-sm"><button class="relative p-2 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors border border-transparent hover:border-slate-200" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-600 ring-2 ring-white"></span></button><button class="p-2 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-colors border border-transparent hover:border-slate-200" type="button"><span class="material-symbols-outlined text-[20px]">terminal</span></button></div><div class="h-6 w-px bg-slate-200"></div><div class="flex items-center gap-space-sm pl-space-xs"><img alt="Dr. V. Ramanathan portrait" class="w-8 h-8 rounded-full object-cover ring-2 ring-blue-600/30" src="https://lh3.googleusercontent.com/aida/AEtjO1VsXi1rL90K2_gl5bux1NbFnmKqNY5NXZ6D9cwfCJ5geRjwX982OQ-1jdXqm1GiWdyv6muqgTopvHMP3EGXDSSS3WWrGdk4vP2_cM0cuGUbnzKEc2oRP9F-IQ7EL0GezvRVtJV_9FvTc14i1ZqSW-_RulULwgdUSnlsLnG2wUpW0aKNAOSRJGbP_ObCs244p2TyDxdBz9XTArITPBtJY0qJOuUmdoRxSBaLtOo-LFhSD5I8rxh2W-0fI78"/><div class="hidden md:flex flex-col text-left"><div class="flex items-center gap-1.5"><span class="font-body-md text-xs text-slate-900 font-semibold leading-tight">Dr. V. Ramanathan</span><span class="font-label-sm text-[10px] px-1 py-0.2 rounded bg-blue-100 text-blue-800 font-bold border border-blue-200">GoI</span></div><span class="font-label-sm text-[11px] text-slate-500 leading-tight">Director (IT &amp; Monitoring)</span></div><span class="material-symbols-outlined text-[18px] text-slate-400">unfold_more</span></div></div></header><main class="relative pt-16 bg-[#F8FAFC] min-h-screen"><div class="w-full px-gutter-lg py-gutter-lg"><div class="flex flex-col w-full">
+<!-- Operational Ribbon / Section Header -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md pb-space-lg">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<span class="px-2 py-0.5 rounded bg-red-50 text-red-700 border border-red-200 font-label-sm text-[11px] font-bold tracking-wider uppercase">Tier-1 Oversight</span>
+<span class="font-label-sm text-xs text-slate-500">REF: MSDE-CW-AUD-2025/W48</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-slate-900 font-bold tracking-tight">Operations Alert Management &amp; Traceable Evidence Review</h1>
+<p class="font-body-md text-body-md text-slate-600 max-w-4xl">Human-in-the-loop verification queue for AI-flagged compliance anomalies · Ministry of Skill Development &amp; Entrepreneurship</p>
+</div>
+<div class="flex items-center gap-space-sm bg-white px-space-md py-space-sm rounded-lg border border-slate-200 shadow-xs">
+<div class="flex items-center gap-space-xs text-slate-500">
+<span class="material-symbols-outlined text-[18px] text-slate-400">verified_user</span>
+<span class="font-label-sm text-xs">Evidence Integrity Ledger:</span>
+</div>
+<span class="font-label-sm text-xs text-emerald-700 font-bold flex items-center gap-1.5 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>SHA-256 IMMUTABLE
+      </span>
+</div>
+</div>
+<!-- Primary Controls & Filters Bar -->
+<div class="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md bg-white p-space-md rounded-lg border border-slate-200 shadow-xs mb-space-lg">
+<!-- Filter Tabs: Severity -->
+<div class="flex flex-wrap items-center gap-space-xs">
+<span class="font-body-sm text-xs font-semibold text-slate-500 uppercase tracking-wider mr-space-xs">Severity:</span>
+<button class="px-space-md py-1.5 rounded-md font-body-sm text-xs bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors font-medium border border-slate-200" type="button">
+        All <span class="font-label-sm text-[11px] ml-1 text-slate-500 font-semibold">56</span>
+</button>
+<button class="px-space-md py-1.5 rounded-md font-body-sm text-xs bg-[#FEF2F2] text-[#991B1B] font-bold border border-red-200 transition-colors flex items-center gap-1.5 shadow-xs" type="button">
+<span class="w-2 h-2 rounded-full bg-red-600"></span>Critical Anomaly <span class="font-label-sm text-[11px] px-1.5 py-0.2 bg-white/80 rounded border border-red-200 text-red-800">14</span>
+</button>
+<button class="px-space-md py-1.5 rounded-md font-body-sm text-xs bg-[#FFFBEB] text-[#92400E] hover:bg-amber-100 transition-colors font-medium border border-amber-200" type="button">
+        Moderate Review <span class="font-label-sm text-[11px] ml-1 text-amber-700 font-semibold">28</span>
+</button>
+<button class="px-space-md py-1.5 rounded-md font-body-sm text-xs bg-[#EFF6FF] text-[#1E40AF] hover:bg-blue-100 transition-colors font-medium border border-blue-200" type="button">
+        Low Info <span class="font-label-sm text-[11px] ml-1 text-blue-700 font-semibold">14</span>
+</button>
+</div>
+<!-- Right Controls: Status & Search -->
+<div class="flex flex-wrap items-center gap-space-sm">
+<div class="flex items-center gap-space-xs bg-slate-100 p-1 rounded-lg border border-slate-200">
+<button class="px-space-sm py-1 rounded-md font-body-sm text-xs bg-blue-600 text-white font-semibold shadow-xs" type="button">Pending (22)</button>
+<button class="px-space-sm py-1 rounded-md font-body-sm text-xs text-slate-600 hover:text-slate-900 font-medium" type="button">Investigating (18)</button>
+<button class="px-space-sm py-1 rounded-md font-body-sm text-xs text-slate-600 hover:text-slate-900 font-medium" type="button">Resolved (16)</button>
+</div>
+<div class="h-6 w-px bg-slate-200 hidden md:block"></div>
+<div class="flex items-center gap-space-xs bg-white border border-slate-200 px-space-sm py-1.5 rounded-md text-slate-600 font-label-sm text-xs">
+<span class="material-symbols-outlined text-[16px] text-slate-400">calendar_today</span>
+<span class="font-medium text-slate-800">Today · 27 Feb 2025</span>
+</div>
+<div class="flex items-center gap-space-xs bg-white border border-slate-200 px-space-sm py-1.5 rounded-md text-slate-600 font-label-sm text-xs">
+<span class="material-symbols-outlined text-[16px] text-slate-400">tune</span>
+<span class="font-medium text-slate-800">Delhi NCR (34)</span>
+</div>
+</div>
+</div>
+<!-- Dual Workspace Grid (45% Inbox / 55% Traceable Evidence Panel) -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
+<!-- LEFT PANE: Dense Alert Inbox (xl:col-span-5) -->
+<section aria-label="Alerts Queue" class="xl:col-span-5 flex flex-col bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
+<div class="flex items-center justify-between px-space-md py-space-sm bg-slate-50 border-b border-slate-200">
+<div class="flex items-center gap-space-sm">
+<span class="font-headline-md text-headline-md text-slate-900 font-bold">Triage Inbox</span>
+<span class="font-label-sm text-xs px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200 font-medium">Live Priority Queue</span>
+</div>
+<div class="flex items-center gap-space-xs text-slate-500 font-label-sm text-xs">
+<span>Sort: Confidence (Desc)</span>
+<span class="material-symbols-outlined text-[16px]">arrow_downward</span>
+</div>
+</div>
+<!-- Quick Operational Stats Bar -->
+<div class="grid grid-cols-3 gap-px bg-slate-200 border-b border-slate-200">
+<div class="p-space-sm bg-white flex flex-col">
+<span class="font-label-sm text-[11px] text-slate-500 uppercase tracking-wider">Critical Unassigned</span>
+<span class="font-label-md text-lg text-red-600 font-bold">06</span>
+</div>
+<div class="p-space-sm bg-white flex flex-col">
+<span class="font-label-sm text-[11px] text-slate-500 uppercase tracking-wider">Avg Resolution Time</span>
+<span class="font-label-md text-lg text-emerald-700 font-bold">14.2m</span>
+</div>
+<div class="p-space-sm bg-white flex flex-col">
+<span class="font-label-sm text-[11px] text-slate-500 uppercase tracking-wider">Gov Defensibility</span>
+<span class="font-label-md text-lg text-blue-700 font-bold">100%</span>
+</div>
+</div>
+<!-- Table Wrapper -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-label-sm text-xs uppercase tracking-wider">
+<th class="py-2.5 px-space-md font-semibold">Sev · Anomaly</th>
+<th class="py-2.5 px-space-sm font-semibold">Centre &amp; Location</th>
+<th class="py-2.5 px-space-sm font-semibold text-right">Conf</th>
+<th class="py-2.5 px-space-md font-semibold text-right">Action</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm divide-y divide-slate-100">
+<!-- Row 1: Active / Selected -->
+<tr class="bg-blue-50/50 border-l-4 border-l-blue-600 transition-colors cursor-pointer group">
+<td class="py-3 px-space-md">
+<div class="flex items-start gap-space-xs">
+<span class="w-2 h-2 mt-1.5 rounded-full bg-red-600 shrink-0 animate-pulse"></span>
+<div class="flex flex-col">
+<span class="font-body-md text-xs text-red-700 font-bold">Severe Attendance Deficit</span>
+<span class="font-label-sm text-xs text-slate-700 font-medium">-62% Trainee Presence</span>
+<span class="font-label-sm text-[11px] text-slate-400">CAM-042-EA01 · 10:42 AM</span>
+</div>
+</div>
+</td>
+<td class="py-3 px-space-sm align-top">
+<div class="flex flex-col">
+<span class="text-slate-900 font-semibold text-xs">PMKK Skill Centre</span>
+<span class="font-body-sm text-xs text-slate-500">Okhla Ph-III · South East Delhi</span>
+<span class="font-label-sm text-[11px] text-blue-700 font-medium">Room: Electronics Lab</span>
+</div>
+</td>
+<td class="py-3 px-space-sm text-right align-top">
+<div class="flex flex-col items-end">
+<span class="font-label-md text-xs text-slate-900 font-bold">97.4%</span>
+<span class="font-label-sm text-[10px] px-1.5 py-0.5 rounded bg-red-100 text-red-800 font-bold border border-red-200">PENDING</span>
+</div>
+</td>
+<td class="py-3 px-space-md text-right align-top">
+<button class="px-2.5 py-1 rounded bg-blue-600 text-white font-body-sm text-xs font-semibold hover:bg-blue-700 transition-colors shadow-xs" type="button">
+                  Review [1]
+                </button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="bg-white hover:bg-slate-50 transition-colors cursor-pointer group">
+<td class="py-3 px-space-md">
+<div class="flex items-start gap-space-xs">
+<span class="w-2 h-2 mt-1.5 rounded-full bg-red-600 shrink-0"></span>
+<div class="flex flex-col">
+<span class="font-body-md text-xs text-red-700 font-bold">Missing Equipment</span>
+<span class="font-label-sm text-xs text-slate-700 font-medium">Welding Simulator Unmounted</span>
+<span class="font-label-sm text-[11px] text-slate-400">CAM-018-WLD · 09:15 AM</span>
+</div>
+</div>
+</td>
+<td class="py-3 px-space-sm align-top">
+<div class="flex flex-col">
+<span class="text-slate-900 font-semibold text-xs">ITI Daryaganj</span>
+<span class="font-body-sm text-xs text-slate-500">Central Delhi · Zone 2</span>
+<span class="font-body-sm text-[11px] text-slate-400">Workshop Bay 03</span>
+</div>
+</td>
+<td class="py-3 px-space-sm text-right align-top">
+<div class="flex flex-col items-end">
+<span class="font-label-md text-xs text-slate-900 font-bold">94.1%</span>
+<span class="font-label-sm text-[10px] px-1.5 py-0.5 rounded bg-red-50 text-red-700 font-semibold border border-red-200">PENDING</span>
+</div>
+</td>
+<td class="py-3 px-space-md text-right align-top">
+<button class="px-2.5 py-1 rounded bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 font-body-sm text-xs font-semibold transition-colors" type="button">
+                  Inspect
+                </button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="bg-white hover:bg-slate-50 transition-colors cursor-pointer group">
+<td class="py-3 px-space-md">
+<div class="flex items-start gap-space-xs">
+<span class="w-2 h-2 mt-1.5 rounded-full bg-amber-500 shrink-0"></span>
+<div class="flex flex-col">
+<span class="font-body-md text-xs text-amber-800 font-bold">Camera Occlusion / Angle Tamper</span>
+<span class="font-label-sm text-xs text-slate-700 font-medium">Optical axis deviated &gt;40°</span>
+<span class="font-label-sm text-[11px] text-slate-400">CAM-104-LOB · 11:05 AM</span>
+</div>
+</div>
+</td>
+<td class="py-3 px-space-sm align-top">
+<div class="flex flex-col">
+<span class="text-slate-900 font-semibold text-xs">NTI Mayur Vihar</span>
+<span class="font-body-sm text-xs text-slate-500">East Delhi · Sector 1</span>
+<span class="font-body-sm text-[11px] text-slate-400">Corridor Entrance</span>
+</div>
+</td>
+<td class="py-3 px-space-sm text-right align-top">
+<div class="flex flex-col items-end">
+<span class="font-label-md text-xs text-slate-900 font-bold">98.6%</span>
+<span class="font-label-sm text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 font-semibold border border-amber-200">IN INVEST</span>
+</div>
+</td>
+<td class="py-3 px-space-md text-right align-top">
+<button class="px-2.5 py-1 rounded bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 font-body-sm text-xs font-semibold transition-colors" type="button">
+                  Inspect
+                </button>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="bg-white hover:bg-slate-50 transition-colors cursor-pointer group">
+<td class="py-3 px-space-md">
+<div class="flex items-start gap-space-xs">
+<span class="w-2 h-2 mt-1.5 rounded-full bg-slate-400 shrink-0"></span>
+<div class="flex flex-col">
+<span class="font-body-md text-xs text-slate-800 font-bold">Batch Timing Deviation</span>
+<span class="font-label-sm text-xs text-slate-700 font-medium">Class Started 45m Delay</span>
+<span class="font-label-sm text-[11px] text-slate-400">CAM-089-CR2 · 10:00 AM</span>
+</div>
+</div>
+</td>
+<td class="py-3 px-space-sm align-top">
+<div class="flex flex-col">
+<span class="text-slate-900 font-semibold text-xs">PMKK Dwarka</span>
+<span class="font-body-sm text-xs text-slate-500">South West Delhi</span>
+<span class="font-body-sm text-[11px] text-slate-400">Smart Classroom 02</span>
+</div>
+</td>
+<td class="py-3 px-space-sm text-right align-top">
+<div class="flex flex-col items-end">
+<span class="font-label-md text-xs text-slate-900 font-bold">92.0%</span>
+<span class="font-label-sm text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold border border-slate-200">PENDING</span>
+</div>
+</td>
+<td class="py-3 px-space-md text-right align-top">
+<button class="px-2.5 py-1 rounded bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 font-body-sm text-xs font-semibold transition-colors" type="button">
+                  Inspect
+                </button>
+</td>
+</tr>
+<!-- Row 5 -->
+<tr class="bg-white hover:bg-slate-50 transition-colors cursor-pointer group">
+<td class="py-3 px-space-md">
+<div class="flex items-start gap-space-xs">
+<span class="w-2 h-2 mt-1.5 rounded-full bg-slate-400 shrink-0"></span>
+<div class="flex flex-col">
+<span class="font-body-md text-xs text-slate-800 font-bold">Room Capacity Exceeded</span>
+<span class="font-label-sm text-xs text-slate-700 font-medium">+12 Trainees beyond sanction</span>
+<span class="font-label-sm text-[11px] text-slate-400">CAM-055-IT1 · 11:20 AM</span>
+</div>
+</div>
+</td>
+<td class="py-3 px-space-sm align-top">
+<div class="flex flex-col">
+<span class="text-slate-900 font-semibold text-xs">Skill Hub Shahdara</span>
+<span class="font-body-sm text-xs text-slate-500">East Delhi · District IV</span>
+<span class="font-body-sm text-[11px] text-slate-400">Computer Lab A</span>
+</div>
+</td>
+<td class="py-3 px-space-sm text-right align-top">
+<div class="flex flex-col items-end">
+<span class="font-label-md text-xs text-slate-900 font-bold">89.5%</span>
+<span class="font-label-sm text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold border border-slate-200">PENDING</span>
+</div>
+</td>
+<td class="py-3 px-space-md text-right align-top">
+<button class="px-2.5 py-1 rounded bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 font-body-sm text-xs font-semibold transition-colors" type="button">
+                  Inspect
+                </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer / Pagination -->
+<div class="flex items-center justify-between px-space-md py-space-sm bg-slate-50 border-t border-slate-200 text-slate-600 font-label-sm text-xs">
+<span>Showing 1-5 of 22 pending alerts</span>
+<div class="flex items-center gap-space-xs">
+<button class="p-1 rounded bg-white border border-slate-200 text-slate-500 hover:text-slate-800 shadow-xs" type="button"><span class="material-symbols-outlined text-[16px]">chevron_left</span></button>
+<span class="px-2.5 py-0.5 rounded bg-white border border-slate-200 text-blue-700 font-bold shadow-xs">1 / 5</span>
+<button class="p-1 rounded bg-white border border-slate-200 text-slate-500 hover:text-slate-800 shadow-xs" type="button"><span class="material-symbols-outlined text-[16px]">chevron_right</span></button>
+</div>
+</div>
+</section>
+<!-- RIGHT PANE: Traceable Evidence Review Panel (xl:col-span-7) -->
+<section aria-label="Evidence Review Workspace" class="xl:col-span-7 flex flex-col gap-space-md bg-white p-space-md rounded-lg border border-slate-200 shadow-sm">
+<!-- Alert Banner -->
+<div class="p-space-md rounded-lg bg-red-50/80 border border-red-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-md">
+<div class="w-10 h-10 rounded-lg bg-red-600 flex items-center justify-center shrink-0 shadow-xs">
+<span class="material-symbols-outlined text-white text-[24px]">crisis_alert</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-md text-headline-md text-red-900 font-bold">CRITICAL ANOMALY: Trainee Attendance Deficit</span>
+<span class="font-label-sm text-[11px] px-1.5 py-0.5 rounded bg-red-200 text-red-900 font-bold">P0</span>
+</div>
+<span class="font-body-sm text-xs text-red-800">Inference Confidence: <strong class="text-red-950 font-bold">97.4% (Exceeds 90% Regulatory Threshold)</strong></span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-xs text-slate-500 bg-white/70 px-2 py-1 rounded border border-red-200">Ticket: CW-DL-4920</span>
+<button class="p-1.5 rounded-md hover:bg-red-100 text-red-700 transition-colors" title="Export Raw Telemetry JSON" type="button">
+<span class="material-symbols-outlined text-[18px]">download</span>
+</button>
+</div>
+</div>
+<!-- Centre Context Meta Header -->
+<div class="flex flex-wrap items-center justify-between gap-space-sm bg-slate-50 px-space-md py-space-sm rounded-lg border border-slate-200">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-blue-600 text-[20px]">apartment</span>
+<div class="flex flex-col">
+<span class="font-body-md text-sm text-slate-900 font-bold">PMKK Skill Centre - Okhla Ph-III <span class="font-label-sm text-xs text-slate-500 font-normal">[DL-OKH-042]</span></span>
+<span class="font-body-sm text-xs text-slate-600">Sector: Electronics &amp; Hardware · Room: Electronics Assembly Lab</span>
+</div>
+</div>
+<div class="flex items-center gap-space-md font-label-sm text-xs">
+<div class="flex flex-col text-right">
+<span class="text-slate-400">Assigned Inspector</span>
+<span class="text-slate-800 font-semibold">Rajiv S. (Zone North)</span>
+</div>
+<div class="flex flex-col text-right">
+<span class="text-slate-400">Scheme Sanction</span>
+<span class="text-blue-700 font-semibold">PMKVY 4.0 Subsidized</span>
+</div>
+</div>
+</div>
+<!-- Evidence Visualizer: Dual-Timestamp Split Frame -->
+<div class="flex flex-col bg-slate-900 rounded-lg overflow-hidden border border-slate-800 shadow-inner">
+<!-- Privacy Protocol Ribbon -->
+<div class="flex items-center justify-between px-space-md py-1.5 bg-slate-950/90 text-slate-300 border-b border-slate-800">
+<div class="flex items-center gap-space-xs font-label-sm text-[11px] text-emerald-400">
+<span class="material-symbols-outlined text-[16px]">privacy_tip</span>
+<span class="font-semibold tracking-wide">PRIVACY PROTOCOL V2.4: ANONYMIZED POLYGON CENTROID DETECTION ACTIVE</span>
+</div>
+<span class="font-label-sm text-[11px] text-slate-400">NO BIOMETRIC/FACIAL ID LOGGED</span>
+</div>
+<!-- Split Snapshots Container -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-px bg-slate-800 p-px">
+<!-- Snapshot A: 10:15 AM -->
+<div class="relative bg-slate-900 rounded-none overflow-hidden flex flex-col group">
+<div class="relative w-full h-56 bg-slate-950">
+<img class="w-full h-full object-cover" data-alt="A vocational electronics assembly laboratory in New Delhi with multiple empty blue workbenches, showing only five trainees seated spaced apart with semi-transparent cyan bounding boxes over torso areas, security camera angle with high technical contrast." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcwIRoMLZw9xqm21wU8wIbd_jS1vvZ2WIswhIuhzGWmhqJIlJsW30RHHgnrBrGyO-MvU5LZno-2l-yT0Ul0FrS_UHjUqMgUdp_84eX4pT3OVHCy7cGpJL61P5alhat9GQzX-KFitU7pHSoB8InvK_Pg5I3tMh58XlaJoiYL-GshMS252_QnxtZ2B3mMgfzx6MIP3I4VEOpMzoK7iiGK1QcNIMNq7teUIcfUsPYm7MGCOGoGpbzom3x"/>
+<!-- Anonymized Vector Simulation Overlays -->
+<div class="absolute inset-0 pointer-events-none p-4 flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="px-2 py-0.5 rounded bg-slate-900/85 border border-slate-700 font-label-sm text-[11px] text-sky-400 font-semibold backdrop-blur-sm">
+                    T1 · 10:15:22 IST
+                  </span>
+<span class="px-1.5 py-0.5 rounded bg-slate-900/85 border border-slate-700 font-label-sm text-[11px] text-emerald-400 font-semibold backdrop-blur-sm">
+                    Agg. Count: 14 Trainees
+                  </span>
+</div>
+<!-- Vector graphic simulation indicator -->
+<div class="bg-slate-900/80 border border-slate-700 p-2 rounded backdrop-blur-sm max-w-xs self-start">
+<div class="flex items-center gap-1 font-label-sm text-[11px] text-slate-300">
+<span class="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse"></span>
+<span>Centroid Track: CLUSTER-01 (14 pts)</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between px-space-sm py-1.5 bg-slate-950 text-slate-400 font-label-sm text-[11px]">
+<span>Primary Node: CAM-042-EA01</span>
+<span class="text-slate-500 font-medium">Roster Exp: 38</span>
+</div>
+</div>
+<!-- Snapshot B: 10:45 AM -->
+<div class="relative bg-slate-900 rounded-none overflow-hidden flex flex-col group">
+<div class="relative w-full h-56 bg-slate-950">
+<img class="w-full h-full object-cover" data-alt="The same vocational training lab 30 minutes later at 10:45 AM, wide angle surveillance perspective, identical empty workbenches with soldering stations, showing fourteen students with geometric vector polygon outlines and red bounding boxes signaling persistent absence discrepancy." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgogypSgcjDi9rqvNTla1rTMnGPbCYVp9B7VxMSL6VUEzwz313rthyN4-sUND1kzhDWyYiqlCfD7QhQCRLBQU7sCSr98saZqoSr11uBk8wEnm5RAm5Sfa1PkUPmF3psprwG-69t0dyKhfGa7wn487i6mWfJIYPJFeGR8aVL6_O_2cwdTBfVS3BBumTyr062cF0Saiwu0tHJTt232-Cr34BxirYmNFyQ4152pXoi7PHCLmqECCUp7Pn"/>
+<!-- Anonymized Vector Simulation Overlays -->
+<div class="absolute inset-0 pointer-events-none p-4 flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="px-2 py-0.5 rounded bg-slate-900/85 border border-slate-700 font-label-sm text-[11px] text-red-400 font-semibold backdrop-blur-sm">
+                    T2 · 10:45:08 IST (+30m Delta)
+                  </span>
+<span class="px-1.5 py-0.5 rounded bg-red-950/80 border border-red-700 font-label-sm text-[11px] text-red-300 font-bold backdrop-blur-sm">
+                    Agg. Count: 14 Trainees
+                  </span>
+</div>
+<div class="bg-slate-900/80 border border-slate-700 p-2 rounded backdrop-blur-sm max-w-xs self-start">
+<div class="flex items-center gap-1 font-label-sm text-[11px] text-red-400 font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+<span>Persistent Absence Confirmed (0% change)</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between px-space-sm py-1.5 bg-slate-950 text-slate-400 font-label-sm text-[11px]">
+<span>Verification Window Elapsed</span>
+<span class="text-red-400 font-bold">-24 Missing Trainees</span>
+</div>
+</div>
+</div>
+<!-- Frame Timeline Scrubber bar -->
+<div class="px-space-md py-2 bg-slate-950 flex items-center justify-between gap-space-md font-label-sm text-xs text-slate-400">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-blue-400">play_arrow</span>
+<span>TIMELINE SYNC (10:00:00 - 10:45:00)</span>
+</div>
+<div class="flex-1 max-w-md bg-slate-800 h-1.5 rounded-full overflow-hidden relative">
+<div class="bg-red-500 h-full w-[100%] rounded-full"></div>
+</div>
+<span class="text-slate-200 font-semibold">45.0 Continuous Min</span>
+</div>
+</div>
+<!-- Structured Operational Facts Grid (Defensibility Metrics) -->
+<div class="grid grid-cols-2 md:grid-cols-3 gap-space-sm">
+<div class="p-space-sm rounded-lg bg-slate-50 border border-slate-200 flex flex-col">
+<span class="font-label-sm text-[11px] text-slate-500 uppercase tracking-wider font-semibold">Self-Reported Biometric</span>
+<div class="flex items-baseline gap-space-xs mt-1">
+<span class="font-label-md text-xl text-slate-900 font-bold">38</span>
+<span class="font-body-sm text-xs text-slate-500">Trainees Signed In</span>
+</div>
+<span class="font-label-sm text-[11px] text-slate-400 mt-0.5">Biometric Machine UID: AEBAS-OKH-02</span>
+</div>
+<div class="p-space-sm rounded-lg bg-slate-50 border border-slate-200 flex flex-col">
+<span class="font-label-sm text-[11px] text-slate-500 uppercase tracking-wider font-semibold">AI Continuous Headcount</span>
+<div class="flex items-baseline gap-space-xs mt-1">
+<span class="font-label-md text-xl text-emerald-700 font-bold">14</span>
+<span class="font-body-sm text-xs text-slate-500">Physical Bodies</span>
+</div>
+<span class="font-label-sm text-[11px] text-emerald-600 font-medium mt-0.5">Vector Centroid Persistence: 100%</span>
+</div>
+<div class="p-space-sm rounded-lg bg-[#FEF2F2] border border-red-200 flex flex-col">
+<span class="font-label-sm text-[11px] text-[#991B1B] uppercase tracking-wider font-bold">Variance Discrepancy</span>
+<div class="flex items-baseline gap-space-xs mt-1">
+<span class="font-label-md text-xl text-red-700 font-bold">-24</span>
+<span class="font-body-sm text-xs text-red-700 font-bold">(-63.1% Deficit)</span>
+</div>
+<span class="font-label-sm text-[11px] text-red-700 font-semibold mt-0.5">Ghost Trainee Threshold Exceeded</span>
+</div>
+<div class="p-space-sm rounded-lg bg-slate-50 border border-slate-200 flex flex-col">
+<span class="font-label-sm text-[11px] text-slate-500 uppercase tracking-wider font-semibold">Observation Period</span>
+<span class="font-label-md text-sm text-slate-900 font-bold mt-1">45 Continuous Min</span>
+<span class="font-label-sm text-[11px] text-slate-400 mt-0.5">Min Required: 30 Min Rule</span>
+</div>
+<div class="p-space-sm rounded-lg bg-slate-50 border border-slate-200 flex flex-col">
+<span class="font-label-sm text-[11px] text-slate-500 uppercase tracking-wider font-semibold">Hardware Telemetry</span>
+<span class="font-label-md text-sm text-slate-900 font-bold mt-1">CAM-042-EA01 (1080p)</span>
+<span class="font-label-sm text-[11px] text-emerald-600 font-semibold mt-0.5">Tamper: CLEAN · 25.0 FPS</span>
+</div>
+<div class="p-space-sm rounded-lg bg-slate-50 border border-slate-200 flex flex-col">
+<span class="font-label-sm text-[11px] text-slate-500 uppercase tracking-wider font-semibold">Inference Node</span>
+<span class="font-label-md text-sm text-slate-900 font-bold mt-1">EDGE-OKH-01</span>
+<span class="font-label-sm text-[11px] text-slate-400 mt-0.5">Gov-Model: v4.2.1-Prod</span>
+</div>
+</div>
+<!-- Explainability Callout: "Why was this flagged?" -->
+<div class="p-space-md rounded-lg bg-blue-50/70 border border-blue-200/80 flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-blue-900 font-headline-sm text-sm font-bold">
+<span class="material-symbols-outlined text-[18px] text-blue-700">psychology</span>
+<span>Why was this flagged? (Automated Inference Rationale)</span>
+</div>
+<p class="font-body-md text-sm text-slate-700 leading-relaxed">
+          The continuous observation window exceeded the regulatory 30-minute threshold. The automated aggregate detection registered fewer than 16 physical individuals across 45 continuous minutes, while the centre's biometric upload certified 38 attendees present for Batch EL-2025-B4. Hardware health checks confirm zero camera occlusion, lighting degradation, or frame drops during this timeframe.
+        </p>
+<div class="flex items-center gap-space-md pt-space-xs text-slate-500 font-label-sm text-xs border-t border-blue-200/60 mt-1">
+<span class="font-medium text-slate-700">Rule ID: RULE-MSDE-ATT-04</span>
+<span>·</span>
+<span>Telemetry Hash: 0x8f2a...c31b</span>
+<span>·</span>
+<span class="text-emerald-700 font-semibold">Gov Law Section 14 Compliant</span>
+</div>
+</div>
+<!-- Action Panel: Full Human-In-The-Loop Audit Sign-Off -->
+<div class="p-space-md rounded-lg bg-slate-50 border border-slate-200 flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-blue-700 text-[20px]">gavel</span>
+<span class="font-body-md text-sm text-slate-900 font-bold">Statutory Review Sign-off</span>
+</div>
+<span class="font-label-sm text-xs text-slate-500">Signatory: Dr. V. Ramanathan (ID: 9942-GoI)</span>
+</div>
+<!-- Mandatory Note -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-body-sm text-xs text-slate-700 font-semibold flex items-center justify-between">
+<span>Mandatory Audit Justification &amp; Findings Note:</span>
+<span class="font-label-sm text-[11px] text-slate-400">Character minimum: 25</span>
+</label>
+<textarea class="w-full bg-white border border-slate-200 text-slate-900 font-body-sm text-sm p-space-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 placeholder:text-slate-400 shadow-xs" placeholder="Enter formal findings for the Ministry audit register (e.g., 'Biometric mismatch verified against camera telemetry; notice of deduction issued under Rule 12...')." rows="2">Attendance discrepancy confirmed via dual-angle edge telemetry. Roster reflects 38 trainees; physical room occupants count remains at 14 without plausible occlusion. Withholding batch disbursement tranches pending physical verification.</textarea>
+</div>
+<!-- Decision Action Buttons -->
+<div class="flex flex-col sm:flex-row items-center justify-between gap-space-sm pt-space-xs">
+<div class="flex flex-wrap items-center gap-space-sm w-full sm:w-auto">
+<!-- Primary Action: Confirm Discrepancy -->
+<button class="flex-1 sm:flex-initial px-space-md py-2 rounded-lg bg-red-600 text-white font-body-md text-sm font-semibold hover:bg-red-700 transition-colors flex items-center justify-center gap-space-xs shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span>Confirm Discrepancy &amp; Deduct</span>
+<span class="font-label-sm text-xs opacity-80">[Ctrl+Enter]</span>
+</button>
+<!-- Secondary Action: Schedule Field Inspection -->
+<button class="flex-1 sm:flex-initial px-space-md py-2 rounded-lg bg-white border border-slate-300 text-slate-800 font-body-md text-sm font-medium hover:bg-slate-50 transition-colors flex items-center justify-center gap-space-xs shadow-xs" type="button">
+<span class="material-symbols-outlined text-[18px] text-slate-500">person_pin_circle</span>
+<span>Schedule Field Inspector</span>
+</button>
+</div>
+<!-- Tertiary Action: Dismiss -->
+<button class="w-full sm:w-auto px-space-md py-2 rounded-lg bg-transparent hover:bg-slate-200/60 text-slate-600 hover:text-red-700 font-body-sm text-xs font-medium transition-colors flex items-center justify-center gap-space-xs" type="button">
+<span class="material-symbols-outlined text-[16px]">close</span>
+<span>Dismiss with Justification</span>
+</button>
+</div>
+<!-- Security / Cryptographic Footer -->
+<div class="flex flex-wrap items-center justify-between gap-space-xs pt-space-xs text-slate-500 font-label-sm text-[11px] border-t border-slate-200 mt-1">
+<div class="flex items-center gap-space-xs">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+<span>Action triggers MSDE Smart Contract state change (v2.4 Audit Log)</span>
+</div>
+<span class="font-medium text-slate-700">Digital Token: MSDE-eSIGN-2025-VALID</span>
+</div>
+</div>
+</section>
+</div>
+</div></div></main></div></body></html>

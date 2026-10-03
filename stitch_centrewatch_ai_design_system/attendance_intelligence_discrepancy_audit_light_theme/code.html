@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "on-primary-container": "#eeefff",
+          "surface-tint": "#0053db",
+          "surface-container-highest": "#e2e8f0",
+          "surface": "#f8fafc",
+          "surface-dim": "#cbdbf5",
+          "on-secondary-fixed-variant": "#3f465c",
+          "primary-fixed-dim": "#b4c5ff",
+          "surface-container-lowest": "#ffffff",
+          "secondary-fixed": "#dae2fd",
+          "surface-bright": "#f8f9ff",
+          "on-background": "#0b1c30",
+          "on-tertiary-container": "#e7f2ff",
+          "on-surface-variant": "#434655",
+          "inverse-surface": "#213145",
+          "on-tertiary-fixed-variant": "#004b73",
+          "primary-fixed": "#dbe1ff",
+          "outline-variant": "#cbd5e1",
+          "tertiary-fixed": "#cce5ff",
+          "background": "#f8fafc",
+          "on-primary": "#ffffff",
+          "outline": "#64748b",
+          "surface-container-low": "#ffffff",
+          "on-tertiary-fixed": "#001d31",
+          "on-secondary": "#ffffff",
+          "on-primary-fixed": "#00174b",
+          "inverse-on-surface": "#eaf1ff",
+          "secondary": "#565e74",
+          "inverse-primary": "#b4c5ff",
+          "tertiary-container": "#e0f2fe",
+          "on-secondary-container": "#5c647a",
+          "tertiary-fixed-dim": "#93ccff",
+          "error": "#b91c1c",
+          "surface-container": "#f1f5f9",
+          "on-error-container": "#7f1d1d",
+          "surface-container-high": "#e2e8f0",
+          "surface-variant": "#e2e8f0",
+          "tertiary": "#0284c7",
+          "error-container": "#fee2e2",
+          "on-surface": "#0f172a",
+          "primary": "#2563eb",
+          "primary-container": "#1d4ed8",
+          "secondary-fixed-dim": "#bec6e0",
+          "on-secondary-fixed": "#131b2e",
+          "secondary-container": "#eff6ff",
+          "on-primary-fixed-variant": "#003ea8",
+          "on-error": "#ffffff",
+          "on-tertiary": "#ffffff"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.125rem",
+          "lg": "0.25rem",
+          "xl": "0.5rem",
+          "full": "0.75rem"
+        },
+        "spacing": {
+          "margin-md": "1.5rem",
+          "gutter-lg": "1.5rem",
+          "space-md": "1rem",
+          "gutter": "1rem",
+          "space-xs": "0.25rem",
+          "space-lg": "1.5rem",
+          "space-sm": "0.5rem",
+          "margin": "1rem",
+          "space-xl": "2rem",
+          "margin-lg": "2rem"
+        },
+        "fontFamily": {
+          "mono-data-sm": [ "JetBrains Mono" ],
+          "mono-data-lg": [ "JetBrains Mono" ],
+          "label-md": [ "Inter" ],
+          "body-sm": [ "Inter" ],
+          "headline-md": [ "Inter" ],
+          "headline-lg": [ "Inter" ],
+          "headline-xl-mobile": [ "Inter" ],
+          "body-lg": [ "Inter" ],
+          "headline-xl": [ "Inter" ],
+          "body-md": [ "Inter" ],
+          "label-lg": [ "Inter" ],
+          "mono-data-md": [ "JetBrains Mono" ]
+        },
+        "fontSize": {
+          "mono-data-sm": [ "0.6875rem", { "lineHeight": "0.875rem", "letterSpacing": "0.02em", "fontWeight": "400" } ],
+          "mono-data-lg": [ "1.125rem", { "lineHeight": "1.5rem", "letterSpacing": "0", "fontWeight": "600" } ],
+          "label-md": [ "0.75rem", { "lineHeight": "1rem", "letterSpacing": "0.02em", "fontWeight": "500" } ],
+          "body-sm": [ "0.75rem", { "lineHeight": "1.125rem", "fontWeight": "400" } ],
+          "headline-md": [ "1.125rem", { "lineHeight": "1.5rem", "letterSpacing": "-0.01em", "fontWeight": "600" } ],
+          "headline-lg": [ "1.25rem", { "lineHeight": "1.75rem", "letterSpacing": "-0.015em", "fontWeight": "600" } ],
+          "headline-xl-mobile": [ "1.375rem", { "lineHeight": "1.75rem", "letterSpacing": "-0.01em", "fontWeight": "600" } ],
+          "body-lg": [ "1rem", { "lineHeight": "1.5rem", "fontWeight": "400" } ],
+          "headline-xl": [ "1.75rem", { "lineHeight": "2.25rem", "letterSpacing": "-0.02em", "fontWeight": "600" } ],
+          "body-md": [ "0.875rem", { "lineHeight": "1.25rem", "fontWeight": "400" } ],
+          "label-lg": [ "0.875rem", { "lineHeight": "1.25rem", "letterSpacing": "0.01em", "fontWeight": "500" } ],
+          "mono-data-md": [ "0.8125rem", { "lineHeight": "1.125rem", "letterSpacing": "0", "fontWeight": "500" } ]
+        }
+      }
+    }
+  };
+</script></head><body class="bg-background font-body-md text-on-surface antialiased selection:bg-primary-container selection:text-on-primary-container"><aside class="fixed left-0 top-0 h-full w-72 bg-white border-r border-slate-200 z-50 flex flex-col justify-between shadow-sm"><div class="flex flex-col flex-1 min-h-0"><div class="h-16 px-space-md flex items-center gap-space-sm border-b border-slate-200 bg-slate-50/75"><img alt="CentreWatch AI Emblem" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WgBs1BVpCPN5jMWZ74Tldp5I7-LVFTNGDIeNOxtdKpnK_dqEFCNDpzynZbkP6-bbbyCUzIRqG0-dr8GW4osw9bhkLm6NrJbwhbTiMW_Pu4dDQlgN6_NyZJkvTbfaESWe0CKGOmOxlV0ks1onXWho_J2GIEWONYIEllENHRx3hcMSIoHQoAgwubgequSiMiVrw8OTPq2gJnHhxt5YnK9eznuzj0ZpfDcZ1e3BheoZHVqXjcGH76YGSztw"/><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><span class="font-headline-md text-headline-md tracking-tight text-slate-900 font-semibold truncate">CentreWatch AI</span><span class="font-mono-data-sm text-mono-data-sm px-1 py-0.5 rounded bg-blue-100 text-blue-700 font-semibold">v2.4</span></div><span class="font-label-md text-label-md text-slate-500 truncate">MSDE · Gov of India</span></div></div><div class="px-space-md py-space-sm"><div class="flex items-center justify-between px-space-sm py-1.5 rounded border border-emerald-200 bg-emerald-50"><div class="flex items-center gap-space-xs"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span><span class="font-mono-data-sm text-mono-data-sm text-emerald-800 uppercase tracking-wider font-semibold">National Mesh Live</span></div><span class="font-mono-data-sm text-mono-data-sm text-emerald-700 font-bold">99.8%</span></div></div><nav class="flex-1 px-space-sm space-y-0.5 overflow-y-auto" data-active-classes="bg-blue-50 text-blue-700 font-semibold border-l-2 border-blue-600"><a class="group flex items-center justify-between px-space-md py-2 rounded text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" data-path="overview" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-slate-700 transition-colors">grid_view</span><span class="font-label-lg text-label-lg">Overview</span></div></a><a class="group flex items-center justify-between px-space-md py-2 rounded text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" data-path="centres" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-slate-700 transition-colors">apartment</span><span class="font-label-lg text-label-lg">Centres</span></div><span class="font-mono-data-sm text-mono-data-sm text-slate-500 group-hover:text-slate-800">482</span></a><a class="group flex items-center justify-between px-space-md py-2 rounded text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" data-path="live-cameras" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-slate-700 transition-colors">videocam</span><span class="font-label-lg text-label-lg">Live Cameras</span></div><span class="flex items-center gap-1 font-mono-data-sm text-mono-data-sm text-emerald-700 font-semibold"><span class="w-1 h-1 rounded-full bg-emerald-600"></span>REC</span></a><a aria-current="page" class="group flex items-center justify-between px-space-md py-2 rounded transition-colors bg-blue-50 text-blue-700 font-semibold border-l-2 border-blue-600" data-path="attendance" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-blue-600 transition-colors">fact_check</span><span class="font-label-lg text-label-lg">Attendance</span></div></a><a class="group flex items-center justify-between px-space-md py-2 rounded text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" data-path="infrastructure" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-slate-700 transition-colors">domain_verification</span><span class="font-label-lg text-label-lg">Infrastructure</span></div></a><a class="group flex items-center justify-between px-space-md py-2 rounded text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" data-path="alerts" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-red-600 group-hover:text-red-700 transition-colors">warning</span><span class="font-label-lg text-label-lg">Alerts</span></div><span class="px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-mono-data-sm text-mono-data-sm font-semibold">14</span></a><a class="group flex items-center justify-between px-space-md py-2 rounded text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" data-path="reports" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-slate-700 transition-colors">summarize</span><span class="font-label-lg text-label-lg">Reports</span></div></a><a class="group flex items-center justify-between px-space-md py-2 rounded text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" data-path="analytics" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-slate-700 transition-colors">insights</span><span class="font-label-lg text-label-lg">Analytics</span></div></a><a class="group flex items-center justify-between px-space-md py-2 rounded text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" data-path="audit-log" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-slate-700 transition-colors">verified_user</span><span class="font-label-lg text-label-lg">Audit Log</span></div></a><a class="group flex items-center justify-between px-space-md py-2 rounded text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors" data-path="settings" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-slate-700 transition-colors">tune</span><span class="font-label-lg text-label-lg">Settings</span></div></a></nav></div><div class="p-space-md space-y-space-sm bg-white border-t border-slate-200"><div class="p-space-sm rounded-lg border border-slate-200 bg-slate-50 space-y-space-xs"><div class="flex items-center justify-between"><span class="font-mono-data-sm text-mono-data-sm text-slate-500">Edge Node Network</span><span class="font-mono-data-sm text-mono-data-sm text-emerald-700 font-semibold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>SYNCED</span></div><div class="font-mono-data-sm text-mono-data-sm text-slate-800 font-medium truncate">1,428 Online · 12 Syncing</div><div class="w-full bg-slate-200 h-1.5 rounded overflow-hidden"><div class="bg-blue-600 h-full w-[98.8%]"></div></div></div><div class="flex items-center justify-between px-space-sm py-1"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-[18px] text-slate-400">speed</span><span class="font-label-md text-label-md text-slate-600">Low-bandwidth</span></div><button class="w-8 h-4 rounded-full bg-slate-200 relative flex items-center px-0.5 transition-colors" type="button"><span class="w-3 h-3 rounded-full bg-slate-400 transition-transform"></span></button></div><a class="flex items-center gap-space-sm px-space-sm py-1.5 text-slate-600 hover:text-slate-900 font-label-md text-label-md transition-colors" href="#"><span class="material-symbols-outlined text-[18px] text-slate-400">help</span><span>Audit Compliance &amp; Docs</span></a></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 z-40 flex items-center justify-between px-gutter-lg shadow-sm"><div class="flex items-center gap-space-md min-w-0"><div class="flex items-center gap-space-xs bg-slate-100 border border-slate-200 px-space-sm py-1.5 rounded text-slate-700 font-mono-data-sm text-mono-data-sm"><span class="material-symbols-outlined text-[16px] text-blue-600">explore</span><span>All India</span><span class="text-slate-400">/</span><span>Northern Zone</span><span class="text-slate-400">/</span><span class="text-slate-900 font-semibold">NCT Delhi</span><span class="material-symbols-outlined text-[16px] text-slate-500">arrow_drop_down</span></div><div class="hidden xl:flex items-center gap-space-xs px-2.5 py-1 rounded bg-slate-100 border border-slate-200 font-mono-data-sm text-mono-data-sm text-slate-700"><span class="material-symbols-outlined text-[14px] text-emerald-600">shield_lock</span><span class="tracking-wide">PRIVACY PROTOCOL: VECTOR METRICS ONLY</span></div></div><div class="flex-1 max-w-xl mx-gutter-lg hidden lg:block"><div class="relative flex items-center"><span class="material-symbols-outlined absolute left-3 text-slate-400 text-[18px]">search</span><input class="w-full bg-slate-50 border border-slate-200 text-slate-900 font-body-sm text-body-sm pl-10 pr-48 py-2 rounded focus:outline-none focus:ring-1 focus:ring-blue-600 focus:bg-white placeholder:text-slate-400" placeholder="Search centres, camera UID, alerts, or audit ref (Ctrl+K)..." type="text"/><div class="absolute right-2 flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-700 font-mono-data-sm text-mono-data-sm"><span class="material-symbols-outlined text-[14px] text-emerald-600">verified</span><span>Aggregate Mode · No Facial ID</span></div></div></div><div class="flex items-center gap-gutter"><div class="hidden 2xl:flex items-center gap-space-md pl-space-xs font-mono-data-sm text-mono-data-sm"><div class="flex items-center gap-1.5 text-slate-600"><span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span><span>Pipeline: <strong class="text-emerald-700 font-semibold">24ms</strong></span></div><div class="text-slate-300">|</div><div class="text-slate-500">Sync: <span class="text-slate-800 font-medium">14:32:08 IST</span></div></div><div class="flex items-center gap-space-sm"><button class="relative p-2 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-600"></span></button><button class="p-2 rounded hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">terminal</span></button></div><div class="h-6 w-px bg-slate-200"></div><div class="flex items-center gap-space-sm pl-space-xs"><img alt="Dr. V. Ramanathan" class="w-9 h-9 rounded-full object-cover border border-slate-300 shadow-sm" src="https://lh3.googleusercontent.com/aida/AEtjO1VsXi1rL90K2_gl5bux1NbFnmKqNY5NXZ6D9cwfCJ5geRjwX982OQ-1jdXqm1GiWdyv6muqgTopvHMP3EGXDSSS3WWrGdk4vP2_cM0cuGUbnzKEc2oRP9F-IQ7EL0GezvRVtJV_9FvTc14i1ZqSW-_RulULwgdUSnlsLnG2wUpW0aKNAOSRJGbP_ObCs244p2TyDxdBz9XTArITPBtJY0qJOuUmdoRxSBaLtOo-LFhSD5I8rxh2W-0fI78"/><div class="hidden md:flex flex-col text-left"><div class="flex items-center gap-1.5"><span class="font-label-md text-label-md text-slate-900 font-semibold leading-tight">Dr. V. Ramanathan</span><span class="font-mono-data-sm text-mono-data-sm px-1 rounded bg-blue-100 text-blue-700 font-semibold">GoI</span></div><span class="font-mono-data-sm text-mono-data-sm text-slate-500 leading-tight">Director (IT &amp; Monitoring)</span></div><span class="material-symbols-outlined text-[18px] text-slate-400">unfold_more</span></div></div></header><main class="relative pt-16 bg-[#F8FAFC] min-h-screen"><div class="w-full px-gutter-lg py-gutter-lg"><div class="flex flex-col w-full space-y-gutter-lg">
+<!-- Operational Header & Scope Selection Bar -->
+<div class="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md bg-white p-space-md rounded-lg border border-slate-200 shadow-sm">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<span class="font-mono-data-sm text-mono-data-sm px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 font-semibold uppercase tracking-wider">Audit Engine v2.4</span>
+<span class="text-slate-300 font-mono-data-sm text-mono-data-sm">/</span>
+<span class="font-mono-data-sm text-mono-data-sm text-emerald-700 font-medium flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+          REAL-TIME TELEMETRY RECONCILIATION
+        </span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-slate-900 font-bold tracking-tight mt-1">
+        Attendance Compliance &amp; Discrepancy Auditing
+      </h1>
+<p class="font-body-sm text-body-sm text-slate-600">
+        Automated reconciliation of biometric self-reported rosters vs AI aggregate camera observations
+      </p>
+</div>
+<!-- Filter Bar Control Group -->
+<div class="flex flex-wrap items-center gap-space-xs">
+<!-- Date/Session Picker -->
+<div class="flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-space-sm py-1.5 rounded text-slate-800 font-mono-data-sm text-mono-data-sm shadow-sm cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[16px] text-blue-600">calendar_today</span>
+<span class="font-semibold text-slate-900">24 Oct 2025 · 09:30 - 12:30</span>
+<span class="material-symbols-outlined text-[16px] text-slate-400">arrow_drop_down</span>
+</div>
+<!-- State / District -->
+<div class="flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-space-sm py-1.5 rounded text-slate-700 font-mono-data-sm text-mono-data-sm shadow-sm cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[16px] text-slate-400">location_on</span>
+<span>NCT Delhi / South East</span>
+<span class="material-symbols-outlined text-[16px] text-slate-400">arrow_drop_down</span>
+</div>
+<!-- Centre Selector -->
+<div class="flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-space-sm py-1.5 rounded text-slate-700 font-mono-data-sm text-mono-data-sm shadow-sm cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[16px] text-slate-400">domain</span>
+<span>All 64 Centres</span>
+<span class="material-symbols-outlined text-[16px] text-slate-400">arrow_drop_down</span>
+</div>
+<!-- Threshold Filter Pill -->
+<div class="flex items-center gap-1.5 bg-red-50 hover:bg-red-100 border border-red-200 px-space-sm py-1.5 rounded text-red-700 font-mono-data-sm text-mono-data-sm font-semibold shadow-sm cursor-pointer transition-colors">
+<span class="material-symbols-outlined text-[16px] text-red-600">filter_alt</span>
+<span>&gt; 15% Variance</span>
+</div>
+<!-- Export / Stamp Button -->
+<button class="flex items-center gap-1 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 px-space-sm py-1.5 rounded font-label-md text-label-md transition-colors ml-auto xl:ml-0 shadow-sm" type="button">
+<span class="material-symbols-outlined text-[16px] text-slate-500">download</span>
+<span class="font-medium">Export Log</span>
+</button>
+</div>
+</div>
+<!-- KPI Operational Ribbon: 5 High-Density Metric Nodes -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-space-sm">
+<!-- Node 1: Reported Attendance -->
+<div class="bg-white p-space-md rounded-lg border border-slate-200 shadow-sm flex flex-col justify-between space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-mono-data-sm text-mono-data-sm text-slate-500 uppercase tracking-wider font-semibold">Reported Roster</span>
+<span class="material-symbols-outlined text-[18px] text-slate-400">fingerprint</span>
+</div>
+<div>
+<div class="font-headline-xl text-headline-xl text-slate-900 font-bold tracking-tight">42,850</div>
+<div class="font-mono-data-sm text-mono-data-sm text-slate-500 mt-0.5">Across 1,452 active sessions</div>
+</div>
+<div class="w-full bg-slate-100 h-1.5 rounded overflow-hidden">
+<div class="bg-slate-400 h-full w-full"></div>
+</div>
+</div>
+<!-- Node 2: AI Observed Headcount -->
+<div class="bg-white p-space-md rounded-lg border border-slate-200 shadow-sm flex flex-col justify-between space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-mono-data-sm text-mono-data-sm text-blue-700 uppercase tracking-wider font-semibold">AI Observed Presence</span>
+<span class="material-symbols-outlined text-[18px] text-blue-600">visibility</span>
+</div>
+<div>
+<div class="font-headline-xl text-headline-xl text-blue-600 font-bold tracking-tight">39,120</div>
+<div class="font-mono-data-sm text-mono-data-sm text-slate-500 mt-0.5">Continuous camera verification</div>
+</div>
+<div class="w-full bg-slate-100 h-1.5 rounded overflow-hidden">
+<div class="bg-blue-600 h-full w-[91.3%]"></div>
+</div>
+</div>
+<!-- Node 3: Net Variance -->
+<div class="bg-white p-space-md rounded-lg border border-slate-200 shadow-sm flex flex-col justify-between space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-mono-data-sm text-mono-data-sm text-red-700 uppercase tracking-wider font-semibold">Net Discrepancy</span>
+<span class="material-symbols-outlined text-[18px] text-red-600">trending_down</span>
+</div>
+<div>
+<div class="flex items-baseline gap-1.5">
+<span class="font-headline-xl text-headline-xl text-red-600 font-bold tracking-tight">-3,730</span>
+<span class="font-mono-data-md text-mono-data-md text-red-700 font-semibold">(-8.7%)</span>
+</div>
+<div class="font-mono-data-sm text-mono-data-sm text-slate-500 mt-0.5">System-wide delta threshold</div>
+</div>
+<div class="w-full bg-slate-100 h-1.5 rounded overflow-hidden">
+<div class="bg-red-500 h-full w-[8.7%]"></div>
+</div>
+</div>
+<!-- Node 4: Flagged Sessions -->
+<div class="bg-white p-space-md rounded-lg border border-slate-200 shadow-sm flex flex-col justify-between space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-mono-data-sm text-mono-data-sm text-slate-700 uppercase tracking-wider font-semibold">Flagged Sessions</span>
+<span class="px-1.5 py-0.5 rounded bg-red-100 border border-red-200 text-red-700 font-mono-data-sm text-mono-data-sm font-bold">ACTION REQ</span>
+</div>
+<div>
+<div class="font-headline-xl text-headline-xl text-slate-900 font-bold tracking-tight">38 <span class="font-label-lg text-label-lg text-slate-500 font-normal">Batches</span></div>
+<div class="font-mono-data-sm text-mono-data-sm text-slate-500 mt-0.5">Pending manual inspection</div>
+</div>
+<div class="flex items-center gap-1 font-mono-data-sm text-mono-data-sm text-red-700 font-semibold">
+<span class="material-symbols-outlined text-[14px] text-red-600">priority_high</span>
+<span>4 Critical (&gt;50% gap)</span>
+</div>
+</div>
+<!-- Node 5: Verification Rate -->
+<div class="bg-white p-space-md rounded-lg border border-slate-200 shadow-sm flex flex-col justify-between space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-mono-data-sm text-mono-data-sm text-emerald-800 uppercase tracking-wider font-semibold">Audit Sign-Off Rate</span>
+<span class="material-symbols-outlined text-[18px] text-emerald-600">task_alt</span>
+</div>
+<div>
+<div class="font-headline-xl text-headline-xl text-emerald-600 font-bold tracking-tight">84.2%</div>
+<div class="font-mono-data-sm text-mono-data-sm text-slate-500 mt-0.5">1,223 of 1,452 cleared</div>
+</div>
+<div class="w-full bg-slate-100 h-1.5 rounded overflow-hidden">
+<div class="bg-emerald-600 h-full w-[84.2%]"></div>
+</div>
+</div>
+</div>
+<!-- Main Comparative Trend Chart & Anomaly Visualizer -->
+<div class="bg-white rounded-lg p-space-md border border-slate-200 shadow-sm space-y-space-sm">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs border-b border-slate-100 pb-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-blue-600 text-[20px]">multiline_chart</span>
+<div>
+<h2 class="font-headline-md text-headline-md text-slate-900 font-bold">
+            Batch-Level Temporal Discrepancy Stream
+          </h2>
+<p class="font-mono-data-sm text-mono-data-sm text-slate-500">
+            Continuous occupancy vector sampling (1 Hz) · Focus: AUD-DL-2025-8841 (Skill Hub Jamia)
+          </p>
+</div>
+</div>
+<!-- Legend -->
+<div class="flex flex-wrap items-center gap-space-md font-mono-data-sm text-mono-data-sm">
+<div class="flex items-center gap-1.5">
+<span class="w-3.5 h-0.5 bg-slate-700 rounded-full"></span>
+<span class="text-slate-700 font-medium">Reported Biometric Roster (35 Constant)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-3.5 h-0.5 bg-blue-600 border-t border-dashed border-blue-600"></span>
+<span class="text-blue-700 font-semibold">AI Inferred Trainee Presence</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-3 h-3 rounded bg-amber-100 border border-amber-300"></span>
+<span class="text-amber-800 font-semibold">Automated Discrepancy Window</span>
+</div>
+</div>
+</div>
+<!-- Inline High-Fidelity SVG Dual-Curve Vector Graph -->
+<div class="w-full h-56 relative bg-white border border-slate-100 rounded-lg p-2 overflow-hidden flex flex-col justify-end">
+<!-- Privacy Banner Watermark Overlay -->
+<div class="absolute top-2 left-3 z-10 flex items-center gap-1.5 px-2 py-0.5 rounded bg-white/90 border border-slate-200 backdrop-blur-sm text-slate-600 font-mono-data-sm text-mono-data-sm shadow-xs">
+<span class="material-symbols-outlined text-[13px] text-emerald-600">lock</span>
+<span>PRIVACY PROTOCOL V2.4: VECTOR METRICS ONLY · ZERO FACIAL ATTRIBUTES PERSISTED</span>
+</div>
+<!-- Temporal Annotation Marker -->
+<div class="absolute top-8 right-6 z-10 hidden sm:flex items-center gap-2 px-2.5 py-1.5 rounded bg-white border border-red-200 text-slate-900 shadow-sm font-mono-data-sm text-mono-data-sm">
+<span class="w-2 h-2 rounded-full bg-red-600 animate-ping"></span>
+<span class="text-red-700 font-bold">Delta Peak: -23 Trainees (-65.7%)</span>
+<span class="text-slate-500 font-medium">@ 10:48 AM</span>
+</div>
+<svg class="w-full h-full overflow-visible" preserveaspectratio="none" viewbox="0 0 1000 200">
+<defs>
+<!-- Shaded Discrepancy Fill -->
+<lineargradient id="discrepancyFill" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#d97706" stop-opacity="0.25"></stop>
+<stop offset="100%" stop-color="#f59e0b" stop-opacity="0.05"></stop>
+</lineargradient>
+<lineargradient id="primaryGlow" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#2563eb" stop-opacity="0.20"></stop>
+<stop offset="100%" stop-color="#2563eb" stop-opacity="0.01"></stop>
+</lineargradient>
+</defs>
+<!-- Horizontal Grid Lines -->
+<line stroke="#f1f5f9" stroke-width="1.5" x1="0" x2="1000" y1="30" y2="30"></line>
+<line stroke="#f1f5f9" stroke-width="1.5" x1="0" x2="1000" y1="75" y2="75"></line>
+<line stroke="#f1f5f9" stroke-width="1.5" x1="0" x2="1000" y1="120" y2="120"></line>
+<line stroke="#f1f5f9" stroke-width="1.5" x1="0" x2="1000" y1="165" y2="165"></line>
+<!-- Anomaly Shaded Envelope: 10:05 to 11:55 (x: 220 to 820) -->
+<polygon fill="url(#discrepancyFill)" points="230,35 830,35 830,140 760,145 680,148 550,152 420,150 310,145 230,35"></polygon>
+<!-- Vertical Discrepancy Boundary Markers -->
+<line opacity="0.8" stroke="#d97706" stroke-dasharray="3 3" stroke-width="1.5" x1="230" x2="230" y1="20" y2="185"></line>
+<line opacity="0.8" stroke="#d97706" stroke-dasharray="3 3" stroke-width="1.5" x1="830" x2="830" y1="20" y2="185"></line>
+<!-- Shaded area under AI curve -->
+<polygon fill="url(#primaryGlow)" points="0,40 100,38 180,45 230,65 310,145 420,150 550,152 680,148 760,145 830,135 910,70 1000,60 1000,190 0,190"></polygon>
+<!-- 1. Slate Dark Solid: Reported Biometric (Steady at 35 trainees) -->
+<polyline fill="none" points="0,35 1000,35" stroke="#334155" stroke-linecap="round" stroke-width="2.5"></polyline>
+<!-- 2. Blue 600 Dashed: AI Observed Headcount Vector -->
+<polyline fill="none" points="0,40 80,38 160,42 220,60 270,110 330,142 420,150 500,154 580,148 680,148 750,144 820,135 880,90 940,65 1000,58" stroke="#2563eb" stroke-dasharray="6 3" stroke-linecap="round" stroke-width="2.5"></polyline>
+<!-- Data Points on AI Curve -->
+<circle cx="230" cy="65" fill="#2563eb" r="4.5" stroke="#ffffff" stroke-width="1.5"></circle>
+<circle cx="480" cy="153" fill="#dc2626" r="5" stroke="#ffffff" stroke-width="1.5"></circle>
+<circle cx="830" cy="135" fill="#2563eb" r="4.5" stroke="#ffffff" stroke-width="1.5"></circle>
+<!-- Anomaly Callout Box in SVG -->
+<rect fill="#fef3c7" height="20" opacity="0.95" rx="3" stroke="#f59e0b" stroke-width="1" width="190" x="415" y="10"></rect>
+<text fill="#b45309" font-family="JetBrains Mono" font-size="10" font-weight="700" text-anchor="middle" x="510" y="24">DISCREPANCY DETECTED: 71 MINS</text>
+</svg>
+<!-- Time Axis Scale Labels -->
+<div class="flex justify-between items-center px-1 pt-1 font-mono-data-sm text-mono-data-sm text-slate-500 border-t border-slate-100">
+<span>09:30 AM (Batch Start)</span>
+<span>10:15 AM</span>
+<span class="text-amber-700 font-bold">10:45 AM (Ghost Occupancy Alert)</span>
+<span>11:30 AM</span>
+<span>12:00 PM</span>
+<span>12:30 PM (Batch End)</span>
+</div>
+</div>
+</div>
+<!-- Split Operational Workspace: Table & Docked Evidence Inspection Drawer -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-gutter-lg items-start">
+<!-- Left 7 Cols (or 8): Dense Reconciliation Table -->
+<div class="xl:col-span-7 2xl:col-span-8 bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
+<!-- Table Filter & Header Controls -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs p-space-md border-b border-slate-200 bg-white">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-[20px] text-blue-600">rule</span>
+<span class="font-headline-md text-headline-md text-slate-900 font-bold">Session Audit Roster</span>
+<span class="font-mono-data-sm text-mono-data-sm px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-700 font-semibold">6 Selected Sessions</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="px-space-sm py-1 rounded bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-mono-data-sm text-mono-data-sm flex items-center gap-1 transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[15px] text-slate-500">tune</span>
+<span>Columns</span>
+</button>
+<button class="px-space-sm py-1 rounded bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-mono-data-sm text-mono-data-sm flex items-center gap-1 transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[15px] text-slate-500">refresh</span>
+<span>Recalculate</span>
+</button>
+</div>
+</div>
+<!-- Data Table Frame -->
+<div class="overflow-x-auto w-full">
+<table class="w-full text-left font-body-sm text-body-sm">
+<thead>
+<tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-mono-data-sm text-mono-data-sm uppercase tracking-wider h-9">
+<th class="px-space-md py-2 font-semibold">Session Ref &amp; Centre</th>
+<th class="px-space-sm py-2 font-semibold">Trade / Batch</th>
+<th class="px-space-sm py-2 text-right font-semibold">Reported</th>
+<th class="px-space-sm py-2 text-right font-semibold">AI Headcount</th>
+<th class="px-space-sm py-2 text-right font-semibold">Variance</th>
+<th class="px-space-sm py-2 text-center font-semibold">AI Conf</th>
+<th class="px-space-sm py-2 font-semibold">Camera UID</th>
+<th class="px-space-sm py-2 font-semibold">Status</th>
+<th class="px-space-md py-2 text-right font-semibold">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 text-slate-900 font-mono-data-sm text-mono-data-sm">
+<!-- Row 1: Skill Hub Jamia (ACTIVE INSPECTION SELECTION) -->
+<tr class="bg-blue-50/70 hover:bg-blue-50 transition-colors cursor-pointer group">
+<td class="px-space-md py-2.5">
+<div class="font-bold text-blue-700">AUD-DL-2025-8841</div>
+<div class="font-body-sm text-body-sm text-slate-900 font-bold truncate max-w-[160px]">Skill Hub Jamia</div>
+</td>
+<td class="px-space-sm py-2.5">
+<div class="text-slate-800 font-medium truncate max-w-[130px]">Solar Technician</div>
+<div class="text-slate-500">Lab 02 · Batch #7</div>
+</td>
+<td class="px-space-sm py-2.5 text-right font-bold text-slate-900">35</td>
+<td class="px-space-sm py-2.5 text-right text-blue-700 font-bold">12 <span class="text-slate-400 font-normal text-[10px]">(pk 15)</span></td>
+<td class="px-space-sm py-2.5 text-right font-bold text-red-600">
+                -23 <span class="text-[10px] font-semibold">(-65.7%)</span>
+</td>
+<td class="px-space-sm py-2.5 text-center">
+<span class="px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold">97.2%</span>
+</td>
+<td class="px-space-sm py-2.5 text-slate-500 truncate max-w-[100px]">CAM-DL-SE-04</td>
+<td class="px-space-sm py-2.5">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-red-100 border border-red-200 text-red-700 font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+                  CRITICAL
+                </span>
+</td>
+<td class="px-space-md py-2.5 text-right">
+<button class="px-2.5 py-1 rounded bg-blue-600 text-white font-label-md text-label-md font-semibold hover:bg-blue-700 transition-colors shadow-sm" type="button">
+                  Inspect
+                </button>
+</td>
+</tr>
+<!-- Row 2: ITI Pusa (DISCREPANCY FLAGGED) -->
+<tr class="hover:bg-slate-50 transition-colors cursor-pointer group">
+<td class="px-space-md py-2.5">
+<div class="font-medium text-slate-700">AUD-DL-2025-8839</div>
+<div class="font-body-sm text-body-sm text-slate-900 font-medium truncate max-w-[160px]">ITI Pusa Campus</div>
+</td>
+<td class="px-space-sm py-2.5">
+<div class="text-slate-800 truncate max-w-[130px]">Mechatronics #1</div>
+<div class="text-slate-500">Hall B · Batch #12</div>
+</td>
+<td class="px-space-sm py-2.5 text-right font-semibold text-slate-900">40</td>
+<td class="px-space-sm py-2.5 text-right text-blue-700 font-semibold">18 <span class="text-slate-400 font-normal text-[10px]">(pk 21)</span></td>
+<td class="px-space-sm py-2.5 text-right font-bold text-red-600">
+                -22 <span class="text-[10px] font-semibold">(-55.0%)</span>
+</td>
+<td class="px-space-sm py-2.5 text-center">
+<span class="px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-700 font-semibold">94.5%</span>
+</td>
+<td class="px-space-sm py-2.5 text-slate-500 truncate max-w-[100px]">CAM-DL-NW-09</td>
+<td class="px-space-sm py-2.5">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-red-50 border border-red-200 text-red-700 font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                  FLAGGED
+                </span>
+</td>
+<td class="px-space-md py-2.5 text-right">
+<button class="px-2.5 py-1 rounded bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-label-md text-label-md transition-colors shadow-sm" type="button">
+                  Review
+                </button>
+</td>
+</tr>
+<!-- Row 3: PMKK South Delhi (COMPLIANT) -->
+<tr class="hover:bg-slate-50 transition-colors cursor-pointer group">
+<td class="px-space-md py-2.5">
+<div class="font-medium text-slate-700">AUD-DL-2025-8822</div>
+<div class="font-body-sm text-body-sm text-slate-900 font-medium truncate max-w-[160px]">PMKK South Delhi</div>
+</td>
+<td class="px-space-sm py-2.5">
+<div class="text-slate-800 truncate max-w-[130px]">Electrician Batch #4</div>
+<div class="text-slate-500">Workshop A</div>
+</td>
+<td class="px-space-sm py-2.5 text-right font-semibold text-slate-900">30</td>
+<td class="px-space-sm py-2.5 text-right text-slate-800 font-semibold">28 <span class="text-slate-400 font-normal text-[10px]">(pk 29)</span></td>
+<td class="px-space-sm py-2.5 text-right font-semibold text-emerald-700">
+                -2 <span class="text-[10px]">(-6.6%)</span>
+</td>
+<td class="px-space-sm py-2.5 text-center">
+<span class="px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-700 font-semibold">93.1%</span>
+</td>
+<td class="px-space-sm py-2.5 text-slate-500 truncate max-w-[100px]">CAM-DL-SD-01</td>
+<td class="px-space-sm py-2.5">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-700 font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                  NORMAL
+                </span>
+</td>
+<td class="px-space-md py-2.5 text-right">
+<button class="px-2.5 py-1 rounded bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 font-label-md text-label-md transition-colors shadow-sm" type="button">
+                  Logs
+                </button>
+</td>
+</tr>
+<!-- Row 4: DDU-GKY Rohini (COMPLIANT) -->
+<tr class="hover:bg-slate-50 transition-colors cursor-pointer group">
+<td class="px-space-md py-2.5">
+<div class="font-medium text-slate-700">AUD-DL-2025-8817</div>
+<div class="font-body-sm text-body-sm text-slate-900 font-medium truncate max-w-[160px]">DDU-GKY Rohini</div>
+</td>
+<td class="px-space-sm py-2.5">
+<div class="text-slate-800 truncate max-w-[130px]">Hospitality #2</div>
+<div class="text-slate-500">Service Suite 1</div>
+</td>
+<td class="px-space-sm py-2.5 text-right font-semibold text-slate-900">25</td>
+<td class="px-space-sm py-2.5 text-right text-slate-800 font-semibold">24 <span class="text-slate-400 font-normal text-[10px]">(pk 25)</span></td>
+<td class="px-space-sm py-2.5 text-right font-semibold text-emerald-700">
+                -1 <span class="text-[10px]">(-4.0%)</span>
+</td>
+<td class="px-space-sm py-2.5 text-center">
+<span class="px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-700 font-semibold">96.0%</span>
+</td>
+<td class="px-space-sm py-2.5 text-slate-500 truncate max-w-[100px]">CAM-DL-RO-03</td>
+<td class="px-space-sm py-2.5">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-700 font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                  NORMAL
+                </span>
+</td>
+<td class="px-space-md py-2.5 text-right">
+<button class="px-2.5 py-1 rounded bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 font-label-md text-label-md transition-colors shadow-sm" type="button">
+                  Logs
+                </button>
+</td>
+</tr>
+<!-- Row 5: PMKK Okhla (REVIEW REQ) -->
+<tr class="hover:bg-slate-50 transition-colors cursor-pointer group">
+<td class="px-space-md py-2.5">
+<div class="font-medium text-slate-700">AUD-DL-2025-8804</div>
+<div class="font-body-sm text-body-sm text-slate-900 font-medium truncate max-w-[160px]">PMKK Okhla Phase-II</div>
+</td>
+<td class="px-space-sm py-2.5">
+<div class="text-slate-800 truncate max-w-[130px]">CNC Machine Op</div>
+<div class="text-slate-500">CNC Bay 3</div>
+</td>
+<td class="px-space-sm py-2.5 text-right font-semibold text-slate-900">28</td>
+<td class="px-space-sm py-2.5 text-right text-slate-800 font-semibold">23 <span class="text-slate-400 font-normal text-[10px]">(pk 25)</span></td>
+<td class="px-space-sm py-2.5 text-right font-bold text-amber-600">
+                -5 <span class="text-[10px]">(-17.8%)</span>
+</td>
+<td class="px-space-sm py-2.5 text-center">
+<span class="px-1.5 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-700 font-semibold">89.4%</span>
+</td>
+<td class="px-space-sm py-2.5 text-slate-500 truncate max-w-[100px]">CAM-DL-OK-02</td>
+<td class="px-space-sm py-2.5">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-700 font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                  RE-IDENT
+                </span>
+</td>
+<td class="px-space-md py-2.5 text-right">
+<button class="px-2.5 py-1 rounded bg-white hover:bg-slate-100 border border-slate-200 text-slate-700 font-label-md text-label-md transition-colors shadow-sm" type="button">
+                  Review
+                </button>
+</td>
+</tr>
+<!-- Row 6: Jan Shikshan Sansthan (COMPLIANT) -->
+<tr class="hover:bg-slate-50 transition-colors cursor-pointer group">
+<td class="px-space-md py-2.5">
+<div class="font-medium text-slate-700">AUD-DL-2025-8798</div>
+<div class="font-body-sm text-body-sm text-slate-900 font-medium truncate max-w-[160px]">JSS Badarpur</div>
+</td>
+<td class="px-space-sm py-2.5">
+<div class="text-slate-800 truncate max-w-[130px]">Sewing Machine Op</div>
+<div class="text-slate-500">Room 101 · Batch #3</div>
+</td>
+<td class="px-space-sm py-2.5 text-right font-semibold text-slate-900">32</td>
+<td class="px-space-sm py-2.5 text-right text-slate-800 font-semibold">31 <span class="text-slate-400 font-normal text-[10px]">(pk 32)</span></td>
+<td class="px-space-sm py-2.5 text-right font-semibold text-emerald-700">
+                -1 <span class="text-[10px]">(-3.1%)</span>
+</td>
+<td class="px-space-sm py-2.5 text-center">
+<span class="px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-700 font-semibold">98.1%</span>
+</td>
+<td class="px-space-sm py-2.5 text-slate-500 truncate max-w-[100px]">CAM-DL-BD-01</td>
+<td class="px-space-sm py-2.5">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-700 font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                  NORMAL
+                </span>
+</td>
+<td class="px-space-md py-2.5 text-right">
+<button class="px-2.5 py-1 rounded bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 font-label-md text-label-md transition-colors shadow-sm" type="button">
+                  Logs
+                </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Pagination & Verification Ledger Footer -->
+<div class="p-space-sm bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-space-xs font-mono-data-sm text-mono-data-sm text-slate-600">
+<div class="flex items-center gap-2">
+<span>Displaying 6 of 38 flagged sessions</span>
+<span class="text-slate-300">·</span>
+<span class="text-emerald-700 font-semibold flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+            Telemetry Stream Latency: 24ms
+          </span>
+</div>
+<div class="flex items-center gap-1">
+<button class="px-2 py-1 rounded bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-medium disabled:opacity-50 shadow-xs" disabled="" type="button">Previous</button>
+<span class="px-2 py-1 bg-blue-600 text-white rounded font-bold">1</span>
+<span class="px-2 py-1 text-slate-600 hover:text-slate-900 cursor-pointer">2</span>
+<span class="px-2 py-1 text-slate-600 hover:text-slate-900 cursor-pointer">3</span>
+<button class="px-2 py-1 rounded bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-medium shadow-xs" type="button">Next</button>
+</div>
+</div>
+</div>
+<!-- Right 5 Cols (or 4): Locked Context Evidence Drawer (Active Discrepancy AUD-DL-2025-8841) -->
+<div class="xl:col-span-5 2xl:col-span-4 bg-white rounded-lg p-space-md border border-slate-200 shadow-sm flex flex-col space-y-space-md relative">
+<!-- Drawer Header & Audit ID -->
+<div class="flex items-start justify-between gap-space-xs border-b border-slate-100 pb-space-sm">
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="font-mono-data-sm text-mono-data-sm px-2 py-0.5 rounded bg-red-100 border border-red-200 text-red-700 font-bold uppercase">High Priority Breach</span>
+<span class="font-mono-data-sm text-mono-data-sm text-slate-500 font-semibold">AUD-DL-2025-8841</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-slate-900 font-bold mt-1.5">
+            Skill Hub Jamia [DL-SE-018]
+          </h3>
+<p class="font-body-sm text-body-sm text-slate-600">
+            Solar Panel Installation Lab · Room 204 (Camera CAM-DL-SE-04)
+          </p>
+</div>
+<button class="p-1 rounded bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-900 transition-colors shadow-xs" title="Pop-out full audit dossier" type="button">
+<span class="material-symbols-outlined text-[18px]">open_in_new</span>
+</button>
+</div>
+<!-- Quick Metrics Grid for Selected Session -->
+<div class="grid grid-cols-3 gap-space-xs bg-slate-50 border border-slate-200 p-space-sm rounded-lg">
+<div class="flex flex-col">
+<span class="font-mono-data-sm text-mono-data-sm text-slate-500 font-medium">Biometric Roster</span>
+<span class="font-headline-md text-headline-md text-slate-900 font-bold">35</span>
+</div>
+<div class="flex flex-col">
+<span class="font-mono-data-sm text-mono-data-sm text-blue-700 font-semibold">Observed Avg</span>
+<span class="font-headline-md text-headline-md text-blue-600 font-bold">12</span>
+</div>
+<div class="flex flex-col">
+<span class="font-mono-data-sm text-mono-data-sm text-red-700 font-semibold">Variance</span>
+<span class="font-headline-md text-headline-md text-red-600 font-bold">-65.7%</span>
+</div>
+</div>
+<!-- Visual Evidence Snapshots Section (Redacted Vector Aggregates) -->
+<div class="space-y-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-mono-data-sm text-mono-data-sm text-slate-800 uppercase tracking-wider font-bold">
+            Redacted Vector Evidence (Snapshots)
+          </span>
+<span class="font-mono-data-sm text-mono-data-sm text-emerald-700 font-semibold flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-emerald-600">shield</span>
+            Biometrics Stripped
+          </span>
+</div>
+<!-- Evidence Window A -->
+<div class="bg-slate-50 border border-slate-200 rounded-lg p-space-xs space-y-1.5 shadow-xs">
+<div class="relative h-32 rounded overflow-hidden bg-slate-900">
+<!-- Redacted Aggregate Silhouette Lab Image -->
+<img class="w-full h-full object-cover filter brightness-90 contrast-110" data-alt="Technical infrared laboratory camera view of a technical solar vocational classroom with blurred anonymized silhouettes of students, overlaid with tactical neon cyan detection vector boxes and numbers on desks, low ambient dark mode lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQ3DguOO1HTwFRmeReymTgnIyOzV0hZd2wV0TGtXwwiWuLNNyn3RelqFltLIBJxB4gaflfpX75nVlSOGCaVq4CgYx_oMNnxn772F7TaJ7DtHTvjp8L2pkYKeZ9OCHNHvn3G94j4QWNIAEC4b5sx6r0KVGfq7_xzc89vN1fWYz5Nlcmi8zy2fSj_l5VAJ1cL-72my4haTBQmLWh6K2is_zc_dc2vvfmRTfEdpM_Q2Jf50QtVQLQqU-H"/>
+<!-- Camera Watermark Overlay -->
+<div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-slate-950/60 flex flex-col justify-between p-2 pointer-events-none">
+<div class="flex justify-between items-center font-mono-data-sm text-mono-data-sm">
+<span class="px-1.5 py-0.5 rounded bg-white/90 text-blue-800 font-bold shadow-xs">WINDOW A · 10:15 AM IST</span>
+<span class="px-1.5 py-0.5 rounded bg-white/90 text-emerald-700 font-semibold shadow-xs">CONF: 96.8%</span>
+</div>
+<div class="flex justify-between items-center font-mono-data-sm text-mono-data-sm">
+<span class="text-white font-medium">Observed: 12 Silhouettes</span>
+<span class="text-red-400 font-bold">Missing: 23 Trainees</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between px-1 font-mono-data-sm text-mono-data-sm text-slate-600">
+<span>Roster: 35 Trainees</span>
+<span class="text-red-600 font-bold">Variance: -65.7%</span>
+<span class="text-blue-600 font-semibold cursor-pointer hover:underline">Play Clip (15s)</span>
+</div>
+</div>
+<!-- Evidence Window B -->
+<div class="bg-slate-50 border border-slate-200 rounded-lg p-space-xs space-y-1.5 shadow-xs">
+<div class="relative h-32 rounded overflow-hidden bg-slate-900">
+<!-- Redacted Aggregate Silhouette Lab Image 2 -->
+<img class="w-full h-full object-cover filter brightness-90 contrast-110" data-alt="Technical perspective shot of solar panel training workshop with heavy facial blur redaction, wireframe bounding boxes over 11 trainees standing near workbench, dark government audit terminal monitor view" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCLiaYgL9BZfdUoYujCVMeSQ8Ehk-JhBY-zYU3X9gb6N4S3Yzp4s_SXIv71OudJ8FKzKcA8TXWHFiJEjQZleqBKfiHa13OUFluRVTlv2LGsb5Fg0Ea0-ujXwP7swB4nrmZaZt7mQaE1VnXbtr1mp_zloC5RP2Pb1hx1KgG3AjAmhrSIl_Mfc2DBdORTeJjUjz97RWSXuWXWqB9gQamclqiBb5b_AUuONkCcoLaBfekJW4vRkTm6Rms"/>
+<!-- Camera Watermark Overlay -->
+<div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-slate-950/60 flex flex-col justify-between p-2 pointer-events-none">
+<div class="flex justify-between items-center font-mono-data-sm text-mono-data-sm">
+<span class="px-1.5 py-0.5 rounded bg-white/90 text-blue-800 font-bold shadow-xs">WINDOW B · 11:30 AM IST</span>
+<span class="px-1.5 py-0.5 rounded bg-white/90 text-emerald-700 font-semibold shadow-xs">CONF: 97.2%</span>
+</div>
+<div class="flex justify-between items-center font-mono-data-sm text-mono-data-sm">
+<span class="text-white font-medium">Observed: 11 Silhouettes</span>
+<span class="text-red-400 font-bold">Missing: 24 Trainees</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between px-1 font-mono-data-sm text-mono-data-sm text-slate-600">
+<span>Roster: 35 Trainees</span>
+<span class="text-red-600 font-bold">Variance: -68.5%</span>
+<span class="text-blue-600 font-semibold cursor-pointer hover:underline">Play Clip (15s)</span>
+</div>
+</div>
+</div>
+<!-- Human-in-the-Loop Audit Actions & Justification -->
+<div class="space-y-space-sm pt-space-xs">
+<div class="flex items-center justify-between">
+<label class="font-mono-data-sm text-mono-data-sm text-slate-800 uppercase tracking-wider font-bold" for="inspectorNotes">
+            Inspector Notes &amp; Statutory Justification
+          </label>
+<span class="font-mono-data-sm text-mono-data-sm text-slate-400 font-medium">MSDE-AUDIT-REG</span>
+</div>
+<textarea class="w-full bg-slate-50 border border-slate-200 text-slate-900 font-body-sm text-body-sm p-space-sm rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-600 focus:bg-white placeholder:text-slate-400 resize-none shadow-xs" id="inspectorNotes" placeholder="Enter audit rationale, field inquiry ref, or biometric verification ticket ID..." rows="2">Continuous absent headcount verified across 2 inspection windows. Lab supervisor contacted; practical module claimed at rooftop without prior outdoor session scheduling notification.</textarea>
+<!-- Action Trigger Stack -->
+<div class="flex flex-col gap-space-xs">
+<!-- Primary Discrepancy Confirmation -->
+<button class="w-full flex items-center justify-center gap-space-xs bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-label-lg text-label-lg font-bold transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">gavel</span>
+<span>Confirm Discrepancy &amp; Issue Show Cause Notice</span>
+<span class="font-mono-data-sm text-mono-data-sm opacity-80">[SCN]</span>
+</button>
+<!-- Field Inspection / Excusable Alternatives -->
+<div class="grid grid-cols-2 gap-space-xs">
+<button class="flex items-center justify-center gap-1 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 py-2 rounded-lg font-label-md text-label-md font-semibold transition-colors shadow-xs text-center" type="button">
+<span class="material-symbols-outlined text-[16px] text-emerald-600">check_circle</span>
+<span class="truncate">Excusable Fieldwork</span>
+</button>
+<button class="flex items-center justify-center gap-1 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 py-2 rounded-lg font-label-md text-label-md font-semibold transition-colors shadow-xs text-center" type="button">
+<span class="material-symbols-outlined text-[16px] text-blue-600">person_search</span>
+<span class="truncate">Request Physical Insp</span>
+</button>
+</div>
+</div>
+<!-- Cryptographic Audit Footnote -->
+<div class="p-2 rounded-lg bg-slate-50 border border-slate-200 font-mono-data-sm text-mono-data-sm text-slate-500 flex items-center justify-between">
+<div class="flex items-center gap-1.5 truncate">
+<span class="material-symbols-outlined text-[14px] text-emerald-600">verified_user</span>
+<span class="truncate">SHA-256: 8f92c10b...3d9e</span>
+</div>
+<span class="text-slate-700 font-semibold">Dr. V. Ramanathan [GoI-IT]</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Micro-interaction Helper -->
+<script>
+    // Tabular row selection visual toggling
+    document.querySelectorAll('tbody tr').forEach(row => {
+      row.addEventListener('click', function() {
+        document.querySelectorAll('tbody tr').forEach(r => {
+          r.classList.remove('bg-blue-50/70');
+        });
+        this.classList.add('bg-blue-50/70');
+      });
+    });
+  </script>
+</div></div></main></div></body></html>

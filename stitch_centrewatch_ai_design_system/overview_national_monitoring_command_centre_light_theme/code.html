@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "on-primary-container": "#eeefff",
+          "surface-tint": "#0053db",
+          "surface-container-highest": "#e2e8f0",
+          "surface": "#f8fafc",
+          "surface-dim": "#cbdbf5",
+          "on-secondary-fixed-variant": "#3f465c",
+          "primary-fixed-dim": "#b4c5ff",
+          "surface-container-lowest": "#ffffff",
+          "secondary-fixed": "#dae2fd",
+          "surface-bright": "#f8f9ff",
+          "on-background": "#0b1c30",
+          "on-tertiary-container": "#e7f2ff",
+          "on-surface-variant": "#475569",
+          "inverse-surface": "#213145",
+          "on-tertiary-fixed-variant": "#004b73",
+          "primary-fixed": "#dbe1ff",
+          "outline-variant": "#e2e8f0",
+          "tertiary-fixed": "#cce5ff",
+          "background": "#f8fafc",
+          "on-primary": "#ffffff",
+          "outline": "#64748b",
+          "surface-container-low": "#ffffff",
+          "on-tertiary-fixed": "#001d31",
+          "on-secondary": "#ffffff",
+          "on-primary-fixed": "#00174b",
+          "inverse-on-surface": "#eaf1ff",
+          "secondary": "#475569",
+          "inverse-primary": "#b4c5ff",
+          "tertiary-container": "#0284c7",
+          "on-secondary-container": "#1e293b",
+          "tertiary-fixed-dim": "#93ccff",
+          "error": "#dc2626",
+          "surface-container": "#f1f5f9",
+          "on-error-container": "#991b1b",
+          "surface-container-high": "#e2e8f0",
+          "surface-variant": "#e2e8f0",
+          "tertiary": "#059669",
+          "error-container": "#fef2f2",
+          "on-surface": "#0f172a",
+          "primary": "#2563eb",
+          "primary-container": "#1d4ed8",
+          "secondary-fixed-dim": "#bec6e0",
+          "on-secondary-fixed": "#131b2e",
+          "secondary-container": "#e0e7ff",
+          "on-primary-fixed-variant": "#003ea8",
+          "on-error": "#ffffff",
+          "on-tertiary": "#ffffff"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.125rem",
+          "lg": "0.25rem",
+          "xl": "0.5rem",
+          "full": "0.75rem"
+        },
+        "spacing": {
+          "margin-md": "1.5rem",
+          "gutter-lg": "1.5rem",
+          "space-md": "1rem",
+          "gutter": "1rem",
+          "space-xs": "0.25rem",
+          "space-lg": "1.5rem",
+          "space-sm": "0.5rem",
+          "margin": "1rem",
+          "space-xl": "2rem",
+          "margin-lg": "2rem"
+        },
+        "fontFamily": {
+          "mono-data-sm": ["JetBrains Mono"],
+          "mono-data-lg": ["JetBrains Mono"],
+          "mono-data-md": ["JetBrains Mono"],
+          "body-lg": ["Inter"],
+          "body-md": ["Inter"],
+          "headline-lg": ["Inter"],
+          "headline-sm": ["Inter"],
+          "label-sm": ["JetBrains Mono"],
+          "headline-xl": ["Inter"],
+          "body-sm": ["Inter"],
+          "headline-md": ["Inter"],
+          "headline-xl-mobile": ["Inter"],
+          "label-md": ["Inter"],
+          "label-lg": ["Inter"]
+        },
+        "fontSize": {
+          "mono-data-sm": ["0.6875rem", { "lineHeight": "0.875rem", "letterSpacing": "0.02em", "fontWeight": "400" }],
+          "mono-data-lg": ["1.125rem", { "lineHeight": "1.5rem", "letterSpacing": "0", "fontWeight": "600" }],
+          "mono-data-md": ["0.8125rem", { "lineHeight": "1.125rem", "letterSpacing": "0", "fontWeight": "500" }],
+          "label-md": ["0.75rem", { "lineHeight": "1rem", "letterSpacing": "0.02em", "fontWeight": "500" }],
+          "label-lg": ["0.875rem", { "lineHeight": "1.25rem", "letterSpacing": "0.01em", "fontWeight": "500" }],
+          "label-sm": ["11px", { "lineHeight": "16px", "fontWeight": "500" }],
+          "body-sm": ["0.75rem", { "lineHeight": "1.125rem", "fontWeight": "400" }],
+          "body-md": ["0.875rem", { "lineHeight": "1.25rem", "fontWeight": "400" }],
+          "body-lg": ["1rem", { "lineHeight": "1.5rem", "fontWeight": "400" }],
+          "headline-sm": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+          "headline-md": ["1.125rem", { "lineHeight": "1.5rem", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+          "headline-lg": ["1.25rem", { "lineHeight": "1.75rem", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+          "headline-xl-mobile": ["1.375rem", { "lineHeight": "1.75rem", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+          "headline-xl": ["1.75rem", { "lineHeight": "2.25rem", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+        }
+      }
+    }
+  }
+</script></head><body class="bg-surface font-body-md text-on-surface antialiased selection:bg-primary-fixed selection:text-on-primary-fixed"><aside class="fixed left-0 top-0 h-full w-72 bg-[#0F172A] z-50 flex flex-col justify-between border-r border-[#1E293B] shadow-xl"><div class="flex flex-col flex-1 min-h-0"><div class="h-16 px-space-md flex items-center gap-space-sm bg-[#0A0F1D] border-b border-[#1E293B]"><img alt="CentreWatch AI Emblem" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WgBs1BVpCPN5jMWZ74Tldp5I7-LVFTNGDIeNOxtdKpnK_dqEFCNDpzynZbkP6-bbbyCUzIRqG0-dr8GW4osw9bhkLm6NrJbwhbTiMW_Pu4dDQlgN6_NyZJkvTbfaESWe0CKGOmOxlV0ks1onXWho_J2GIEWONYIEllENHRx3hcMSIoHQoAgwubgequSiMiVrw8OTPq2gJnHhxt5YnK9eznuzj0ZpfDcZ1e3BheoZHVqXjcGH76YGSztw"/><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><span class="font-headline-md text-headline-md tracking-tight text-white font-semibold truncate">CentreWatch AI</span><span class="font-mono-data-sm text-mono-data-sm px-1 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800 font-medium">v2.4</span></div><span class="font-label-md text-label-md text-slate-400 truncate">MSDE · Gov of India</span></div></div><div class="px-space-md py-space-sm"><div class="flex items-center justify-between px-space-sm py-1.5 rounded bg-[#1E293B]/80 border border-slate-700/60"><div class="flex items-center gap-space-xs"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span><span class="font-mono-data-sm text-mono-data-sm text-slate-300 uppercase tracking-wider">National Mesh Live</span></div><span class="font-mono-data-sm text-mono-data-sm text-sky-400 font-semibold">99.8%</span></div></div><nav class="flex-1 px-space-sm space-y-0.5 overflow-y-auto" data-active-classes="bg-blue-600 text-white font-semibold"><a aria-current="page" class="group flex items-center justify-between px-space-md py-2 rounded transition-colors bg-blue-600 text-white font-semibold shadow-sm" data-path="overview" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-white">grid_view</span><span class="font-label-lg text-label-lg">Overview</span></div></a><a class="group flex items-center justify-between px-space-md py-2 rounded text-slate-300 hover:bg-[#1E293B] hover:text-white transition-colors" data-path="centres" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-white transition-colors">apartment</span><span class="font-label-lg text-label-lg">Centres</span></div><span class="font-mono-data-sm text-mono-data-sm text-slate-400 group-hover:text-slate-200">482</span></a><a class="group flex items-center justify-between px-space-md py-2 rounded text-slate-300 hover:bg-[#1E293B] hover:text-white transition-colors" data-path="live-cameras" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-white transition-colors">videocam</span><span class="font-label-lg text-label-lg">Live Cameras</span></div><span class="flex items-center gap-1 font-mono-data-sm text-mono-data-sm text-emerald-400"><span class="w-1 h-1 rounded-full bg-emerald-400"></span>REC</span></a><a class="group flex items-center justify-between px-space-md py-2 rounded text-slate-300 hover:bg-[#1E293B] hover:text-white transition-colors" data-path="attendance" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-white transition-colors">fact_check</span><span class="font-label-lg text-label-lg">Attendance</span></div></a><a class="group flex items-center justify-between px-space-md py-2 rounded text-slate-300 hover:bg-[#1E293B] hover:text-white transition-colors" data-path="infrastructure" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-white transition-colors">domain_verification</span><span class="font-label-lg text-label-lg">Infrastructure</span></div></a><a class="group flex items-center justify-between px-space-md py-2 rounded text-slate-300 hover:bg-[#1E293B] hover:text-white transition-colors" data-path="alerts" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-rose-400 group-hover:text-rose-300 transition-colors">warning</span><span class="font-label-lg text-label-lg">Alerts</span></div><span class="px-1.5 py-0.5 rounded bg-rose-950/80 text-rose-300 border border-rose-800 font-mono-data-sm text-mono-data-sm font-semibold">14</span></a><a class="group flex items-center justify-between px-space-md py-2 rounded text-slate-300 hover:bg-[#1E293B] hover:text-white transition-colors" data-path="reports" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-white transition-colors">summarize</span><span class="font-label-lg text-label-lg">Reports</span></div></a><a class="group flex items-center justify-between px-space-md py-2 rounded text-slate-300 hover:bg-[#1E293B] hover:text-white transition-colors" data-path="analytics" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-white transition-colors">insights</span><span class="font-label-lg text-label-lg">Analytics</span></div></a><a class="group flex items-center justify-between px-space-md py-2 rounded text-slate-300 hover:bg-[#1E293B] hover:text-white transition-colors" data-path="audit-log" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-white transition-colors">verified_user</span><span class="font-label-lg text-label-lg">Audit Log</span></div></a><a class="group flex items-center justify-between px-space-md py-2 rounded text-slate-300 hover:bg-[#1E293B] hover:text-white transition-colors" data-path="settings" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px] text-slate-400 group-hover:text-white transition-colors">tune</span><span class="font-label-lg text-label-lg">Settings</span></div></a></nav></div><div class="p-space-md space-y-space-sm bg-[#0A0F1D] border-t border-[#1E293B]"><div class="p-space-sm rounded bg-[#1E293B] border border-slate-700/60 space-y-space-xs"><div class="flex items-center justify-between"><span class="font-mono-data-sm text-mono-data-sm text-slate-400">Edge Node Network</span><span class="font-mono-data-sm text-mono-data-sm text-emerald-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>SYNCED</span></div><div class="font-mono-data-sm text-mono-data-sm text-slate-200 font-medium truncate">1,428 Online · 12 Syncing</div><div class="w-full bg-slate-900 h-1.5 rounded overflow-hidden"><div class="bg-blue-500 h-full w-[98.8%]"></div></div></div><div class="flex items-center justify-between px-space-sm py-1"><div class="flex items-center gap-space-xs"><span class="material-symbols-outlined text-[18px] text-slate-400">speed</span><span class="font-label-md text-label-md text-slate-300">Low-bandwidth</span></div><button class="w-8 h-4 rounded-full bg-slate-700 relative flex items-center px-0.5 transition-colors" type="button"><span class="w-3 h-3 rounded-full bg-slate-300 transition-transform"></span></button></div><a class="flex items-center gap-space-sm px-space-sm py-1.5 text-slate-400 hover:text-white font-label-md text-label-md transition-colors" href="#"><span class="material-symbols-outlined text-[18px]">help</span><span>Audit Compliance &amp; Docs</span></a></div></aside><div class="pl-72"><header class="fixed top-0 left-72 right-0 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm z-40 flex items-center justify-between px-gutter-lg"><div class="flex items-center gap-space-md min-w-0"><div class="flex items-center gap-space-xs bg-slate-100 hover:bg-slate-200/70 border border-slate-200 px-space-sm py-1.5 rounded text-slate-700 font-mono-data-sm text-mono-data-sm transition-colors cursor-pointer"><span class="material-symbols-outlined text-[16px] text-blue-600">explore</span><span>All India</span><span class="text-slate-400">/</span><span>Northern Zone</span><span class="text-slate-400">/</span><span class="text-slate-900 font-semibold">NCT Delhi</span><span class="material-symbols-outlined text-[16px] text-slate-500">arrow_drop_down</span></div><div class="hidden xl:flex items-center gap-space-xs px-2.5 py-1 rounded bg-emerald-50 border border-emerald-200 font-mono-data-sm text-mono-data-sm text-emerald-800"><span class="material-symbols-outlined text-[14px] text-emerald-600">shield_lock</span><span class="tracking-wide font-medium">PRIVACY PROTOCOL: VECTOR METRICS ONLY</span></div></div><div class="flex-1 max-w-xl mx-gutter-lg hidden lg:block"><div class="relative flex items-center"><span class="material-symbols-outlined absolute left-3 text-slate-400 text-[18px]">search</span><input class="w-full bg-slate-50 border border-slate-200 text-slate-900 font-body-sm text-body-sm pl-10 pr-48 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 placeholder:text-slate-400" placeholder="Search centres, camera UID, alerts, or audit ref (Ctrl+K)..." type="text"/><div class="absolute right-2 flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-700 font-mono-data-sm text-mono-data-sm font-medium"><span class="material-symbols-outlined text-[14px] text-emerald-600">verified</span><span>Aggregate Mode · No Facial ID</span></div></div></div><div class="flex items-center gap-gutter"><div class="hidden 2xl:flex items-center gap-space-md pl-space-xs font-mono-data-sm text-mono-data-sm"><div class="flex items-center gap-1.5 text-slate-600"><span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span><span>Pipeline: <strong class="text-emerald-700 font-semibold">24ms</strong></span></div><div class="text-slate-300">|</div><div class="text-slate-500">Sync: <span class="text-slate-900 font-medium">14:32:08 IST</span></div></div><div class="flex items-center gap-space-sm"><button class="relative p-2 rounded-md hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors border border-transparent hover:border-slate-200" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white"></span></button><button class="p-2 rounded-md hover:bg-slate-100 text-slate-600 hover:text-slate-900 transition-colors border border-transparent hover:border-slate-200" type="button"><span class="material-symbols-outlined text-[20px]">terminal</span></button></div><div class="h-6 w-px bg-slate-200"></div><div class="flex items-center gap-space-sm pl-space-xs"><img alt="Dr. V. Ramanathan" class="w-9 h-9 rounded-full object-cover ring-2 ring-blue-500/20 shadow-sm" src="https://lh3.googleusercontent.com/aida/AEtjO1VsXi1rL90K2_gl5bux1NbFnmKqNY5NXZ6D9cwfCJ5geRjwX982OQ-1jdXqm1GiWdyv6muqgTopvHMP3EGXDSSS3WWrGdk4vP2_cM0cuGUbnzKEc2oRP9F-IQ7EL0GezvRVtJV_9FvTc14i1ZqSW-_RulULwgdUSnlsLnG2wUpW0aKNAOSRJGbP_ObCs244p2TyDxdBz9XTArITPBtJY0qJOuUmdoRxSBaLtOo-LFhSD5I8rxh2W-0fI78"/><div class="hidden md:flex flex-col text-left"><div class="flex items-center gap-1.5"><span class="font-label-md text-label-md text-slate-900 font-semibold leading-tight">Dr. V. Ramanathan</span><span class="font-mono-data-sm text-mono-data-sm px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 font-medium">GoI</span></div><span class="font-mono-data-sm text-mono-data-sm text-slate-500 leading-tight">Director (IT &amp; Monitoring)</span></div><span class="material-symbols-outlined text-[18px] text-slate-400">unfold_more</span></div></div></header><main class="relative pt-16 bg-[#F8FAFC] min-h-screen"><div class="w-full px-gutter-lg py-gutter-lg"><div class="flex flex-col w-full space-y-gutter-lg">
+<!-- Operational Header Section -->
+<section class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-md pb-space-xs">
+<div class="space-y-1">
+<div class="flex items-center gap-space-sm">
+<span class="px-2.5 py-0.5 rounded bg-blue-50 border border-blue-200 text-blue-700 font-mono-data-sm text-mono-data-sm tracking-wider uppercase font-semibold">National Command Matrix</span>
+<span class="flex items-center gap-1.5 font-mono-data-sm text-mono-data-sm text-emerald-700 font-medium bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          ACTIVE MONITORING CYCLE 04
+        </span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-slate-900 tracking-tight font-bold">Training Centre Monitoring</h1>
+<p class="font-body-md text-body-md text-slate-600 max-w-3xl">AI-assisted attendance and infrastructure compliance · Ministry of Skill Development and Entrepreneurship (MSDE), Government of India</p>
+</div>
+<!-- Actions & Timeline -->
+<div class="flex flex-wrap items-center gap-space-sm">
+<div class="flex items-center gap-space-xs px-3 py-2 rounded bg-white border border-slate-200 text-slate-700 font-mono-data-sm text-mono-data-sm shadow-sm">
+<span class="material-symbols-outlined text-[18px] text-blue-600">calendar_today</span>
+<span>Today, 24 Oct 2025</span>
+<span class="text-slate-300">/</span>
+<span class="text-emerald-700 font-medium">Sessions 1-4 Complete</span>
+</div>
+<button class="flex items-center gap-space-xs px-3 py-2 rounded bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-label-md text-label-md transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px] text-slate-500">file_download</span>
+<span>Export National Briefing</span>
+</button>
+<button class="flex items-center gap-space-xs px-3.5 py-2 rounded bg-blue-600 hover:bg-blue-700 text-white font-label-md text-label-md transition-colors shadow-sm" type="button">
+<span class="material-symbols-outlined text-[18px]">emergency_home</span>
+<span class="font-semibold">Emergency Inspection Dispatch</span>
+<span class="font-mono-data-sm text-mono-data-sm bg-white/20 px-1.5 py-0.5 rounded ml-1 text-white font-bold">14</span>
+</button>
+</div>
+</section>
+<!-- Top KPI Strip (6 Tactical Operational Cards) -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-space-md">
+<!-- Card 1 -->
+<div class="relative overflow-hidden rounded bg-white border border-slate-200/90 p-space-md shadow-sm hover:border-blue-400 hover:shadow-md transition-all group">
+<div class="flex items-center justify-between text-slate-500 mb-1">
+<span class="font-label-md text-label-md uppercase tracking-wider text-slate-600 font-medium">Sanctioned Centres</span>
+<span class="material-symbols-outlined text-[18px] text-blue-600">apartment</span>
+</div>
+<div class="font-headline-xl text-headline-xl font-bold text-slate-900 tracking-tight">1,480</div>
+<div class="mt-2 flex items-center justify-between text-slate-600 font-mono-data-sm text-mono-data-sm">
+<span class="text-emerald-600 font-semibold">+12 this quarter</span>
+<span class="text-slate-400">28 States/UTs</span>
+</div>
+<div class="w-full bg-slate-100 h-1.5 rounded mt-2.5 overflow-hidden">
+<div class="bg-blue-600 h-full w-full"></div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="relative overflow-hidden rounded bg-white border border-slate-200/90 p-space-md shadow-sm hover:border-blue-400 hover:shadow-md transition-all group">
+<div class="flex items-center justify-between text-slate-500 mb-1">
+<span class="font-label-md text-label-md uppercase tracking-wider text-slate-600 font-medium">Centres Online</span>
+<span class="material-symbols-outlined text-[18px] text-emerald-600">hub</span>
+</div>
+<div class="font-headline-xl text-headline-xl font-bold text-slate-900 tracking-tight">1,452 <span class="font-mono-data-md text-mono-data-md text-slate-400 font-normal">/ 1,480</span></div>
+<div class="mt-2 flex items-center justify-between text-slate-600 font-mono-data-sm text-mono-data-sm">
+<span class="text-emerald-600 font-semibold">98.1% Active Mesh</span>
+<span class="text-rose-600 font-semibold">28 Degraded</span>
+</div>
+<div class="w-full bg-slate-100 h-1.5 rounded mt-2.5 overflow-hidden">
+<div class="bg-emerald-500 h-full w-[98.1%]"></div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="relative overflow-hidden rounded bg-white border border-slate-200/90 p-space-md shadow-sm hover:border-blue-400 hover:shadow-md transition-all group">
+<div class="flex items-center justify-between text-slate-500 mb-1">
+<span class="font-label-md text-label-md uppercase tracking-wider text-slate-600 font-medium">Attendance Comp.</span>
+<span class="material-symbols-outlined text-[18px] text-indigo-600">fact_check</span>
+</div>
+<div class="font-headline-xl text-headline-xl font-bold text-slate-900 tracking-tight">89.4%</div>
+<div class="mt-2 flex items-center justify-between text-slate-600 font-mono-data-sm text-mono-data-sm">
+<span class="text-slate-400">±5% dev tolerance</span>
+<span class="text-rose-600 font-semibold">-1.8% WoW</span>
+</div>
+<div class="w-full bg-slate-100 h-1.5 rounded mt-2.5 overflow-hidden">
+<div class="bg-indigo-600 h-full w-[89.4%]"></div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="relative overflow-hidden rounded bg-white border border-slate-200/90 p-space-md shadow-sm hover:border-blue-400 hover:shadow-md transition-all group">
+<div class="flex items-center justify-between text-slate-500 mb-1">
+<span class="font-label-md text-label-md uppercase tracking-wider text-slate-600 font-medium">Infr. Compliance</span>
+<span class="material-symbols-outlined text-[18px] text-teal-600">verified</span>
+</div>
+<div class="font-headline-xl text-headline-xl font-bold text-slate-900 tracking-tight">94.2%</div>
+<div class="mt-2 flex items-center justify-between text-slate-600 font-mono-data-sm text-mono-data-sm">
+<span class="text-rose-600 font-semibold">38 Centres Gap</span>
+<span class="text-slate-400">CNC • IT Labs</span>
+</div>
+<div class="w-full bg-slate-100 h-1.5 rounded mt-2.5 overflow-hidden">
+<div class="bg-teal-600 h-full w-[94.2%]"></div>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="relative overflow-hidden rounded bg-white border border-slate-200/90 p-space-md shadow-sm hover:border-rose-400 hover:shadow-md transition-all group">
+<div class="flex items-center justify-between text-slate-500 mb-1">
+<span class="font-label-md text-label-md uppercase tracking-wider text-slate-600 font-medium">Priority Alerts</span>
+<span class="material-symbols-outlined text-[18px] text-rose-600">warning</span>
+</div>
+<div class="font-headline-xl text-headline-xl font-bold text-rose-600 tracking-tight">14 <span class="font-mono-data-md text-mono-data-md text-slate-400 font-normal">/ 42 Mod</span></div>
+<div class="mt-2 flex items-center justify-between text-slate-600 font-mono-data-sm text-mono-data-sm">
+<span class="text-slate-900 font-medium">Backlog: 18m avg</span>
+<span class="text-emerald-600 font-medium">96% SLA</span>
+</div>
+<div class="w-full bg-slate-100 h-1.5 rounded mt-2.5 overflow-hidden">
+<div class="bg-rose-500 h-full w-[25%]"></div>
+</div>
+</div>
+<!-- Card 6 -->
+<div class="relative overflow-hidden rounded bg-white border border-slate-200/90 p-space-md shadow-sm hover:border-blue-400 hover:shadow-md transition-all group">
+<div class="flex items-center justify-between text-slate-500 mb-1">
+<span class="font-label-md text-label-md uppercase tracking-wider text-slate-600 font-medium">Edge Cameras</span>
+<span class="material-symbols-outlined text-[18px] text-blue-600">videocam</span>
+</div>
+<div class="font-headline-xl text-headline-xl font-bold text-slate-900 tracking-tight">5,892 <span class="font-mono-data-md text-mono-data-md text-slate-400 font-normal">/ 5,920</span></div>
+<div class="mt-2 flex items-center justify-between text-slate-600 font-mono-data-sm text-mono-data-sm">
+<span class="text-emerald-600 font-semibold">99.5% &gt;15 FPS</span>
+<span class="text-slate-400">12.4 kbps/n</span>
+</div>
+<div class="w-full bg-slate-100 h-1.5 rounded mt-2.5 overflow-hidden">
+<div class="bg-blue-500 h-full w-[99.5%]"></div>
+</div>
+</div>
+</section>
+<!-- Middle Region: Geo National Distribution (60%) & Priority Alerts Queue (40%) -->
+<section class="grid grid-cols-1 xl:grid-cols-12 gap-gutter-lg">
+<!-- Left Column: Map & Territorial Overview (7 Cols on XL) -->
+<div class="xl:col-span-7 flex flex-col rounded bg-white border border-slate-200 p-space-md shadow-sm space-y-space-md">
+<!-- Matrix Header & Control Filters -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-xs">
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[20px] text-blue-600">public</span>
+<h2 class="font-headline-md text-headline-md font-bold text-slate-900 tracking-tight">Geographic National Mesh &amp; Heatmap</h2>
+</div>
+<p class="font-body-sm text-body-sm text-slate-500">Real-time edge telemetry mapped across regional ITI &amp; PMKK clusters</p>
+</div>
+<!-- Filter Pills -->
+<div class="flex flex-wrap items-center gap-1.5 p-1 rounded bg-slate-100 border border-slate-200">
+<button class="px-2.5 py-1 rounded bg-white text-blue-700 border border-slate-200 font-mono-data-sm text-mono-data-sm font-semibold shadow-xs" type="button">All (1,480)</button>
+<button class="px-2.5 py-1 rounded hover:bg-white/80 text-rose-700 font-mono-data-sm text-mono-data-sm font-medium transition-colors" type="button">Critical (14)</button>
+<button class="px-2.5 py-1 rounded hover:bg-white/80 text-amber-800 font-mono-data-sm text-mono-data-sm font-medium transition-colors" type="button">Review (42)</button>
+<button class="px-2.5 py-1 rounded hover:bg-white/80 text-emerald-700 font-mono-data-sm text-mono-data-sm font-medium transition-colors" type="button">Normal (1,396)</button>
+</div>
+</div>
+<!-- Interactive Map Frame with Tactical Overlay -->
+<div class="relative w-full h-[400px] rounded overflow-hidden bg-slate-950 border border-slate-200">
+<!-- Location Map Placeholder Engine -->
+<div class="w-full h-full bg-cover bg-center opacity-85" data-location="New Delhi, India" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCmJUw6JDb3KucnNMpfX9z97yxcn9IBJn8XETsnXi1WN2VLV1lKtUd06vMngkdwhoi8a_J7Wr0gu9yhDWZNdXebCtBN3gYbZXj2UKKijagtWXDUhaMIzIPrWrm2t5YJ2DQVKGdls0PBpl63NZQpNe24AJOf-ymuprbuk1mtLgSLPvaGVg8MoQ-tO5C7p0PpxpQRrsPQe-Ak18svLVFvJYwRPRfEK5H5QngzMqdOogZvB40S1ncSrcdt')"></div>
+<!-- Privacy & Edge Encryption Ribbon -->
+<div class="absolute top-3 left-3 right-3 flex items-center justify-between px-3 py-1.5 rounded bg-white/95 border border-slate-200/80 backdrop-blur-md shadow-md text-slate-800">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-emerald-600">lock</span>
+<span class="font-mono-data-sm text-mono-data-sm text-slate-700 font-medium uppercase tracking-wider">Edge-Node GeoMesh · Biometric Strip Verified</span>
+</div>
+<div class="flex items-center gap-space-sm font-mono-data-sm text-mono-data-sm text-slate-500">
+<span>Aggregated Vectors: <strong class="text-slate-900">1,480 Nodes</strong></span>
+<span class="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200 flex items-center gap-1 font-semibold"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>LIVE</span>
+</div>
+</div>
+<!-- Simulated Node Markers over Strategic Training Hubs -->
+<!-- Delhi Hub -->
+<div class="absolute top-[32%] left-[43%] group cursor-pointer">
+<div class="relative flex items-center justify-center">
+<span class="animate-ping absolute inline-flex h-6 w-6 rounded-full bg-rose-500 opacity-60"></span>
+<span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-rose-600 ring-2 ring-white shadow-lg"></span>
+</div>
+<div class="absolute bottom-5 left-1/2 -translate-x-1/2 hidden group-hover:flex flex-col bg-slate-900 text-white px-2.5 py-1.5 rounded shadow-xl whitespace-nowrap z-20 border border-slate-700">
+<span class="font-label-md text-label-md text-white font-semibold">NCR Delhi Hub (48 Centres)</span>
+<span class="font-mono-data-sm text-mono-data-sm text-rose-300">4 Critical Headcount Discrepancies</span>
+</div>
+</div>
+<!-- Lucknow Hub -->
+<div class="absolute top-[38%] left-[54%] group cursor-pointer">
+<div class="relative flex items-center justify-center">
+<span class="inline-flex rounded-full h-3 w-3 bg-emerald-500 ring-2 ring-white shadow"></span>
+</div>
+<div class="absolute bottom-5 left-1/2 -translate-x-1/2 hidden group-hover:flex flex-col bg-slate-900 text-white px-2.5 py-1.5 rounded shadow-xl whitespace-nowrap z-20 border border-slate-700">
+<span class="font-label-md text-label-md text-white font-semibold">Lucknow Cluster (82 Centres)</span>
+<span class="font-mono-data-sm text-mono-data-sm text-emerald-300">100% Infrastructure Compliant</span>
+</div>
+</div>
+<!-- Patna Hub -->
+<div class="absolute top-[42%] left-[68%] group cursor-pointer">
+<div class="relative flex items-center justify-center">
+<span class="animate-pulse inline-flex rounded-full h-3 w-3 bg-indigo-500 ring-2 ring-white shadow"></span>
+</div>
+<div class="absolute bottom-5 left-1/2 -translate-x-1/2 hidden group-hover:flex flex-col bg-slate-900 text-white px-2.5 py-1.5 rounded shadow-xl whitespace-nowrap z-20 border border-slate-700">
+<span class="font-label-md text-label-md text-white font-semibold">Patna / Bihar East (64 Centres)</span>
+<span class="font-mono-data-sm text-mono-data-sm text-indigo-300">2 Under Manual Roster Audit</span>
+</div>
+</div>
+<!-- Guwahati Hub -->
+<div class="absolute top-[40%] left-[84%] group cursor-pointer">
+<div class="relative flex items-center justify-center">
+<span class="inline-flex rounded-full h-3 w-3 bg-emerald-500 ring-2 ring-white shadow"></span>
+</div>
+<div class="absolute bottom-5 left-1/2 -translate-x-1/2 hidden group-hover:flex flex-col bg-slate-900 text-white px-2.5 py-1.5 rounded shadow-xl whitespace-nowrap z-20 border border-slate-700">
+<span class="font-label-md text-label-md text-white font-semibold">Guwahati / NER (36 Centres)</span>
+<span class="font-mono-data-sm text-mono-data-sm text-emerald-300">Mesh Normal (99.1%)</span>
+</div>
+</div>
+<!-- Mumbai Hub -->
+<div class="absolute top-[58%] left-[36%] group cursor-pointer">
+<div class="relative flex items-center justify-center">
+<span class="animate-ping absolute inline-flex h-5 w-5 rounded-full bg-rose-500 opacity-50"></span>
+<span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-rose-600 ring-2 ring-white shadow-lg"></span>
+</div>
+<div class="absolute bottom-5 left-1/2 -translate-x-1/2 hidden group-hover:flex flex-col bg-slate-900 text-white px-2.5 py-1.5 rounded shadow-xl whitespace-nowrap z-20 border border-slate-700">
+<span class="font-label-md text-label-md text-white font-semibold">Mumbai Metro (94 Centres)</span>
+<span class="font-mono-data-sm text-mono-data-sm text-rose-300">2 Missing Safety Equipment Flags</span>
+</div>
+</div>
+<!-- Hyderabad Hub -->
+<div class="absolute top-[65%] left-[49%] group cursor-pointer">
+<div class="relative flex items-center justify-center">
+<span class="inline-flex rounded-full h-3 w-3 bg-emerald-500 ring-2 ring-white shadow"></span>
+</div>
+<div class="absolute bottom-5 left-1/2 -translate-x-1/2 hidden group-hover:flex flex-col bg-slate-900 text-white px-2.5 py-1.5 rounded shadow-xl whitespace-nowrap z-20 border border-slate-700">
+<span class="font-label-md text-label-md text-white font-semibold">Hyderabad Zone (71 Centres)</span>
+<span class="font-mono-data-sm text-mono-data-sm text-emerald-300">Optimal Synchronization</span>
+</div>
+</div>
+<!-- Bengaluru Hub -->
+<div class="absolute top-[76%] left-[46%] group cursor-pointer">
+<div class="relative flex items-center justify-center">
+<span class="animate-pulse inline-flex rounded-full h-3 w-3 bg-indigo-500 ring-2 ring-white shadow"></span>
+</div>
+<div class="absolute bottom-5 left-1/2 -translate-x-1/2 hidden group-hover:flex flex-col bg-slate-900 text-white px-2.5 py-1.5 rounded shadow-xl whitespace-nowrap z-20 border border-slate-700">
+<span class="font-label-md text-label-md text-white font-semibold">Bengaluru Urban (88 Centres)</span>
+<span class="font-mono-data-sm text-mono-data-sm text-blue-300">1 Camera Tamper Event Pending</span>
+</div>
+</div>
+<!-- Bottom Controls & Layer Swapping -->
+<div class="absolute bottom-3 left-3 right-3 flex flex-wrap items-center justify-between gap-space-sm px-3 py-2 rounded bg-white/95 border border-slate-200/80 backdrop-blur-md shadow-md text-slate-800">
+<div class="flex items-center gap-space-sm">
+<span class="font-mono-data-sm text-mono-data-sm text-slate-500 uppercase tracking-wider">Active Layers:</span>
+<label class="flex items-center gap-1.5 cursor-pointer text-slate-800 font-mono-data-sm text-mono-data-sm">
+<input checked="" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500" type="checkbox"/>
+<span>Attendance Variance</span>
+</label>
+<label class="flex items-center gap-1.5 cursor-pointer text-slate-700 font-mono-data-sm text-mono-data-sm">
+<input checked="" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500" type="checkbox"/>
+<span>Tool/Lab Compliance</span>
+</label>
+<label class="flex items-center gap-1.5 cursor-pointer text-slate-700 font-mono-data-sm text-mono-data-sm">
+<input class="rounded border-slate-300 text-blue-600 focus:ring-blue-500" type="checkbox"/>
+<span>Camera Outages</span>
+</label>
+</div>
+<div class="flex items-center gap-1">
+<button class="w-7 h-7 rounded bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-200 transition-colors" title="Zoom in" type="button">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+<button class="w-7 h-7 rounded bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-200 transition-colors" title="Zoom out" type="button">
+<span class="material-symbols-outlined text-[18px]">remove</span>
+</button>
+<button class="w-7 h-7 rounded bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 hover:bg-slate-200 transition-colors" title="Reset View" type="button">
+<span class="material-symbols-outlined text-[16px]">crop_free</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Quick Geo Summary Mini-strip -->
+<div class="grid grid-cols-3 gap-space-sm pt-space-xs text-center font-mono-data-sm text-mono-data-sm">
+<div class="p-2.5 rounded bg-slate-50 border border-slate-200">
+<span class="text-slate-500 block text-xs">North Zone (ND/UP/HR)</span>
+<span class="text-slate-900 font-semibold">512 Centres • 92.4% Online</span>
+</div>
+<div class="p-2.5 rounded bg-slate-50 border border-slate-200">
+<span class="text-slate-500 block text-xs">South Zone (KA/TS/TN)</span>
+<span class="text-emerald-700 font-semibold">430 Centres • 99.4% Online</span>
+</div>
+<div class="p-2.5 rounded bg-slate-50 border border-slate-200">
+<span class="text-slate-500 block text-xs">West &amp; East Hubs</span>
+<span class="text-slate-900 font-semibold">538 Centres • 97.2% Online</span>
+</div>
+</div>
+</div>
+<!-- Right Column: Priority Alerts Queue (5 Cols on XL) -->
+<div class="xl:col-span-5 flex flex-col rounded bg-white border border-slate-200 p-space-md shadow-sm space-y-space-md">
+<div class="flex items-center justify-between pb-space-xs border-b border-slate-100">
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[20px] text-rose-600">priority_high</span>
+<h2 class="font-headline-md text-headline-md font-bold text-slate-900 tracking-tight">Priority Alerts Queue</h2>
+</div>
+<p class="font-body-sm text-body-sm text-slate-500">Human-in-the-loop review required within 30 min SLA</p>
+</div>
+<span class="px-2.5 py-0.5 rounded bg-rose-50 border border-rose-200 text-rose-700 font-mono-data-sm text-mono-data-sm font-bold">14 Pending</span>
+</div>
+<!-- Alert Items Stack -->
+<div class="space-y-space-sm overflow-y-auto max-h-[480px] pr-1">
+<!-- Alert 1: Critical Headcount Mismatch -->
+<div class="p-space-md rounded bg-slate-50 border border-slate-200 hover:border-blue-400 space-y-space-xs transition-colors">
+<div class="flex items-start justify-between gap-space-sm">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-mono-data-sm text-mono-data-sm text-rose-600 font-bold">DL-OKH-042</span>
+<span class="text-slate-300">•</span>
+<span class="font-label-md text-label-md font-semibold text-slate-900 truncate">PMKK Skill Centre - Okhla Ph-III</span>
+</div>
+<p class="font-mono-data-sm text-mono-data-sm text-slate-500 mt-0.5">Session 2 • Sewing Machine Operator Batch B</p>
+</div>
+<span class="px-2 py-0.5 rounded bg-rose-50 border border-rose-200 text-rose-700 font-mono-data-sm text-mono-data-sm font-bold tracking-wide">CRITICAL</span>
+</div>
+<div class="p-2 rounded bg-white border border-slate-200 flex items-center justify-between text-slate-700 font-mono-data-sm text-mono-data-sm">
+<div class="flex items-center gap-1.5 text-rose-700">
+<span class="material-symbols-outlined text-[16px] text-rose-600">groups</span>
+<span class="font-semibold">Mismatch: Reported 45 vs AI Observed 18 (-60%)</span>
+</div>
+<span class="text-slate-400">Conf: 98.2%</span>
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-mono-data-sm text-mono-data-sm text-slate-500">Window: 10:15 - 11:30 AM (Active)</span>
+<div class="flex items-center gap-1.5">
+<button class="px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white font-label-md text-label-md transition-colors shadow-xs" type="button">Review Evidence</button>
+<button class="p-1 rounded hover:bg-slate-200 text-slate-500 hover:text-slate-900 transition-colors border border-slate-200 bg-white" title="Dispatch Inspector" type="button">
+<span class="material-symbols-outlined text-[18px]">person_pin_circle</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Alert 2: Missing Lab Equipment -->
+<div class="p-space-md rounded bg-slate-50 border border-slate-200 hover:border-blue-400 space-y-space-xs transition-colors">
+<div class="flex items-start justify-between gap-space-sm">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-mono-data-sm text-mono-data-sm text-indigo-700 font-bold">MH-PUN-104</span>
+<span class="text-slate-300">•</span>
+<span class="font-label-md text-label-md font-semibold text-slate-900 truncate">Govt ITI Aundh - Pune West</span>
+</div>
+<p class="font-mono-data-sm text-mono-data-sm text-slate-500 mt-0.5">CNC Machining Practical • Bay 03</p>
+</div>
+<span class="px-2 py-0.5 rounded bg-indigo-50 border border-indigo-200 text-indigo-700 font-mono-data-sm text-mono-data-sm font-bold tracking-wide">HIGH</span>
+</div>
+<div class="p-2 rounded bg-white border border-slate-200 flex items-center justify-between text-slate-700 font-mono-data-sm text-mono-data-sm">
+<div class="flex items-center gap-1.5 text-indigo-800">
+<span class="material-symbols-outlined text-[16px] text-indigo-600">precision_manufacturing</span>
+<span class="font-medium">Missing Mandatory CNC Lathe Tooling Module</span>
+</div>
+<span class="text-slate-400">Conf: 94.6%</span>
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-mono-data-sm text-mono-data-sm text-slate-500">Detected: 44m ago • AI Spatial Scan</span>
+<div class="flex items-center gap-1.5">
+<button class="px-2.5 py-1 rounded bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 font-label-md text-label-md transition-colors shadow-xs" type="button">Inspect CAD Diff</button>
+<button class="p-1 rounded hover:bg-slate-200 text-slate-500 hover:text-slate-900 transition-colors border border-slate-200 bg-white" title="Request Lab Video" type="button">
+<span class="material-symbols-outlined text-[18px]">videocam</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Alert 3: Camera Tampering / Occlusion -->
+<div class="p-space-md rounded bg-slate-50 border border-slate-200 hover:border-blue-400 space-y-space-xs transition-colors">
+<div class="flex items-start justify-between gap-space-sm">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-mono-data-sm text-mono-data-sm text-rose-600 font-bold">KA-BLR-019</span>
+<span class="text-slate-300">•</span>
+<span class="font-label-md text-label-md font-semibold text-slate-900 truncate">NTI Electronics Lab - Bengaluru East</span>
+</div>
+<p class="font-mono-data-sm text-mono-data-sm text-slate-500 mt-0.5">Camera UID: CAM-BLR-E04 • SMT Assembly</p>
+</div>
+<span class="px-2 py-0.5 rounded bg-rose-50 border border-rose-200 text-rose-700 font-mono-data-sm text-mono-data-sm font-bold tracking-wide">CRITICAL</span>
+</div>
+<div class="p-2 rounded bg-white border border-slate-200 flex items-center justify-between text-slate-700 font-mono-data-sm text-mono-data-sm">
+<div class="flex items-center gap-1.5 text-rose-700">
+<span class="material-symbols-outlined text-[16px] text-rose-600">visibility_off</span>
+<span class="font-medium">Hardware Tamper / Angle Shift &gt;35° Detected</span>
+</div>
+<span class="text-rose-600 font-semibold">Edge Alert</span>
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-mono-data-sm text-mono-data-sm text-slate-500">Triggered: 12m ago • Feed Disrupted</span>
+<div class="flex items-center gap-1.5">
+<button class="px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white font-label-md text-label-md transition-colors shadow-xs" type="button">Re-Align Feed</button>
+<button class="p-1 rounded hover:bg-slate-200 text-slate-500 hover:text-slate-900 transition-colors border border-slate-200 bg-white" title="Flag Centre Audit" type="button">
+<span class="material-symbols-outlined text-[18px]">flag</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Alert 4: Trainer Roster Deviation -->
+<div class="p-space-md rounded bg-slate-50 border border-slate-200 hover:border-blue-400 space-y-space-xs transition-colors">
+<div class="flex items-start justify-between gap-space-sm">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-mono-data-sm text-mono-data-sm text-amber-700 font-bold">UP-LKO-078</span>
+<span class="text-slate-300">•</span>
+<span class="font-label-md text-label-md font-semibold text-slate-900 truncate">DDU-GKY Training Wing - Lucknow</span>
+</div>
+<p class="font-mono-data-sm text-mono-data-sm text-slate-500 mt-0.5">Healthcare Assistant • Practical Lab 01</p>
+</div>
+<span class="px-2 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-800 font-mono-data-sm text-mono-data-sm font-bold tracking-wide">REVIEW</span>
+</div>
+<div class="p-2 rounded bg-white border border-slate-200 flex items-center justify-between text-slate-700 font-mono-data-sm text-mono-data-sm">
+<div class="flex items-center gap-1.5 text-slate-800">
+<span class="material-symbols-outlined text-[16px] text-amber-600">badge</span>
+<span>Sanctioned Trainer Absent • Proxy Vector Identified</span>
+</div>
+<span class="text-slate-400">Conf: 91.0%</span>
+</div>
+<div class="flex items-center justify-between pt-1">
+<span class="font-mono-data-sm text-mono-data-sm text-slate-500">Session: 09:00 - 13:00</span>
+<div class="flex items-center gap-1.5">
+<button class="px-2.5 py-1 rounded bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 font-label-md text-label-md transition-colors shadow-xs" type="button">Compare Biometrics</button>
+<button class="p-1 rounded hover:bg-slate-200 text-slate-500 hover:text-slate-900 transition-colors border border-slate-200 bg-white" title="Mark False Positive" type="button">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Trends Strip: 3 Responsive Analytical Visualizations -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-gutter-lg">
+<!-- Chart 1: 7-Day Attendance Compliance Trend -->
+<div class="rounded bg-white border border-slate-200 p-space-md shadow-sm space-y-space-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="font-label-lg text-label-lg font-bold text-slate-900">Attendance Compliance (7-Day)</h3>
+<p class="font-mono-data-sm text-mono-data-sm text-slate-500">Observed vs Self-Reported (±5% Band)</p>
+</div>
+<span class="px-2 py-0.5 rounded bg-blue-50 border border-blue-200 text-blue-700 font-mono-data-sm text-mono-data-sm font-semibold">89.4% Avg</span>
+</div>
+<!-- Inline SVG Sparkline / Line Chart -->
+<div class="w-full h-32 flex items-center justify-center bg-slate-50/50 rounded border border-slate-100 p-2">
+<svg class="w-full h-full text-blue-600" fill="none" viewbox="0 0 320 120">
+<!-- Shaded Tolerance Band -->
+<polygon class="fill-blue-500/10" points="10,25 60,30 110,20 160,28 210,18 260,24 310,22 310,48 260,52 210,45 160,55 110,48 60,58 10,52"></polygon>
+<!-- Self-Reported Line (Dotted Gray) -->
+<polyline class="text-slate-400" points="10,32 60,35 110,28 160,36 210,26 260,31 310,29" stroke="currentColor" stroke-dasharray="3,3" stroke-width="1.5"></polyline>
+<!-- AI Observed Vector (Solid Cyan/Blue) -->
+<polyline class="text-blue-600" points="10,45 60,48 110,34 160,49 210,38 260,54 310,46" stroke="currentColor" stroke-width="2.5"></polyline>
+<!-- Data Points -->
+<circle class="fill-blue-600" cx="210" cy="38" r="3.5"></circle>
+<circle class="fill-rose-500" cx="260" cy="54" r="3.5"></circle>
+<circle class="fill-blue-600" cx="310" cy="46" r="3.5"></circle>
+</svg>
+</div>
+<div class="flex items-center justify-between text-slate-500 font-mono-data-sm text-mono-data-sm pt-space-xs border-t border-slate-100">
+<div class="flex items-center gap-3">
+<span class="flex items-center gap-1.5"><span class="w-3 h-1 bg-blue-600 rounded"></span>Observed</span>
+<span class="flex items-center gap-1.5"><span class="w-3 h-0.5 border-t border-dashed border-slate-400"></span>Reported</span>
+</div>
+<span class="text-slate-700 font-medium">Oct 18 – Oct 24</span>
+</div>
+</div>
+<!-- Chart 2: Infrastructure Compliance Distribution -->
+<div class="rounded bg-white border border-slate-200 p-space-md shadow-sm space-y-space-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="font-label-lg text-label-lg font-bold text-slate-900">Infrastructure Verification</h3>
+<p class="font-mono-data-sm text-mono-data-sm text-slate-500">Category breakdown across 1,480 Centres</p>
+</div>
+<span class="material-symbols-outlined text-[20px] text-teal-600">checklist</span>
+</div>
+<!-- Horizontal Progress / Metric Gauges -->
+<div class="space-y-3 py-1">
+<div>
+<div class="flex justify-between font-mono-data-sm text-mono-data-sm mb-1">
+<span class="text-slate-600">Mandatory Lab Hardware / Tools</span>
+<span class="text-slate-900 font-semibold">97.4% Compliant</span>
+</div>
+<div class="w-full bg-slate-100 h-2 rounded overflow-hidden">
+<div class="bg-emerald-500 h-full w-[97.4%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-mono-data-sm text-mono-data-sm mb-1">
+<span class="text-slate-600">Safety Equipment &amp; Fire Norms</span>
+<span class="text-slate-900 font-semibold">91.8% Compliant</span>
+</div>
+<div class="w-full bg-slate-100 h-2 rounded overflow-hidden">
+<div class="bg-blue-600 h-full w-[91.8%]"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between font-mono-data-sm text-mono-data-sm mb-1">
+<span class="text-slate-600">Biometric CCTV Mesh Uptime</span>
+<span class="text-rose-600 font-semibold">88.5% (Alert Level)</span>
+</div>
+<div class="w-full bg-slate-100 h-2 rounded overflow-hidden">
+<div class="bg-rose-500 h-full w-[88.5%]"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between text-slate-500 font-mono-data-sm text-mono-data-sm pt-space-xs border-t border-slate-100">
+<span class="text-slate-600">38 Centres in Remediate Queue</span>
+<a class="text-blue-600 hover:text-blue-800 hover:underline font-medium flex items-center gap-0.5" href="#">Audit Full Spec →</a>
+</div>
+</div>
+<!-- Chart 3: Alert Resolution Velocity -->
+<div class="rounded bg-white border border-slate-200 p-space-md shadow-sm space-y-space-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="font-label-lg text-label-lg font-bold text-slate-900">Resolution Velocity</h3>
+<p class="font-mono-data-sm text-mono-data-sm text-slate-500">New Alerts vs Human Audit Completed</p>
+</div>
+<span class="px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-700 font-mono-data-sm text-mono-data-sm font-semibold">18m Avg</span>
+</div>
+<!-- Mini Stacked Bar Visual -->
+<div class="w-full h-32 flex items-end justify-between gap-2 px-1 bg-slate-50/50 rounded border border-slate-100 p-2">
+<div class="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+<div class="w-full bg-slate-200 rounded-t flex flex-col justify-end overflow-hidden h-[75%]">
+<div class="bg-emerald-500 w-full h-[85%]"></div>
+<div class="bg-rose-500 w-full h-[15%]"></div>
+</div>
+<span class="font-mono-data-sm text-mono-data-sm text-slate-400">08:00</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+<div class="w-full bg-slate-200 rounded-t flex flex-col justify-end overflow-hidden h-[90%]">
+<div class="bg-emerald-500 w-full h-[70%]"></div>
+<div class="bg-rose-500 w-full h-[30%]"></div>
+</div>
+<span class="font-mono-data-sm text-mono-data-sm text-slate-400">10:00</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+<div class="w-full bg-slate-200 rounded-t flex flex-col justify-end overflow-hidden h-[100%]">
+<div class="bg-emerald-500 w-full h-[80%]"></div>
+<div class="bg-rose-500 w-full h-[20%]"></div>
+</div>
+<span class="font-mono-data-sm text-mono-data-sm text-slate-900 font-semibold">12:00</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+<div class="w-full bg-slate-200 rounded-t flex flex-col justify-end overflow-hidden h-[60%]">
+<div class="bg-emerald-500 w-full h-[90%]"></div>
+<div class="bg-rose-500 w-full h-[10%]"></div>
+</div>
+<span class="font-mono-data-sm text-mono-data-sm text-slate-400">14:00</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-1 h-full justify-end">
+<div class="w-full bg-slate-200 rounded-t flex flex-col justify-end overflow-hidden h-[80%]">
+<div class="bg-emerald-500 w-full h-[75%]"></div>
+<div class="bg-rose-500 w-full h-[25%]"></div>
+</div>
+<span class="font-mono-data-sm text-mono-data-sm text-slate-400">Current</span>
+</div>
+</div>
+<div class="flex items-center justify-between text-slate-500 font-mono-data-sm text-mono-data-sm pt-space-xs border-t border-slate-100">
+<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>Resolved (182)</span>
+<span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-500"></span>Backlog (14)</span>
+</div>
+</div>
+</section>
+<!-- Bottom Section: Centres Requiring Immediate Attention (Dense Operational Ledger) -->
+<section class="rounded bg-white border border-slate-200 p-space-md shadow-sm space-y-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pb-space-xs border-b border-slate-100">
+<div>
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[20px] text-rose-600">notification_important</span>
+<h2 class="font-headline-md text-headline-md font-bold text-slate-900 tracking-tight">Centres Requiring Immediate Attention</h2>
+</div>
+<p class="font-body-sm text-body-sm text-slate-500">Audited under MSDE Directive No. 41-B • Escalation threshold breached</p>
+</div>
+<!-- Live Batch Pulse -->
+<div class="flex items-center gap-space-sm font-mono-data-sm text-mono-data-sm bg-slate-50 border border-slate-200 px-3 py-1.5 rounded">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+<span class="text-slate-600">AI Pipeline Operational • Processed <strong class="text-slate-900">42s ago</strong></span>
+</div>
+</div>
+<!-- Data Table Container -->
+<div class="overflow-x-auto">
+<table class="w-full text-left font-mono-data-sm text-mono-data-sm">
+<thead class="bg-slate-50 text-slate-600 uppercase tracking-wider font-mono-data-sm text-mono-data-sm border-b border-slate-200">
+<tr>
+<th class="px-space-md py-3 font-semibold text-slate-700">Centre ID</th>
+<th class="px-space-md py-3 font-semibold text-slate-700">Centre Name</th>
+<th class="px-space-md py-3 font-semibold text-slate-700">District • State</th>
+<th class="px-space-md py-3 font-semibold text-right text-slate-700">Attendance Rate</th>
+<th class="px-space-md py-3 font-semibold text-right text-slate-700">Infra Score</th>
+<th class="px-space-md py-3 font-semibold text-slate-700">Camera Mesh</th>
+<th class="px-space-md py-3 font-semibold text-center text-slate-700">Alerts</th>
+<th class="px-space-md py-3 font-semibold text-slate-700">Last Observation</th>
+<th class="px-space-md py-3 font-semibold text-right text-slate-700">Quick Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 text-slate-800">
+<!-- Row 1: PMKK Okhla -->
+<tr class="hover:bg-slate-50/80 transition-colors group">
+<td class="px-space-md py-3 font-semibold text-blue-600">DL-OKH-042</td>
+<td class="px-space-md py-3">
+<div class="font-label-md text-label-md text-slate-900 font-semibold">PMKK Skill Centre - Okhla Ph-III</div>
+<span class="text-slate-500 text-mono-data-sm font-normal">Apparel &amp; Logistics Academy</span>
+</td>
+<td class="px-space-md py-3 text-slate-600">South East • NCT Delhi</td>
+<td class="px-space-md py-3 text-right">
+<span class="text-rose-600 font-bold">40.0%</span>
+<span class="text-slate-400 block text-mono-data-sm">Reported: 98%</span>
+</td>
+<td class="px-space-md py-3 text-right">
+<span class="text-emerald-600 font-semibold">96.2%</span>
+</td>
+<td class="px-space-md py-3">
+<div class="flex items-center gap-1 text-emerald-700 font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+<span>8/8 Active</span>
+</div>
+</td>
+<td class="px-space-md py-3 text-center">
+<span class="px-2 py-0.5 rounded bg-rose-50 border border-rose-200 text-rose-700 font-bold">2 Critical</span>
+</td>
+<td class="px-space-md py-3 text-slate-500">10:48 AM • Edge Vector</td>
+<td class="px-space-md py-3 text-right">
+<button class="px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white font-label-md text-label-md transition-colors shadow-xs" type="button">
+                Audit Room
+              </button>
+</td>
+</tr>
+<!-- Row 2: NTI Bengaluru East -->
+<tr class="hover:bg-slate-50/80 transition-colors group">
+<td class="px-space-md py-3 font-semibold text-blue-600">KA-BLR-019</td>
+<td class="px-space-md py-3">
+<div class="font-label-md text-label-md text-slate-900 font-semibold">National Training Inst. - Electronic City</div>
+<span class="text-slate-500 text-mono-data-sm font-normal">Electronics &amp; Embedded Hardware</span>
+</td>
+<td class="px-space-md py-3 text-slate-600">Bengaluru Urban • Karnataka</td>
+<td class="px-space-md py-3 text-right">
+<span class="text-emerald-700 font-semibold">91.4%</span>
+<span class="text-slate-400 block text-mono-data-sm">Reported: 94%</span>
+</td>
+<td class="px-space-md py-3 text-right">
+<span class="text-emerald-600 font-semibold">98.0%</span>
+</td>
+<td class="px-space-md py-3">
+<div class="flex items-center gap-1 text-rose-600 font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+<span>3/4 (CAM 04 Tampered)</span>
+</div>
+</td>
+<td class="px-space-md py-3 text-center">
+<span class="px-2 py-0.5 rounded bg-rose-50 border border-rose-200 text-rose-700 font-bold">1 Critical</span>
+</td>
+<td class="px-space-md py-3 text-slate-500">11:02 AM • Tamper Event</td>
+<td class="px-space-md py-3 text-right">
+<button class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-label-md text-label-md transition-colors" type="button">
+                Ping Node
+              </button>
+</td>
+</tr>
+<!-- Row 3: Govt ITI Aundh Pune -->
+<tr class="hover:bg-slate-50/80 transition-colors group">
+<td class="px-space-md py-3 font-semibold text-blue-600">MH-PUN-104</td>
+<td class="px-space-md py-3">
+<div class="font-label-md text-label-md text-slate-900 font-semibold">Industrial Training Institute (ITI) - Aundh</div>
+<span class="text-slate-500 text-mono-data-sm font-normal">Advanced Tool &amp; Die Making</span>
+</td>
+<td class="px-space-md py-3 text-slate-600">Pune • Maharashtra</td>
+<td class="px-space-md py-3 text-right">
+<span class="text-indigo-700 font-semibold">78.2%</span>
+<span class="text-slate-400 block text-mono-data-sm">Reported: 88%</span>
+</td>
+<td class="px-space-md py-3 text-right">
+<span class="text-rose-600 font-semibold">62.0% (Tools Absent)</span>
+</td>
+<td class="px-space-md py-3">
+<div class="flex items-center gap-1 text-emerald-700 font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+<span>12/12 Active</span>
+</div>
+</td>
+<td class="px-space-md py-3 text-center">
+<span class="px-2 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-800 font-bold">3 Review</span>
+</td>
+<td class="px-space-md py-3 text-slate-500">10:55 AM • Tooling Gap</td>
+<td class="px-space-md py-3 text-right">
+<button class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-label-md text-label-md transition-colors" type="button">
+                Tool Ledger
+              </button>
+</td>
+</tr>
+<!-- Row 4: DDU-GKY Training Wing Lucknow -->
+<tr class="hover:bg-slate-50/80 transition-colors group">
+<td class="px-space-md py-3 font-semibold text-blue-600">UP-LKO-078</td>
+<td class="px-space-md py-3">
+<div class="font-label-md text-label-md text-slate-900 font-semibold">DDU-GKY Skill Academy - Alambagh</div>
+<span class="text-slate-500 text-mono-data-sm font-normal">Healthcare Assistance &amp; Phlebotomy</span>
+</td>
+<td class="px-space-md py-3 text-slate-600">Lucknow • Uttar Pradesh</td>
+<td class="px-space-md py-3 text-right">
+<span class="text-indigo-700 font-semibold">68.0%</span>
+<span class="text-slate-400 block text-mono-data-sm">Reported: 85%</span>
+</td>
+<td class="px-space-md py-3 text-right">
+<span class="text-emerald-600 font-semibold">94.0%</span>
+</td>
+<td class="px-space-md py-3">
+<div class="flex items-center gap-1 text-emerald-700 font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+<span>6/6 Active</span>
+</div>
+</td>
+<td class="px-space-md py-3 text-center">
+<span class="px-2 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-800 font-bold">1 Review</span>
+</td>
+<td class="px-space-md py-3 text-slate-500">09:40 AM • Trainer Proxy</td>
+<td class="px-space-md py-3 text-right">
+<button class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-label-md text-label-md transition-colors" type="button">
+                Verify Roster
+              </button>
+</td>
+</tr>
+<!-- Row 5: PMKK Kamrup Guwahati -->
+<tr class="hover:bg-slate-50/80 transition-colors group">
+<td class="px-space-md py-3 font-semibold text-blue-600">AS-GHY-009</td>
+<td class="px-space-md py-3">
+<div class="font-label-md text-label-md text-slate-900 font-semibold">PMKK Regional Centre - Kamrup Metro</div>
+<span class="text-slate-500 text-mono-data-sm font-normal">Solar Installation &amp; Green Energy</span>
+</td>
+<td class="px-space-md py-3 text-slate-600">Guwahati • Assam</td>
+<td class="px-space-md py-3 text-right">
+<span class="text-rose-600 font-bold">52.1%</span>
+<span class="text-slate-400 block text-mono-data-sm">Reported: 92%</span>
+</td>
+<td class="px-space-md py-3 text-right">
+<span class="text-emerald-600 font-semibold">89.5%</span>
+</td>
+<td class="px-space-md py-3">
+<div class="flex items-center gap-1 text-rose-600 font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+<span>4/6 (2 Offline)</span>
+</div>
+</td>
+<td class="px-space-md py-3 text-center">
+<span class="px-2 py-0.5 rounded bg-rose-50 border border-rose-200 text-rose-700 font-bold">2 Critical</span>
+</td>
+<td class="px-space-md py-3 text-slate-500">10:30 AM • Feed Dropout</td>
+<td class="px-space-md py-3 text-right">
+<button class="px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white font-label-md text-label-md transition-colors shadow-xs" type="button">
+                Dispatch Notice
+              </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination & Audit Meta Ledger Footer -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm pt-space-xs text-slate-500 font-mono-data-sm text-mono-data-sm border-t border-slate-100">
+<div class="flex items-center gap-2">
+<span>Displaying 5 of 38 flagged centres</span>
+<span>•</span>
+<span class="text-slate-600">All records cryptographically signed with SHA-256 state stamp</span>
+</div>
+<div class="flex items-center gap-1">
+<button class="px-2.5 py-1 rounded bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 transition-colors" type="button">← Previous</button>
+<span class="px-2 py-1 text-blue-600 font-bold">1</span>
+<button class="px-2.5 py-1 rounded hover:bg-slate-100 text-slate-600 transition-colors" type="button">2</button>
+<button class="px-2.5 py-1 rounded hover:bg-slate-100 text-slate-600 transition-colors" type="button">3</button>
+<button class="px-2.5 py-1 rounded bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 transition-colors" type="button">Next →</button>
+</div>
+</div>
+</section>
+</div>
+<script>
+  // CenterWatch AI: Overview Interaction & Keyboard Triage Shortcuts
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'a' || e.key === 'A') {
+      const firstReviewBtn = document.querySelector('button:has-text("Review Evidence")') || document.querySelector('.bg-primary');
+      if (firstReviewBtn) {
+        firstReviewBtn.focus();
+      }
+    }
+  });
+</script></div></main></div></body></html>
