@@ -44,6 +44,7 @@ export async function reviewAlert(alertId: string, review: {
   status: 'CONFIRMED' | 'DISMISSED' | 'UNDER_REVIEW' | 'RESOLVED';
   review_notes: string;
   reviewed_by: string;
+  category?: string;
 }): Promise<ComplianceEvent> {
   const res = await fetch(`${BASE_URL}/alerts/${alertId}/review`, {
     method: 'PATCH',
@@ -53,6 +54,13 @@ export async function reviewAlert(alertId: string, review: {
   if (!res.ok) throw new Error('Failed to review alert');
   return res.json();
 }
+
+export async function fetchReviewFeedback(): Promise<any[]> {
+  const res = await fetch(`${BASE_URL}/alerts/feedback/list`);
+  if (!res.ok) throw new Error('Failed to fetch review feedback');
+  return res.json();
+}
+
 
 export async function fetchCameras(): Promise<Camera[]> {
   const res = await fetch(`${BASE_URL}/cameras`);

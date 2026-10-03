@@ -90,3 +90,32 @@ def test_alert_auto_escalation():
     assert data["status"] == "SUCCESS"
     assert "escalated_count" in data
 
+def test_review_feedback_and_export():
+    # 1. Fetch an alert
+    alerts = client.get("/api/alerts").json()
+    assert len(alerts) > 0
+    target_alert = alerts[0]
+
+    # 2. Review with structured category
+    review_res = client.patch(f"/api/alerts/{target_alert['id']}/review", json={
+        "status": "CONFIRMED",
+        "category": "GHOST_TRAINEES",
+        "review_notes": "Ground-truth audit confirms 13 students absent from roster",
+        "reviewed_by": "VIGILANCE_OFFICER_PATIL"
+    })
+    assert review_res.status_code == 200
+
+    # 3. Check feedback list endpoint
+    fb_res = client.get("/api/alerts/feedback/list")
+    assert fb_res.status_code == 200
+    feedbacks = fb_res.json()
+    assert len(feedbacks) > 0
+    assert any(f["category"] == "GHOST_TRAINEES" for f in feedbacks)
+
+    # 4. Check feedback CSV export endpoint
+    csv_res = client.get("/api/alerts/feedback/export-csv")
+    assert csv_res.status_code == 200
+    assert "text/csv" in csv_res.headers["content-type"]
+    assert "GHOST_TRAINEES" in csv_res.text
+
+

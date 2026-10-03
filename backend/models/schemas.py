@@ -144,6 +144,19 @@ class ComplianceEventReviewUpdate(BaseModel):
     status: str  # CONFIRMED, DISMISSED, UNDER_REVIEW, RESOLVED
     review_notes: Optional[str] = None
     reviewed_by: str
+    category: Optional[str] = None # e.g. GHOST_TRAINEES, CAMERA_OCCLUSION, EARLY_DISMISSAL
+
+class ReviewFeedbackResponse(BaseModel):
+    id: str
+    event_id: str
+    centre_id: str
+    decision: str
+    category: str
+    notes: Optional[str] = None
+    reviewed_by: str
+    model_recalibration_flag: str
+    created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
 
 class ComplianceEventResponse(BaseModel):
     id: str
@@ -161,6 +174,7 @@ class ComplianceEventResponse(BaseModel):
     created_at: datetime
     resolved_at: Optional[datetime]
     model_config = ConfigDict(from_attributes=True)
+
 
 # --- Audit Log Schemas ---
 class AuditLogResponse(BaseModel):

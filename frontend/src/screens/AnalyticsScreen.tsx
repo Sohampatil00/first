@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AnalyticsOverview, ComplianceEvent } from '../types';
+import { fetchReviewFeedback } from '../api';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -19,6 +20,12 @@ interface AnalyticsScreenProps {
 export const AnalyticsScreen: React.FC<AnalyticsScreenProps> = ({ analytics, alerts }) => {
   const [selectedRange, setSelectedRange] = useState<string>('7D');
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [feedbackList, setFeedbackList] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchReviewFeedback().then(data => setFeedbackList(data)).catch(() => {});
+  }, []);
+
 
   // Compliance trend mock data points across 7 days
   const trendData = [
@@ -311,6 +318,116 @@ export const AnalyticsScreen: React.FC<AnalyticsScreenProps> = ({ analytics, ale
                 </td>
               </tr>
             ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Human Review Feedback & Active Learning Calibration Dataset (Roadmap Phases 12, 19, 20) */}
+      <div style={{
+        backgroundColor: 'var(--bg-secondary)',
+        border: '1px solid var(--border-subtle)',
+        borderRadius: '8px',
+        overflow: 'hidden',
+        marginTop: '20px'
+      }}>
+        <div style={{
+          padding: '16px 20px',
+          borderBottom: '1px solid var(--border-subtle)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '12px'
+        }}>
+          <div>
+            <h2 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <ShieldCheck size={18} color="var(--accent-cyan)" />
+              <span>Human-in-the-Loop Active Learning & Calibration Dataset</span>
+            </h2>
+            <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+              Officer adjudication feedback annotated with root-cause classifications to fine-tune edge AI weights and dwell thresholds
+            </p>
+          </div>
+
+          <a
+            href="/api/alerts/feedback/export-csv"
+            download="centrewatch_active_learning_feedback.csv"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: 'rgba(56, 189, 248, 0.15)',
+              border: '1px solid rgba(56, 189, 248, 0.4)',
+              color: 'var(--accent-cyan)',
+              padding: '6px 12px',
+              borderRadius: '6px',
+              fontSize: '12px',
+              fontWeight: 600,
+              textDecoration: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            <Download size={14} />
+            <span>Download Calibration CSV</span>
+          </a>
+        </div>
+
+        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+          <thead>
+            <tr style={{ backgroundColor: 'rgba(10, 14, 23, 0.6)', borderBottom: '1px solid var(--border-subtle)' }}>
+              <th style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>Feedback ID</th>
+              <th style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>Centre & Officer</th>
+              <th style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>Decision</th>
+              <th style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>Root-Cause Category</th>
+              <th style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>Model Recalibration Action</th>
+              <th style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody>
+            {feedbackList.length === 0 ? (
+              <tr>
+                <td colSpan={6} style={{ textAlign: 'center', padding: '24px', color: 'var(--text-muted)' }}>
+                  No reviewer feedback records logged yet. Review an alert to generate active learning annotations.
+                </td>
+              </tr>
+            ) : (
+              feedbackList.map((fb) => (
+                <tr key={fb.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                  <td style={{ padding: '12px 16px', fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-muted)' }}>
+                    {fb.id.slice(0, 8)}
+                  </td>
+                  <td style={{ padding: '12px 16px' }}>
+                    <div style={{ fontWeight: 600 }}>{fb.centre_id}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{fb.reviewed_by}</div>
+                  </td>
+                  <td style={{ padding: '12px 16px' }}>
+                    <span className={`status-badge ${fb.decision === 'CONFIRMED' ? 'critical' : 'normal'}`}>
+                      {fb.decision}
+                    </span>
+                  </td>
+                  <td style={{ padding: '12px 16px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                    {fb.category.replace(/_/g, ' ')}
+                  </td>
+                  <td style={{ padding: '12px 16px' }}>
+                    <span style={{
+                      backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                      border: '1px solid rgba(56, 189, 248, 0.3)',
+                      color: 'var(--accent-cyan)',
+                      padding: '3px 8px',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      fontFamily: 'var(--font-mono)'
+                    }}>
+                      {fb.model_recalibration_flag}
+                    </span>
+                  </td>
+                  <td style={{ padding: '12px 16px', fontSize: '11px', color: 'var(--text-muted)' }}>
+                    {new Date(fb.created_at).toLocaleTimeString()}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

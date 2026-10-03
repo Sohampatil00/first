@@ -105,14 +105,16 @@ export function App() {
   const handleReviewSubmit = async (
     alertId: string, 
     status: 'CONFIRMED' | 'DISMISSED' | 'UNDER_REVIEW', 
-    notes: string
+    notes: string,
+    category?: string
   ) => {
     await reviewAlert(alertId, {
       status,
       review_notes: notes,
-      reviewed_by: 'OFFICER_PATIL'
+      reviewed_by: 'OFFICER_PATIL',
+      category
     });
-    setToastMessage(`Case ${alertId.slice(0, 8)} updated to ${status}. Recorded in audit trail.`);
+    setToastMessage(`Case ${alertId.slice(0, 8)} updated to ${status} [${category || 'STANDARD'}]. Recorded in audit trail.`);
     await loadData();
   };
 

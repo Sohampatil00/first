@@ -140,3 +140,21 @@ class AuditLog(Base):
     entity_id = Column(String, nullable=False)
     metadata_json = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class ReviewFeedback(Base):
+    """
+    Structured Adjudication Feedback for Active Learning and Threshold Calibration (Roadmap Phase 12, 19 & 20).
+    Captures officer root-cause categorization when confirming or dismissing AI discrepancy alerts.
+    """
+    __tablename__ = "review_feedback"
+
+    id = Column(String, primary_key=True, default=generate_uuid)
+    event_id = Column(String, ForeignKey("compliance_events.id"), nullable=False, index=True)
+    centre_id = Column(String, nullable=False, index=True)
+    decision = Column(String, nullable=False) # CONFIRMED, DISMISSED
+    category = Column(String, nullable=False) # e.g. GHOST_TRAINEES, CAMERA_OCCLUSION, EARLY_DISMISSAL
+    notes = Column(Text, nullable=True)
+    reviewed_by = Column(String, nullable=False)
+    model_recalibration_flag = Column(String, default="NONE") # RETRAIN_DETECTOR, TUNE_DWELL, TUNE_ROI, NONE
+    created_at = Column(DateTime, default=datetime.utcnow)
+

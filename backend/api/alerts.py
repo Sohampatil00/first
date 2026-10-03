@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from backend.db.session import get_db
-from backend.models.db_models import ComplianceEvent, AuditLog
-from backend.models.schemas import ComplianceEventResponse, ComplianceEventReviewUpdate
+from backend.models.db_models import ComplianceEvent, AuditLog, ReviewFeedback
+from backend.models.schemas import ComplianceEventResponse, ComplianceEventReviewUpdate, ReviewFeedbackResponse
 from backend.services.alert_engine import ws_manager
 
 router = APIRouter(prefix="/api/alerts", tags=["Compliance Alerts & Evidence Review"])
@@ -60,10 +60,33 @@ async def review_alert(
         metadata_json=json.dumps({
             "previous_status": old_status,
             "new_status": review.status,
+            "category": review.category,
             "review_notes": review.review_notes
         })
     )
     db.add(audit)
+
+    # Record structured feedback for Active Learning & Model Calibration (Phases 12, 19, 20)
+    if review.status in ["CONFIRMED", "DISMISSED"]:
+        category = review.category or ("CONFIRMED_VIOLATION" if review.status == "CONFIRMED" else "DISMISSED_EXCEPTION")
+        recalibration_flag = (
+            "RETRAIN_DETECTOR" if "GLARE" in category or "LIGHTING" in category else (
+                "TUNE_DWELL" if "EARLY" in category else (
+                    "RECALIBRATE_ROI" if "OCCLUSION" in category else "NONE"
+                )
+            )
+        )
+        feedback = ReviewFeedback(
+            event_id=event.id,
+            centre_id=event.centre_id,
+            decision=review.status,
+            category=category,
+            notes=review.review_notes,
+            reviewed_by=review.reviewed_by,
+            model_recalibration_flag=recalibration_flag
+        )
+        db.add(feedback)
+
     db.commit()
     db.refresh(event)
 
@@ -76,6 +99,42 @@ async def review_alert(
     })
 
     return event
+
+@router.get("/feedback/list", response_model=List[ReviewFeedbackResponse])
+def list_review_feedback(limit: int = 100, db: Session = Depends(get_db)):
+    """Returns historical reviewer feedback and root-cause annotations for model calibration."""
+    return db.query(ReviewFeedback).order_by(ReviewFeedback.created_at.desc()).limit(limit).all()
+
+@router.get("/feedback/export-csv")
+def export_feedback_csv(db: Session = Depends(get_db)):
+    """Streams active learning calibration dataset in CSV format."""
+    from fastapi.responses import Response
+    import io
+    import csv
+
+    feedbacks = db.query(ReviewFeedback).order_by(ReviewFeedback.created_at.desc()).all()
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow([
+        "feedback_id", "event_id", "centre_id", "decision", 
+        "root_cause_category", "notes", "reviewed_by", 
+        "model_recalibration_flag", "timestamp"
+    ])
+
+    for f in feedbacks:
+        writer.writerow([
+            f.id, f.event_id, f.centre_id, f.decision,
+            f.category, f.notes or "", f.reviewed_by,
+            f.model_recalibration_flag, f.created_at.isoformat() if f.created_at else ""
+        ])
+
+    csv_data = output.getvalue()
+    return Response(
+        content=csv_data,
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=centrewatch_active_learning_feedback.csv"}
+    )
+
 
 @router.post("/escalate-pending")
 async def trigger_sla_escalations(

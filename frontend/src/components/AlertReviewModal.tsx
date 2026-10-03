@@ -5,7 +5,7 @@ import { ComplianceEvent } from '../types';
 interface AlertReviewModalProps {
   alert: ComplianceEvent | null;
   onClose: () => void;
-  onReviewSubmit: (alertId: string, status: 'CONFIRMED' | 'DISMISSED' | 'UNDER_REVIEW', notes: string) => Promise<void>;
+  onReviewSubmit: (alertId: string, status: 'CONFIRMED' | 'DISMISSED' | 'UNDER_REVIEW', notes: string, category?: string) => Promise<void>;
 }
 
 export const AlertReviewModal: React.FC<AlertReviewModalProps> = ({ alert, onClose, onReviewSubmit }) => {
@@ -13,6 +13,7 @@ export const AlertReviewModal: React.FC<AlertReviewModalProps> = ({ alert, onClo
 
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('GHOST_TRAINEES');
 
   let payload: any = {};
   try {
@@ -24,12 +25,14 @@ export const AlertReviewModal: React.FC<AlertReviewModalProps> = ({ alert, onClo
   const handleAction = async (status: 'CONFIRMED' | 'DISMISSED' | 'UNDER_REVIEW') => {
     setLoading(true);
     try {
-      await onReviewSubmit(alert.id, status, notes || `Reviewed as ${status} by monitoring officer.`);
+      const finalCategory = status === 'CONFIRMED' ? selectedCategory : (status === 'DISMISSED' ? (selectedCategory.startsWith('DISMISS') ? selectedCategory : 'CAMERA_OCCLUSION') : 'ESCALATION_INVESTIGATION');
+      await onReviewSubmit(alert.id, status, notes || `Adjudicated as ${status} [Category: ${finalCategory}] by monitoring officer.`, finalCategory);
       onClose();
     } finally {
       setLoading(false);
     }
   };
+
 
   const getSeverityBadgeClass = (sev: string) => {
     switch (sev) {
@@ -261,6 +264,42 @@ export const AlertReviewModal: React.FC<AlertReviewModalProps> = ({ alert, onClo
                 {payload.relative_difference_pct ? `${payload.relative_difference_pct}% deficit` : 'Deficit detected'}
               </div>
             </div>
+          </div>
+
+          {/* Root Cause / Discrepancy Classification (Phases 12 & 19 Active Learning Feedback) */}
+          <div>
+            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
+              Root Cause / Exception Category (Active Learning Feedback):
+            </label>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              style={{
+                width: '100%',
+                backgroundColor: 'var(--bg-primary)',
+                border: '1px solid var(--border-subtle)',
+                borderRadius: '6px',
+                padding: '8px 12px',
+                color: 'var(--accent-cyan)',
+                fontSize: '13px',
+                fontWeight: 600,
+                outline: 'none',
+                marginBottom: '12px'
+              }}
+            >
+              <optgroup label="-- Violations (Confirming Violation) --">
+                <option value="GHOST_TRAINEES">Ghost Trainees on Roster (Reported Trainees Absent)</option>
+                <option value="EARLY_DISMISSAL">Early Dismissal / Mandatory Dwell Time Deficit</option>
+                <option value="EQUIPMENT_ABSENT">Sanctioned Hardware Missing or Substituted</option>
+                <option value="BATCH_INACTIVE">Empty Lab During Mandated Training Session</option>
+              </optgroup>
+              <optgroup label="-- False Positives / Exceptions (Dismissing Alert) --">
+                <option value="CAMERA_OCCLUSION">Camera Angle / Architectural Column Occlusion</option>
+                <option value="LIGHTING_GLARE">Excessive Sunlight Glare / Contrast Artifact</option>
+                <option value="APPROVED_FIELD_VISIT">Approved Off-Campus Industrial Visit</option>
+                <option value="EQUIPMENT_MAINTENANCE">Equipment Relocated for Scheduled Repair</option>
+              </optgroup>
+            </select>
           </div>
 
           {/* Officer Review Notes Input */}
