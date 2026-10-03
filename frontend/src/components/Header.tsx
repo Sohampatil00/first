@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Bell, Shield, Wifi, RefreshCw, UserCheck } from 'lucide-react';
+import { Search, Bell, Shield, Wifi, RefreshCw, ChevronDown, Lock, CheckCircle2 } from 'lucide-react';
 
 interface HeaderProps {
   wsConnected: boolean;
@@ -16,157 +16,247 @@ export const Header: React.FC<HeaderProps> = ({
   currentRole,
   onRoleChange
 }) => {
+  const getRoleDisplayName = (role: string) => {
+    switch (role) {
+      case 'MINISTRY_OFFICER': return 'Dr. V. Ramanathan (National Director)';
+      case 'DISTRICT_OFFICER': return 'S. Patil (District Vigilance Officer)';
+      case 'CENTRE_ADMIN': return 'P. Deshmukh (Centre Principal - TC-101)';
+      default: return role;
+    }
+  };
+
+  const getRoleBadge = (role: string) => {
+    switch (role) {
+      case 'MINISTRY_OFFICER': return 'Apex / GoI';
+      case 'DISTRICT_OFFICER': return 'State / DVO';
+      case 'CENTRE_ADMIN': return 'Centre / ITI';
+      default: return 'User';
+    }
+  };
+
   return (
     <header style={{
       height: '64px',
-      backgroundColor: 'var(--bg-secondary)',
-      borderBottom: '1px solid var(--border-subtle)',
+      backgroundColor: '#FFFFFF',
+      borderBottom: '1px solid #E2E8F0',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      padding: '0 28px',
+      padding: '0 24px',
       position: 'sticky',
       top: 0,
-      zIndex: 10
+      zIndex: 40,
+      boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)'
     }}>
-      {/* Search Bar */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        backgroundColor: 'var(--bg-primary)',
-        border: '1px solid var(--border-subtle)',
-        borderRadius: '6px',
-        padding: '8px 14px',
-        width: '360px'
-      }}>
-        <Search size={16} color="var(--text-muted)" />
-        <input 
-          type="text" 
-          placeholder="Search by Centre Code (e.g. TC-101), District..."
-          style={{
-            background: 'transparent',
-            border: 'none',
-            outline: 'none',
-            color: 'var(--text-primary)',
-            fontSize: '13px',
-            width: '100%'
-          }}
-        />
-      </div>
-
-      {/* Right Command Strip */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-        {/* WebSocket Realtime Status */}
+      {/* Left Region: Breadcrumb Trail & Privacy Protocol Pill */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px', minWidth: 0 }}>
+        {/* Territory Breadcrumb Selector */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '8px',
-          padding: '6px 12px',
-          borderRadius: '9999px',
-          backgroundColor: wsConnected ? 'var(--status-normal-bg)' : 'var(--status-warning-bg)',
-          border: `1px solid ${wsConnected ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`,
+          gap: '6px',
+          backgroundColor: '#F1F5F9',
+          border: '1px solid #CBD5E1',
+          padding: '5px 10px',
+          borderRadius: '6px',
           fontSize: '12px',
-          fontWeight: 600,
-          color: wsConnected ? 'var(--status-normal)' : 'var(--status-warning)'
+          fontFamily: 'var(--font-mono)',
+          color: '#334155'
         }}>
-          <Wifi size={14} />
-          <span>{wsConnected ? 'Live Sync Active' : 'Connecting Sync...'}</span>
+          <span style={{ color: '#2563EB', fontWeight: 600 }}>All India</span>
+          <span style={{ color: '#94a3b8' }}>/</span>
+          <span>Western Zone</span>
+          <span style={{ color: '#94a3b8' }}>/</span>
+          <strong style={{ color: '#0F172A' }}>Pune (TC-101)</strong>
+          <ChevronDown size={14} color="#64748B" />
         </div>
 
-        {/* Refresh button */}
+        {/* Privacy Protocol Pill */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          backgroundColor: '#ECFDF5',
+          border: '1px solid #A7F3D0',
+          padding: '4px 10px',
+          borderRadius: '4px',
+          fontSize: '11px',
+          fontFamily: 'var(--font-mono)',
+          color: '#065F46',
+          fontWeight: 600
+        }}>
+          <Lock size={12} color="#059669" />
+          <span>PRIVACY PROTOCOL: VECTOR METRICS ONLY · NO FACIAL ID</span>
+        </div>
+      </div>
+
+      {/* Center Search Bar */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        position: 'relative',
+        width: '420px',
+        margin: '0 16px'
+      }}>
+        <Search size={15} color="#94A3B8" style={{ position: 'absolute', left: '12px' }} />
+        <input 
+          type="text" 
+          placeholder="Search centres, camera UID, alerts, or audit ref (Ctrl+K)..."
+          style={{
+            width: '100%',
+            backgroundColor: '#F8FAFC',
+            border: '1px solid #CBD5E1',
+            borderRadius: '6px',
+            padding: '7px 12px 7px 36px',
+            fontSize: '12px',
+            color: '#0F172A',
+            outline: 'none',
+            fontFamily: 'var(--font-sans)'
+          }}
+        />
+        <div style={{
+          position: 'absolute',
+          right: '8px',
+          fontSize: '10px',
+          fontFamily: 'var(--font-mono)',
+          color: '#059669',
+          backgroundColor: '#ECFDF5',
+          border: '1px solid #A7F3D0',
+          padding: '1px 6px',
+          borderRadius: '3px',
+          fontWeight: 600,
+          pointerEvents: 'none'
+        }}>
+          Aggregate Mode
+        </div>
+      </div>
+
+      {/* Right Command & Profile Section */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+        {/* Realtime Pipeline Latency Pip */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          fontSize: '11px',
+          fontFamily: 'var(--font-mono)',
+          color: '#64748B'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span className="pulse-dot online"></span>
+            <span>Pipeline: <strong style={{ color: '#059669' }}>24ms</strong></span>
+          </div>
+          <span style={{ color: '#CBD5E1' }}>|</span>
+          <div>
+            Sync: <strong style={{ color: '#0F172A' }}>{wsConnected ? 'Live Active' : 'Offline Buffer'}</strong>
+          </div>
+        </div>
+
+        {/* Data Refresh Button */}
         <button
           onClick={onRefresh}
           title="Refresh Data"
           style={{
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border-subtle)',
+            backgroundColor: '#FFFFFF',
+            border: '1px solid #CBD5E1',
             borderRadius: '6px',
-            padding: '8px',
-            color: 'var(--text-secondary)',
+            padding: '7px 9px',
+            color: '#475569',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
+            justifyContent: 'center'
           }}
         >
-          <RefreshCw size={16} />
+          <RefreshCw size={15} />
         </button>
 
-        {/* Notification Bell */}
-        <div style={{ position: 'relative', cursor: 'pointer' }}>
+        {/* Notification Bell with Badge */}
+        <div style={{ position: 'relative' }}>
           <div style={{
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border-subtle)',
+            backgroundColor: '#FFFFFF',
+            border: '1px solid #CBD5E1',
             borderRadius: '6px',
-            padding: '8px',
-            color: 'var(--text-secondary)',
+            padding: '7px 9px',
+            color: '#475569',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            cursor: 'pointer'
           }}>
-            <Bell size={16} />
+            <Bell size={15} />
           </div>
           {openAlertsCount > 0 && (
             <span style={{
               position: 'absolute',
-              top: '-4px',
-              right: '-4px',
-              width: '10px',
-              height: '10px',
+              top: '-3px',
+              right: '-3px',
+              width: '8px',
+              height: '8px',
               borderRadius: '50%',
-              backgroundColor: 'var(--status-critical)',
-              boxShadow: '0 0 6px var(--status-critical)'
+              backgroundColor: '#DC2626'
             }} />
           )}
         </div>
 
-        {/* RBAC Role Switcher */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px',
-          paddingLeft: '12px',
-          borderLeft: '1px solid var(--border-subtle)'
-        }}>
+        <div style={{ width: '1px', height: '24px', backgroundColor: '#E2E8F0' }} />
+
+        {/* Multi-Role RBAC Officer Profile */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{
-            width: '32px',
-            height: '32px',
-            borderRadius: '6px',
-            backgroundColor: '#1e293b',
-            border: '1px solid var(--border-strong)',
+            width: '34px',
+            height: '34px',
+            borderRadius: '50%',
+            backgroundColor: '#2563EB',
+            color: '#ffffff',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: 'var(--accent-cyan)',
             fontWeight: 700,
-            fontSize: '12px'
+            fontSize: '13px',
+            border: '2px solid #BFDBFE'
           }}>
-            <Shield size={16} />
+            {currentRole.slice(0, 2)}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              Active RBAC Role
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <select
+                value={currentRole}
+                onChange={(e) => onRoleChange(e.target.value)}
+                style={{
+                  border: 'none',
+                  backgroundColor: 'transparent',
+                  color: '#0F172A',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  outline: 'none',
+                  cursor: 'pointer',
+                  padding: 0
+                }}
+              >
+                <option value="MINISTRY_OFFICER">Dr. V. Ramanathan</option>
+                <option value="DISTRICT_OFFICER">Officer S. Patil</option>
+                <option value="CENTRE_ADMIN">Principal P. Deshmukh</option>
+              </select>
+              <span style={{
+                fontSize: '9px',
+                fontFamily: 'var(--font-mono)',
+                padding: '1px 5px',
+                borderRadius: '3px',
+                backgroundColor: '#EFF6FF',
+                color: '#1D4ED8',
+                border: '1px solid #BFDBFE',
+                fontWeight: 600
+              }}>
+                {getRoleBadge(currentRole)}
+              </span>
+            </div>
+            <span style={{ fontSize: '10px', color: '#64748B' }}>
+              {currentRole === 'MINISTRY_OFFICER' ? 'National Director (IT & Mon)' : (
+                currentRole === 'DISTRICT_OFFICER' ? 'District Vigilance Adjudicator' : 'Centre Administrator'
+              )}
             </span>
-            <select
-              value={currentRole}
-              onChange={(e) => onRoleChange(e.target.value)}
-              style={{
-                backgroundColor: 'transparent',
-                border: 'none',
-                color: 'var(--text-primary)',
-                fontSize: '12px',
-                fontWeight: 600,
-                outline: 'none',
-                cursor: 'pointer',
-                padding: 0
-              }}
-            >
-              <option value="MINISTRY_OFFICER" style={{ background: '#111827', color: '#fff' }}>Ministry Officer (National)</option>
-              <option value="DISTRICT_OFFICER" style={{ background: '#111827', color: '#fff' }}>District Officer (Adjudicator)</option>
-              <option value="CENTRE_ADMIN" style={{ background: '#111827', color: '#fff' }}>Centre Principal (TC-101)</option>
-            </select>
           </div>
         </div>
 

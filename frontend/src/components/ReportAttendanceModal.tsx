@@ -51,56 +51,57 @@ export const ReportAttendanceModal: React.FC<ReportAttendanceModalProps> = ({ ce
       left: 0,
       width: '100vw',
       height: '100vh',
-      backgroundColor: 'rgba(5, 8, 14, 0.85)',
-      backdropFilter: 'blur(8px)',
+      backgroundColor: 'rgba(15, 23, 42, 0.65)',
+      backdropFilter: 'blur(4px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      zIndex: 110,
+      zIndex: 1100,
       padding: '20px'
     }}>
       <div style={{
-        backgroundColor: 'var(--bg-secondary)',
-        border: '1px solid var(--border-strong)',
-        borderRadius: '12px',
+        backgroundColor: '#ffffff',
+        border: '1px solid var(--border-subtle)',
+        borderRadius: 'var(--radius-lg)',
         width: '100%',
         maxWidth: '520px',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
+        boxShadow: 'var(--shadow-modal)',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden'
       }}>
         {/* Header */}
         <div style={{
-          padding: '18px 24px',
+          padding: '16px 24px',
           borderBottom: '1px solid var(--border-subtle)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          backgroundColor: '#f8fafc'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '6px',
-              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              width: '36px',
+              height: '36px',
+              borderRadius: 'var(--radius-sm)',
+              backgroundColor: 'var(--status-normal-bg)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: 'var(--status-normal)'
+              color: 'var(--status-normal-text)'
             }}>
-              <Users size={18} />
+              <Users size={20} />
             </div>
             <div>
-              <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>
-                Report Session Attendance
+              <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+                Report Physical Attendance Roster
               </h2>
               <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                Centre: {centreId} • Physical Roster Record
+                Centre: {centreId} • Mandated Verification Record
               </div>
             </div>
           </div>
-          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '6px' }}>
             <X size={20} />
           </button>
         </div>
@@ -115,15 +116,8 @@ export const ReportAttendanceModal: React.FC<ReportAttendanceModalProps> = ({ ce
               type="date"
               value={sessionDate}
               onChange={(e) => setSessionDate(e.target.value)}
-              style={{
-                width: '100%',
-                backgroundColor: 'var(--bg-primary)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: '6px',
-                padding: '8px 12px',
-                color: 'var(--text-primary)',
-                fontSize: '13px'
-              }}
+              className="gov-input"
+              style={{ width: '100%' }}
             />
           </div>
 
@@ -136,15 +130,8 @@ export const ReportAttendanceModal: React.FC<ReportAttendanceModalProps> = ({ ce
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                style={{
-                  width: '100%',
-                  backgroundColor: 'var(--bg-primary)',
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: '6px',
-                  padding: '8px 12px',
-                  color: 'var(--text-primary)',
-                  fontSize: '13px'
-                }}
+                className="gov-input"
+                style={{ width: '100%' }}
               />
             </div>
             <div>
@@ -155,15 +142,8 @@ export const ReportAttendanceModal: React.FC<ReportAttendanceModalProps> = ({ ce
                 type="time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
-                style={{
-                  width: '100%',
-                  backgroundColor: 'var(--bg-primary)',
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: '6px',
-                  padding: '8px 12px',
-                  color: 'var(--text-primary)',
-                  fontSize: '13px'
-                }}
+                className="gov-input"
+                style={{ width: '100%' }}
               />
             </div>
           </div>
@@ -178,35 +158,20 @@ export const ReportAttendanceModal: React.FC<ReportAttendanceModalProps> = ({ ce
               max={60}
               value={reportedCount}
               onChange={(e) => setReportedCount(parseInt(e.target.value) || 0)}
-              style={{
-                width: '100%',
-                backgroundColor: 'var(--bg-primary)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: '6px',
-                padding: '8px 12px',
-                color: 'var(--text-primary)',
-                fontSize: '14px',
-                fontWeight: 700
-              }}
+              className="gov-input"
+              style={{ width: '100%', fontSize: '16px', fontWeight: 700 }}
             />
             <span style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
-              This number is matched automatically against the AI video attendance count.
+              This count will be reconciled directly against edge computer vision headcounts with ±15% thresholding.
             </span>
           </div>
 
           {/* Submit Actions */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '12px', paddingTop: '16px', borderTop: '1px solid var(--border-subtle)' }}>
             <button
               type="button"
               onClick={onClose}
-              style={{
-                backgroundColor: 'transparent',
-                border: 'none',
-                color: 'var(--text-muted)',
-                padding: '8px 14px',
-                fontSize: '12px',
-                cursor: 'pointer'
-              }}
+              className="gov-btn-secondary"
             >
               Cancel
             </button>
@@ -214,20 +179,7 @@ export const ReportAttendanceModal: React.FC<ReportAttendanceModalProps> = ({ ce
             <button
               type="submit"
               disabled={submitting}
-              style={{
-                backgroundColor: 'var(--status-normal)',
-                border: 'none',
-                color: '#fff',
-                borderRadius: '6px',
-                padding: '8px 18px',
-                fontSize: '12px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                boxShadow: '0 0 12px rgba(16, 185, 129, 0.4)'
-              }}
+              className="gov-btn-primary"
             >
               {success ? <CheckCircle size={14} /> : <Send size={14} />}
               <span>{success ? 'Submitted!' : (submitting ? 'Submitting...' : 'Submit Session Attendance')}</span>

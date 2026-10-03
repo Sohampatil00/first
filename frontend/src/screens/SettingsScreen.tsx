@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchSettings, updateSettings } from '../api';
-import { Sliders, Shield, Save, CheckCircle, Clock, AlertTriangle, EyeOff } from 'lucide-react';
+import { Sliders, Shield, Save, CheckCircle, Clock, AlertTriangle, EyeOff, ShieldCheck, Lock } from 'lucide-react';
 
 interface SettingsScreenProps {
   currentRole: string;
@@ -42,50 +42,100 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ currentRole }) =
   const isEditable = currentRole === 'MINISTRY_OFFICER' || currentRole === 'SYSTEM_ADMIN';
 
   return (
-    <div>
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)' }}>
-          Policy & Governance Threshold Settings
-        </h1>
-        <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-          Configurable decision criteria for discrepancy detection, dwell state machine, and data minimization
-        </p>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {/* Operational Header */}
+      <section style={{
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '16px',
+        paddingBottom: '4px'
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{
+              padding: '2px 8px',
+              borderRadius: '4px',
+              backgroundColor: '#EFF6FF',
+              border: '1px solid #BFDBFE',
+              color: '#1D4ED8',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '11px',
+              textTransform: 'uppercase',
+              fontWeight: 700,
+              letterSpacing: '0.04em'
+            }}>
+              Policy Engine v2.4
+            </span>
+            <span style={{ color: '#CBD5E1' }}>/</span>
+            <span style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: '#ECFDF5',
+              border: '1px solid #A7F3D0',
+              color: '#065F46',
+              padding: '2px 8px',
+              borderRadius: '4px',
+              fontSize: '11px',
+              fontFamily: 'var(--font-mono)',
+              fontWeight: 600
+            }}>
+              <span className="pulse-dot online"></span>
+              CENTRAL POLICY REPOSITORY
+            </span>
+          </div>
+
+          <h1 style={{
+            fontSize: '26px',
+            fontWeight: 800,
+            color: '#0F172A',
+            letterSpacing: '-0.025em',
+            margin: 0
+          }}>
+            Policy &amp; Governance Threshold Settings
+          </h1>
+
+          <p style={{ fontSize: '13px', color: '#475569', margin: 0, maxWidth: '680px' }}>
+            Configurable operational parameters for discrepancy detection, dwell state machine, and data minimization
+          </p>
+        </div>
+      </section>
 
       {!isEditable && (
         <div style={{
-          backgroundColor: 'rgba(245, 158, 11, 0.1)',
-          border: '1px solid rgba(245, 158, 11, 0.3)',
-          borderRadius: '8px',
+          backgroundColor: '#FFFBEB',
+          border: '1px solid #FDE68A',
+          borderRadius: '6px',
           padding: '12px 16px',
-          marginBottom: '20px',
           fontSize: '13px',
-          color: 'var(--status-warning)',
+          color: '#92400E',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px'
+          gap: '10px'
         }}>
-          <AlertTriangle size={16} />
+          <AlertTriangle size={18} color="#D97706" />
           <span>
-            <strong>Read-Only Mode:</strong> Only authorized <strong>Ministry Monitoring Officers</strong> or <strong>System Administrators</strong> can modify national compliance policies.
+            <strong>Read-Only Mode:</strong> Active role is <code style={{ fontWeight: 700 }}>{currentRole}</code>. Only authorized <strong>Ministry Monitoring Officers</strong> or <strong>System Administrators</strong> can modify national compliance parameters.
           </span>
         </div>
       )}
 
       {saveSuccess && (
         <div style={{
-          backgroundColor: 'rgba(16, 185, 129, 0.1)',
-          border: '1px solid rgba(16, 185, 129, 0.3)',
-          borderRadius: '8px',
+          backgroundColor: '#ECFDF5',
+          border: '1px solid #A7F3D0',
+          borderRadius: '6px',
           padding: '12px 16px',
-          marginBottom: '20px',
           fontSize: '13px',
-          color: 'var(--status-normal)',
+          color: '#065F46',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px'
+          gap: '10px'
         }}>
-          <CheckCircle size={16} />
+          <CheckCircle size={18} color="#059669" />
           <span>Governance policy parameters updated successfully and recorded in the audit trail.</span>
         </div>
       )}
@@ -93,229 +143,218 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ currentRole }) =
       <form onSubmit={handleSave} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '20px' }}>
         
         {/* Attendance Tolerance Card */}
-        <div style={{
-          backgroundColor: 'var(--bg-secondary)',
-          border: '1px solid var(--border-subtle)',
-          borderRadius: '8px',
-          padding: '20px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '14px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Sliders size={18} color="var(--accent-cyan)" />
-            <h2 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)' }}>
-              Attendance Policy Thresholds
-            </h2>
-          </div>
-
+        <div className="gov-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div>
-            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
-              Attendance Discrepancy Tolerance: ±{settings.attendance_tolerance_pct}%
-            </label>
-            <input
-              type="range"
-              min={5}
-              max={30}
-              step={1}
-              disabled={!isEditable}
-              value={settings.attendance_tolerance_pct}
-              onChange={(e) => setSettings({ ...settings, attendance_tolerance_pct: parseFloat(e.target.value) })}
-              style={{ width: '100%', accentColor: 'var(--accent-cyan)' }}
-            />
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-              Discrepancies below this threshold are marked NORMAL (no alert).
-            </span>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>
+              Attendance Discrepancy Tolerance (%)
+            </div>
+            <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px' }}>
+              Acceptable variance percentage before an exception case is raised
+            </div>
           </div>
-
-          <div>
-            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
-              Dwell Verification Duration: {settings.dwell_time_seconds} seconds
-            </label>
-            <select
-              disabled={!isEditable}
-              value={settings.dwell_time_seconds}
-              onChange={(e) => setSettings({ ...settings, dwell_time_seconds: parseInt(e.target.value) })}
-              style={{
-                width: '100%',
-                backgroundColor: 'var(--bg-primary)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: '6px',
-                padding: '8px 12px',
-                color: 'var(--text-primary)',
-                fontSize: '13px'
-              }}
-            >
-              <option value={60}>60 seconds (Quick Verification)</option>
-              <option value={180}>180 seconds / 3 mins (Standard MSDE)</option>
-              <option value={300}>300 seconds / 5 mins (High Strictness)</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Infrastructure & Assets Card */}
-        <div style={{
-          backgroundColor: 'var(--bg-secondary)',
-          border: '1px solid var(--border-subtle)',
-          borderRadius: '8px',
-          padding: '20px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '14px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Shield size={18} color="var(--status-normal)" />
-            <h2 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)' }}>
-              Infrastructure Compliance Mandates
-            </h2>
-          </div>
-
-          <div>
-            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
-              Asset Gap Severity Threshold
-            </label>
-            <select
-              disabled={!isEditable}
-              value={settings.asset_gap_threshold}
-              onChange={(e) => setSettings({ ...settings, asset_gap_threshold: parseInt(e.target.value) })}
-              style={{
-                width: '100%',
-                backgroundColor: 'var(--bg-primary)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: '6px',
-                padding: '8px 12px',
-                color: 'var(--text-primary)',
-                fontSize: '13px'
-              }}
-            >
-              <option value={1}>1 missing unit triggers REVIEW</option>
-              <option value={2}>2 missing units triggers REVIEW</option>
-              <option value={3}>3 missing units triggers HIGH</option>
-            </select>
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-              Evaluated against sanctioned inventory table per centre.
-            </span>
-          </div>
-
-          <div>
-            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
-              Auto-Escalate Unreviewed Critical Alerts
-            </label>
-            <select
-              disabled={!isEditable}
-              value={settings.auto_escalate_critical_hours}
-              onChange={(e) => setSettings({ ...settings, auto_escalate_critical_hours: parseInt(e.target.value) })}
-              style={{
-                width: '100%',
-                backgroundColor: 'var(--bg-primary)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: '6px',
-                padding: '8px 12px',
-                color: 'var(--text-primary)',
-                fontSize: '13px'
-              }}
-            >
-              <option value={12}>12 hours</option>
-              <option value={24}>24 hours (Standard SLA)</option>
-              <option value={48}>48 hours</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Privacy & Evidence Retention Card */}
-        <div style={{
-          backgroundColor: 'var(--bg-secondary)',
-          border: '1px solid var(--border-subtle)',
-          borderRadius: '8px',
-          padding: '20px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '14px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <EyeOff size={18} color="#a855f7" />
-            <h2 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)' }}>
-              Privacy & Data Minimization
-            </h2>
-          </div>
-
-          <div>
-            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
-              Face Anonymization Filter Mode
-            </label>
-            <select
-              disabled={!isEditable}
-              value={settings.privacy_blur_mode}
-              onChange={(e) => setSettings({ ...settings, privacy_blur_mode: e.target.value })}
-              style={{
-                width: '100%',
-                backgroundColor: 'var(--bg-primary)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: '6px',
-                padding: '8px 12px',
-                color: 'var(--text-primary)',
-                fontSize: '13px'
-              }}
-            >
-              <option value="GAUSSIAN_FACE_MASK">Gaussian Blur Mask (Active)</option>
-              <option value="BLACKOUT_BOX">Solid Blackout Head Box</option>
-              <option value="NO_IMAGE_METADATA_ONLY">Zero Image Storage (Metadata Only)</option>
-            </select>
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-              Complies with Digital Personal Data Protection Act (DPDPA).
-            </span>
-          </div>
-
-          <div>
-            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
-              Evidence Snapshot Retention Period
-            </label>
-            <select
-              disabled={!isEditable}
-              value={settings.evidence_retention_days}
-              onChange={(e) => setSettings({ ...settings, evidence_retention_days: parseInt(e.target.value) })}
-              style={{
-                width: '100%',
-                backgroundColor: 'var(--bg-primary)',
-                border: '1px solid var(--border-subtle)',
-                borderRadius: '6px',
-                padding: '8px 12px',
-                color: 'var(--text-primary)',
-                fontSize: '13px'
-              }}
-            >
-              <option value={30}>30 Days</option>
-              <option value={90}>90 Days (Recommended)</option>
-              <option value={180}>180 Days (Fiscal Year Audit)</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Action Button Strip */}
-        <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'flex-end', paddingTop: '10px' }}>
-          <button
-            type="submit"
+          <input
+            type="number"
+            step="1"
+            min="0"
+            max="50"
             disabled={!isEditable}
+            value={settings.attendance_tolerance_pct}
+            onChange={(e) => setSettings({ ...settings, attendance_tolerance_pct: parseFloat(e.target.value) })}
             style={{
-              backgroundColor: isEditable ? 'var(--accent-cyan)' : 'var(--border-strong)',
-              color: isEditable ? '#000' : 'var(--text-muted)',
-              border: 'none',
+              width: '100%',
+              backgroundColor: '#FFFFFF',
+              border: '1px solid #CBD5E1',
               borderRadius: '6px',
-              padding: '10px 24px',
+              padding: '8px 12px',
+              fontSize: '14px',
+              color: '#0F172A',
+              fontFamily: 'var(--font-mono)'
+            }}
+          />
+          <span style={{ fontSize: '11px', color: '#64748B' }}>
+            Standard national threshold is set to 15.0%.
+          </span>
+        </div>
+
+        {/* Dwell Time Card */}
+        <div className="gov-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>
+              Mandatory Dwell Threshold (Seconds)
+            </div>
+            <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px' }}>
+              Consecutive presence in classroom ROI required to mark attendance
+            </div>
+          </div>
+          <input
+            type="number"
+            step="10"
+            min="30"
+            max="1800"
+            disabled={!isEditable}
+            value={settings.dwell_time_seconds}
+            onChange={(e) => setSettings({ ...settings, dwell_time_seconds: parseInt(e.target.value) })}
+            style={{
+              width: '100%',
+              backgroundColor: '#FFFFFF',
+              border: '1px solid #CBD5E1',
+              borderRadius: '6px',
+              padding: '8px 12px',
+              fontSize: '14px',
+              color: '#0F172A',
+              fontFamily: 'var(--font-mono)'
+            }}
+          />
+          <span style={{ fontSize: '11px', color: '#64748B' }}>
+            Current: {settings.dwell_time_seconds} seconds ({Math.round(settings.dwell_time_seconds / 60)} minutes).
+          </span>
+        </div>
+
+        {/* Asset Gap Threshold Card */}
+        <div className="gov-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>
+              Asset Deficit Sensitivity (Units)
+            </div>
+            <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px' }}>
+              Minimum missing equipment count triggering an infrastructure alert
+            </div>
+          </div>
+          <input
+            type="number"
+            min="1"
+            max="10"
+            disabled={!isEditable}
+            value={settings.asset_gap_threshold}
+            onChange={(e) => setSettings({ ...settings, asset_gap_threshold: parseInt(e.target.value) })}
+            style={{
+              width: '100%',
+              backgroundColor: '#FFFFFF',
+              border: '1px solid #CBD5E1',
+              borderRadius: '6px',
+              padding: '8px 12px',
+              fontSize: '14px',
+              color: '#0F172A',
+              fontFamily: 'var(--font-mono)'
+            }}
+          />
+          <span style={{ fontSize: '11px', color: '#64748B' }}>
+            Alert triggers when verified assets &lt; (Sanctioned - Threshold).
+          </span>
+        </div>
+
+        {/* SLA Auto-Escalation Card */}
+        <div className="gov-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>
+              Critical Alert Auto-Escalate SLA (Hours)
+            </div>
+            <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px' }}>
+              Maximum unreviewed window before escalating case to State Vigilance
+            </div>
+          </div>
+          <input
+            type="number"
+            min="1"
+            max="72"
+            disabled={!isEditable}
+            value={settings.auto_escalate_critical_hours}
+            onChange={(e) => setSettings({ ...settings, auto_escalate_critical_hours: parseInt(e.target.value) })}
+            style={{
+              width: '100%',
+              backgroundColor: '#FFFFFF',
+              border: '1px solid #CBD5E1',
+              borderRadius: '6px',
+              padding: '8px 12px',
+              fontSize: '14px',
+              color: '#0F172A',
+              fontFamily: 'var(--font-mono)'
+            }}
+          />
+          <span style={{ fontSize: '11px', color: '#64748B' }}>
+            Unresolved critical events auto-transition to ESCALATED_TO_STATE after {settings.auto_escalate_critical_hours}h.
+          </span>
+        </div>
+
+        {/* Privacy Blur Mode Card */}
+        <div className="gov-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>
+              Edge Privacy Masking Protocol
+            </div>
+            <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px' }}>
+              Edge filter mode applied to snapshot evidence before transmission
+            </div>
+          </div>
+          <select
+            disabled={!isEditable}
+            value={settings.privacy_blur_mode}
+            onChange={(e) => setSettings({ ...settings, privacy_blur_mode: e.target.value })}
+            style={{
+              width: '100%',
+              backgroundColor: '#FFFFFF',
+              border: '1px solid #CBD5E1',
+              borderRadius: '6px',
+              padding: '8px 12px',
               fontSize: '13px',
-              fontWeight: 700,
-              cursor: isEditable ? 'pointer' : 'not-allowed',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              boxShadow: isEditable ? '0 0 15px rgba(56, 189, 248, 0.4)' : 'none'
+              color: '#0F172A'
             }}
           >
-            <Save size={16} />
-            <span>Save Governance Policy</span>
-          </button>
+            <option value="GAUSSIAN_FACE_MASK">Gaussian Face Blur Mask (Enforced Standard)</option>
+            <option value="SILHOUETTE_ONLY">Silhouette / Bounding Box Fill Only</option>
+            <option value="PIXELATION_24PX">Heavy Pixelation Filter (24px)</option>
+          </select>
+          <span style={{ fontSize: '11px', color: '#059669', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <Lock size={12} />
+            <span>Guarantees DPDP Act 2023 compliance. Biometric features masked.</span>
+          </span>
         </div>
 
+        {/* Evidence Retention Card */}
+        <div className="gov-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A' }}>
+              Evidence Storage Retention (Days)
+            </div>
+            <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px' }}>
+              Data lifecycle purge period for privacy-blurred evidence snapshots
+            </div>
+          </div>
+          <input
+            type="number"
+            min="30"
+            max="365"
+            disabled={!isEditable}
+            value={settings.evidence_retention_days}
+            onChange={(e) => setSettings({ ...settings, evidence_retention_days: parseInt(e.target.value) })}
+            style={{
+              width: '100%',
+              backgroundColor: '#FFFFFF',
+              border: '1px solid #CBD5E1',
+              borderRadius: '6px',
+              padding: '8px 12px',
+              fontSize: '14px',
+              color: '#0F172A',
+              fontFamily: 'var(--font-mono)'
+            }}
+          />
+          <span style={{ fontSize: '11px', color: '#64748B' }}>
+            Snapshots older than {settings.evidence_retention_days} days are automatically expunged.
+          </span>
+        </div>
+
+        {/* Form Actions */}
+        {isEditable && (
+          <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'flex-end', paddingTop: '10px' }}>
+            <button
+              type="submit"
+              className="gov-btn-primary"
+            >
+              <Save size={15} />
+              <span>Save &amp; Record Policy Update</span>
+            </button>
+          </div>
+        )}
       </form>
     </div>
   );

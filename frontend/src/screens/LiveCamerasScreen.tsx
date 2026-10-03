@@ -1,7 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Camera } from '../types';
 import { fetchCameras, triggerDemoScenario } from '../api';
-import { Video, Wifi, WifiOff, ShieldCheck, Activity, Cpu, Play, RotateCcw, AlertTriangle, Box, Layers, Radio, CheckCircle2, Server } from 'lucide-react';
+import { 
+  Video, 
+  Wifi, 
+  WifiOff, 
+  ShieldCheck, 
+  Activity, 
+  Cpu, 
+  RotateCcw, 
+  AlertTriangle, 
+  Box, 
+  Layers, 
+  Radio, 
+  CheckCircle2, 
+  Eye,
+  Sliders,
+  Maximize2
+} from 'lucide-react';
 import { CameraFusionModal } from '../components/CameraFusionModal';
 
 export const LiveCamerasScreen: React.FC = () => {
@@ -10,6 +26,7 @@ export const LiveCamerasScreen: React.FC = () => {
   const [demoActionStatus, setDemoActionStatus] = useState<string | null>(null);
   const [showFusionModal, setShowFusionModal] = useState<boolean>(false);
   const [showRtspModal, setShowRtspModal] = useState<boolean>(false);
+  const [showBoxes, setShowBoxes] = useState<boolean>(true);
 
   // RTSP tester state
   const [rtspUrl, setRtspUrl] = useState<string>('rtsp://admin:pass@192.168.1.108:554/live/ch0');
@@ -57,77 +74,103 @@ export const LiveCamerasScreen: React.FC = () => {
   };
 
   return (
-    <div>
-      <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
-        <div>
-          <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)' }}>
-            Edge Camera Feeds & Inference Monitoring
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {/* Operational Header Section */}
+      <section style={{
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '16px',
+        paddingBottom: '4px'
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{
+              padding: '2px 8px',
+              borderRadius: '4px',
+              backgroundColor: '#EFF6FF',
+              border: '1px solid #BFDBFE',
+              color: '#1D4ED8',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '11px',
+              textTransform: 'uppercase',
+              fontWeight: 700,
+              letterSpacing: '0.04em'
+            }}>
+              Edge Inference Node v2.4
+            </span>
+            <span style={{ color: '#CBD5E1' }}>/</span>
+            <span style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: '#ECFDF5',
+              border: '1px solid #A7F3D0',
+              color: '#065F46',
+              padding: '2px 8px',
+              borderRadius: '4px',
+              fontSize: '11px',
+              fontFamily: 'var(--font-mono)',
+              fontWeight: 600
+            }}>
+              <span className="pulse-dot online"></span>
+              PRIVACY VECTOR METASYNC ACTIVE
+            </span>
+          </div>
+
+          <h1 style={{
+            fontSize: '26px',
+            fontWeight: 800,
+            color: '#0F172A',
+            letterSpacing: '-0.025em',
+            margin: 0
+          }}>
+            Live Edge Cameras &amp; Telemetry
           </h1>
-          <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-            Low-bandwidth edge agents process video locally and upload structured telemetry & evidence packages
+
+          <p style={{ fontSize: '13px', color: '#475569', margin: 0, maxWidth: '680px' }}>
+            Decentralized on-premise vision inference with sub-second bounding box metadata sync · Video never leaves edge
           </p>
         </div>
 
         {/* Action Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
           <button
             onClick={() => setShowFusionModal(true)}
-            style={{
-              backgroundColor: 'rgba(56, 189, 248, 0.15)',
-              border: '1px solid rgba(56, 189, 248, 0.4)',
-              color: 'var(--accent-cyan)',
-              padding: '6px 12px',
-              borderRadius: '6px',
-              fontSize: '12px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
+            className="gov-btn-secondary"
           >
-            <Layers size={14} />
+            <Layers size={14} color="#2563EB" />
             <span>Multi-Camera Fusion Simulator</span>
           </button>
 
           <button
             onClick={() => setShowRtspModal(true)}
-            style={{
-              backgroundColor: 'rgba(168, 85, 247, 0.15)',
-              border: '1px solid rgba(168, 85, 247, 0.4)',
-              color: '#c084fc',
-              padding: '6px 12px',
-              borderRadius: '6px',
-              fontSize: '12px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
+            className="gov-btn-secondary"
           >
-            <Radio size={14} />
+            <Radio size={14} color="#9333EA" />
             <span>Test RTSP / IP Stream</span>
           </button>
 
-          {/* Live Demo Controller Actions */}
+          {/* Quick Demo Scenario Triggers */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
-            backgroundColor: 'var(--bg-secondary)',
-            border: '1px solid var(--border-subtle)',
-            padding: '4px 8px',
-            borderRadius: '8px'
+            gap: '6px',
+            backgroundColor: '#F1F5F9',
+            border: '1px solid #CBD5E1',
+            padding: '3px 6px',
+            borderRadius: '6px'
           }}>
             <button
               onClick={() => handleTriggerScenario('ATTENDANCE_DISCREPANCY', 'Attendance Discrepancy')}
               style={{
-                backgroundColor: 'rgba(239, 68, 68, 0.15)',
-                border: '1px solid rgba(239, 68, 68, 0.35)',
-                color: 'var(--status-critical)',
-                padding: '6px 10px',
-                borderRadius: '6px',
+                backgroundColor: '#FEF2F2',
+                border: '1px solid #FECACA',
+                color: '#DC2626',
+                padding: '4px 8px',
+                borderRadius: '4px',
                 fontSize: '11px',
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -136,18 +179,18 @@ export const LiveCamerasScreen: React.FC = () => {
                 gap: '4px'
               }}
             >
-              <AlertTriangle size={13} />
+              <AlertTriangle size={12} />
               <span>Trigger Gap</span>
             </button>
 
             <button
               onClick={() => handleTriggerScenario('RESET', 'Reset Baseline')}
               style={{
-                backgroundColor: 'var(--bg-card)',
-                border: '1px solid var(--border-subtle)',
-                color: 'var(--text-secondary)',
-                padding: '6px 10px',
-                borderRadius: '6px',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #CBD5E1',
+                color: '#475569',
+                padding: '4px 8px',
+                borderRadius: '4px',
                 fontSize: '11px',
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -156,37 +199,38 @@ export const LiveCamerasScreen: React.FC = () => {
                 gap: '4px'
               }}
             >
-              <RotateCcw size={13} />
+              <RotateCcw size={12} />
               <span>Reset</span>
             </button>
           </div>
         </div>
-      </div>
+      </section>
 
+      {/* Action Notification Strip */}
       {demoActionStatus && (
         <div style={{
-          backgroundColor: 'rgba(56, 189, 248, 0.1)',
-          border: '1px solid rgba(56, 189, 248, 0.3)',
+          backgroundColor: '#EFF6FF',
+          border: '1px solid #BFDBFE',
           borderRadius: '6px',
-          padding: '8px 14px',
-          marginBottom: '18px',
-          fontSize: '12px',
-          color: 'var(--accent-cyan)',
+          padding: '10px 16px',
+          fontSize: '13px',
+          color: '#1D4ED8',
           display: 'flex',
           alignItems: 'center',
-          gap: '8px'
+          gap: '10px'
         }}>
-          <span className="pulse-dot online"></span>
+          <CheckCircle2 size={16} />
           <span>{demoActionStatus}</span>
         </div>
       )}
 
+      {/* Cameras Viewport Grid */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '60px', color: 'var(--text-muted)' }}>
-          Loading camera streams...
+        <div className="gov-card" style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>
+          Initializing camera streams...
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))', gap: '20px' }}>
           {cameras.map((cam) => {
             const isOnline = cam.status === 'ONLINE';
             const isDemoCamera = cam.id === 'CAM-101-A1';
@@ -194,19 +238,40 @@ export const LiveCamerasScreen: React.FC = () => {
             return (
               <div
                 key={cam.id}
+                className="gov-card"
                 style={{
-                  backgroundColor: 'var(--bg-secondary)',
-                  border: '1px solid var(--border-subtle)',
-                  borderRadius: '8px',
                   overflow: 'hidden',
                   display: 'flex',
                   flexDirection: 'column'
                 }}
               >
-                {/* Camera Video Viewport */}
+                {/* Camera Card Header */}
                 <div style={{
-                  height: '260px',
-                  backgroundColor: '#070a10',
+                  padding: '12px 16px',
+                  borderBottom: '1px solid #E2E8F0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  backgroundColor: '#FFFFFF'
+                }}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: '14px', color: '#0F172A' }}>
+                      {cam.name}
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#64748B', fontFamily: 'var(--font-mono)' }}>
+                      UID: {cam.id} · Centre: {cam.centre_id}
+                    </div>
+                  </div>
+
+                  <span className={`status-badge ${isOnline ? 'normal' : 'critical'}`}>
+                    {isOnline ? 'ONLINE · 15 FPS' : 'OFFLINE'}
+                  </span>
+                </div>
+
+                {/* Video / Camera Canvas Frame */}
+                <div style={{
+                  height: '270px',
+                  backgroundColor: '#070A13',
                   position: 'relative',
                   display: 'flex',
                   alignItems: 'center',
@@ -230,14 +295,14 @@ export const LiveCamerasScreen: React.FC = () => {
                         />
                       ) : (
                         <div style={{ textAlign: 'center', pointerEvents: 'none' }}>
-                          <Activity size={32} color="var(--accent-cyan)" style={{ margin: '0 auto 6px', display: 'block', opacity: 0.7 }} />
-                          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                            Edge Camera Feed Active
+                          <Activity size={32} color="#38BDF8" style={{ margin: '0 auto 6px', display: 'block', opacity: 0.8 }} />
+                          <span style={{ fontSize: '12px', color: '#94A3B8' }}>
+                            Edge Camera Feed Active · Low Bandwidth JSON Mode
                           </span>
                         </div>
                       )}
 
-                      {/* Active Video Overlay Elements */}
+                      {/* Top-Left Live Recording Pill */}
                       <div style={{
                         position: 'absolute',
                         top: '12px',
@@ -245,88 +310,102 @@ export const LiveCamerasScreen: React.FC = () => {
                         display: 'flex',
                         alignItems: 'center',
                         gap: '6px',
-                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                        backgroundColor: 'rgba(15, 23, 42, 0.85)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
                         padding: '4px 8px',
                         borderRadius: '4px',
                         fontSize: '11px',
-                        color: 'var(--status-normal)',
+                        color: '#4ADE80',
                         fontWeight: 600,
+                        fontFamily: 'var(--font-mono)',
                         backdropFilter: 'blur(4px)'
                       }}>
                         <span className="pulse-dot online"></span>
-                        <span>LIVE EDGE INFERENCE (10 FPS)</span>
+                        <span>LIVE EDGE INFERENCE (15 FPS)</span>
                       </div>
 
+                      {/* Top-Right Bandwidth Pill */}
                       <div style={{
                         position: 'absolute',
                         top: '12px',
                         right: '12px',
-                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                        backgroundColor: 'rgba(15, 23, 42, 0.85)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
                         padding: '4px 8px',
                         borderRadius: '4px',
                         fontSize: '11px',
-                        color: 'var(--accent-cyan)',
+                        color: '#38BDF8',
                         fontFamily: 'var(--font-mono)',
+                        fontWeight: 600,
                         backdropFilter: 'blur(4px)'
                       }}>
                         1.8 KB/s Metasync
                       </div>
 
+                      {/* Bottom-Left Privacy Overlay */}
                       <div style={{
                         position: 'absolute',
-                        bottom: '10px',
+                        bottom: '12px',
                         left: '12px',
-                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                        padding: '3px 8px',
+                        backgroundColor: 'rgba(15, 23, 42, 0.85)',
+                        padding: '4px 8px',
                         borderRadius: '4px',
                         fontSize: '10px',
-                        color: '#fff',
-                        fontFamily: 'var(--font-mono)'
+                        color: '#E2E8F0',
+                        fontFamily: 'var(--font-mono)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
                       }}>
-                        Privacy: Bounding Box Metadata Only
+                        <ShieldCheck size={12} color="#34D399" />
+                        <span>Privacy: Bounding Box Metadata · Face Blur Active</span>
                       </div>
                     </>
                   ) : (
-                    <div style={{ textAlign: 'center', color: 'var(--status-critical)' }}>
+                    <div style={{ textAlign: 'center', color: '#EF4444' }}>
                       <WifiOff size={36} style={{ margin: '0 auto 8px', display: 'block' }} />
-                      <div style={{ fontSize: '14px', fontWeight: 600 }}>Stream Disconnected</div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
+                      <div style={{ fontSize: '14px', fontWeight: 700 }}>Stream Disconnected</div>
+                      <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '4px' }}>
                         Edge Spooling active in local SQLite queue
                       </div>
                     </div>
                   )}
                 </div>
 
-                {/* Camera Card Footer */}
-                <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div>
-                      <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>
-                        {cam.name}
-                      </div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                        {cam.id} • Centre: {cam.centre_id}
-                      </div>
-                    </div>
-                    <span className={`status-badge ${isOnline ? 'normal' : 'critical'}`}>
-                      {cam.status}
-                    </span>
+                {/* Card Sub-Bar / Scrubber HUD */}
+                <div style={{
+                  padding: '10px 16px',
+                  backgroundColor: '#F8FAFC',
+                  borderTop: '1px solid #E2E8F0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  fontSize: '11px',
+                  color: '#64748B'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Cpu size={13} color="#2563EB" />
+                    <span>YOLOv8 Edge Daemon</span>
+                    <span style={{ color: '#CBD5E1' }}>·</span>
+                    <span>Last Ping: {new Date(cam.last_seen_at).toLocaleTimeString()}</span>
                   </div>
 
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    fontSize: '11px',
-                    color: 'var(--text-muted)',
-                    paddingTop: '8px',
-                    borderTop: '1px solid var(--border-subtle)'
-                  }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Cpu size={12} />
-                      YOLOv8 Edge Daemon
-                    </span>
-                    <span>Last Telemetry Ping: {new Date(cam.last_seen_at).toLocaleTimeString()}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <button
+                      onClick={() => setShowBoxes(!showBoxes)}
+                      style={{
+                        backgroundColor: '#FFFFFF',
+                        border: '1px solid #CBD5E1',
+                        borderRadius: '4px',
+                        padding: '2px 6px',
+                        fontSize: '10px',
+                        color: showBoxes ? '#059669' : '#64748B',
+                        fontWeight: 600,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      BBoxes: {showBoxes ? 'ON' : 'OFF'}
+                    </button>
                   </div>
                 </div>
 
@@ -351,57 +430,54 @@ export const LiveCamerasScreen: React.FC = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.85)',
+          backgroundColor: 'rgba(15, 23, 42, 0.6)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 1100,
-          backdropFilter: 'blur(5px)',
+          backdropFilter: 'blur(4px)',
           padding: '20px'
         }}>
-          <div style={{
-            backgroundColor: 'var(--bg-secondary)',
-            border: '1px solid var(--border-subtle)',
-            borderRadius: '12px',
+          <div className="gov-card" style={{
             width: '100%',
             maxWidth: '620px',
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)'
+            boxShadow: 'var(--shadow-modal)'
           }}>
-            {/* Header */}
+            {/* Modal Header */}
             <div style={{
               padding: '16px 20px',
-              borderBottom: '1px solid var(--border-subtle)',
+              borderBottom: '1px solid #E2E8F0',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              backgroundColor: 'var(--bg-card)'
+              backgroundColor: '#F8FAFC'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Radio size={20} color="#c084fc" />
+                <Radio size={20} color="#9333EA" />
                 <div>
-                  <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                  <div style={{ fontSize: '16px', fontWeight: 700, color: '#0F172A' }}>
                     RTSP / IP Camera Stream Adapter
                   </div>
-                  <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                    Test real-world ONVIF/RTSP edge camera ingestion with drop-frame threading
+                  <div style={{ fontSize: '12px', color: '#64748B' }}>
+                    Test on-ground ONVIF/RTSP edge camera ingestion with drop-frame threading
                   </div>
                 </div>
               </div>
               <button
                 onClick={() => setShowRtspModal(false)}
-                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px' }}
+                style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '4px', fontSize: '16px' }}
               >
                 ✕
               </button>
             </div>
 
-            {/* Body */}
+            {/* Modal Body */}
             <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
                   Camera Stream URL (RTSP / HTTP / Device ID)
                 </label>
                 <input
@@ -411,31 +487,31 @@ export const LiveCamerasScreen: React.FC = () => {
                   placeholder="rtsp://admin:password@192.168.1.100:554/stream1"
                   style={{
                     width: '100%',
-                    backgroundColor: 'var(--bg-card)',
-                    border: '1px solid var(--border-subtle)',
+                    backgroundColor: '#FFFFFF',
+                    border: '1px solid #CBD5E1',
                     borderRadius: '6px',
-                    padding: '10px 12px',
+                    padding: '8px 12px',
                     fontSize: '13px',
-                    color: 'var(--text-primary)',
+                    color: '#0F172A',
                     fontFamily: 'var(--font-mono)'
                   }}
                 />
                 <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
                   <button
                     onClick={() => setRtspUrl('rtsp://admin:pass@192.168.1.108:554/live/ch0')}
-                    style={{ fontSize: '10px', background: 'none', border: 'none', color: 'var(--accent-cyan)', cursor: 'pointer', textDecoration: 'underline' }}
+                    style={{ fontSize: '11px', background: 'none', border: 'none', color: '#2563EB', cursor: 'pointer', textDecoration: 'underline' }}
                   >
                     Hikvision Example
                   </button>
                   <button
                     onClick={() => setRtspUrl('rtsp://10.0.4.22:8554/pmkvy_lab_feed')}
-                    style={{ fontSize: '10px', background: 'none', border: 'none', color: 'var(--accent-cyan)', cursor: 'pointer', textDecoration: 'underline' }}
+                    style={{ fontSize: '11px', background: 'none', border: 'none', color: '#2563EB', cursor: 'pointer', textDecoration: 'underline' }}
                   >
                     CP Plus Example
                   </button>
                   <button
                     onClick={() => setRtspUrl('0')}
-                    style={{ fontSize: '10px', background: 'none', border: 'none', color: 'var(--accent-cyan)', cursor: 'pointer', textDecoration: 'underline' }}
+                    style={{ fontSize: '11px', background: 'none', border: 'none', color: '#2563EB', cursor: 'pointer', textDecoration: 'underline' }}
                   >
                     Local Webcam Device (0)
                   </button>
@@ -445,20 +521,8 @@ export const LiveCamerasScreen: React.FC = () => {
               <button
                 onClick={handleTestRtsp}
                 disabled={testingRtsp}
-                style={{
-                  backgroundColor: '#9333ea',
-                  color: '#fff',
-                  border: 'none',
-                  padding: '10px 16px',
-                  borderRadius: '6px',
-                  fontSize: '13px',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px'
-                }}
+                className="gov-btn-primary"
+                style={{ justifyContent: 'center' }}
               >
                 <Radio size={15} />
                 <span>{testingRtsp ? 'Handshaking & Analyzing Stream...' : 'Test Connection & Latency'}</span>
@@ -466,64 +530,55 @@ export const LiveCamerasScreen: React.FC = () => {
 
               {rtspResult && (
                 <div style={{
-                  backgroundColor: 'rgba(34, 197, 94, 0.08)',
-                  border: '1px solid rgba(34, 197, 94, 0.3)',
-                  borderRadius: '8px',
+                  backgroundColor: '#ECFDF5',
+                  border: '1px solid #A7F3D0',
+                  borderRadius: '6px',
                   padding: '14px',
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '10px'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--status-normal)', fontWeight: 600, fontSize: '13px' }}>
-                    <CheckCircle2 size={16} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#065F46', fontWeight: 700, fontSize: '13px' }}>
+                    <CheckCircle2 size={16} color="#059669" />
                     <span>Stream Handshake Succeeded (Buffer-Free Threaded Mode)</span>
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '11px' }}>
-                    <div style={{ backgroundColor: 'var(--bg-card)', padding: '8px 10px', borderRadius: '4px' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Throughput: </span>
-                      <strong style={{ color: 'var(--text-primary)' }}>{rtspResult.fps} FPS</strong>
+                    <div style={{ backgroundColor: '#FFFFFF', padding: '8px 10px', borderRadius: '4px', border: '1px solid #E2E8F0' }}>
+                      <span style={{ color: '#64748B' }}>Throughput: </span>
+                      <strong style={{ color: '#0F172A' }}>{rtspResult.fps} FPS</strong>
                     </div>
-                    <div style={{ backgroundColor: 'var(--bg-card)', padding: '8px 10px', borderRadius: '4px' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Edge Latency: </span>
-                      <strong style={{ color: 'var(--status-normal)' }}>{rtspResult.latency_ms} ms</strong>
+                    <div style={{ backgroundColor: '#FFFFFF', padding: '8px 10px', borderRadius: '4px', border: '1px solid #E2E8F0' }}>
+                      <span style={{ color: '#64748B' }}>Edge Latency: </span>
+                      <strong style={{ color: '#059669' }}>{rtspResult.latency_ms} ms</strong>
                     </div>
-                    <div style={{ backgroundColor: 'var(--bg-card)', padding: '8px 10px', borderRadius: '4px' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Buffer Lag: </span>
-                      <strong style={{ color: 'var(--accent-cyan)' }}>0.00s (Queue drop active)</strong>
+                    <div style={{ backgroundColor: '#FFFFFF', padding: '8px 10px', borderRadius: '4px', border: '1px solid #E2E8F0' }}>
+                      <span style={{ color: '#64748B' }}>Buffer Lag: </span>
+                      <strong style={{ color: '#2563EB' }}>0.00s (Queue drop active)</strong>
                     </div>
-                    <div style={{ backgroundColor: 'var(--bg-card)', padding: '8px 10px', borderRadius: '4px' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Privacy: </span>
-                      <strong style={{ color: 'var(--text-primary)' }}>{rtspResult.privacy_mask}</strong>
+                    <div style={{ backgroundColor: '#FFFFFF', padding: '8px 10px', borderRadius: '4px', border: '1px solid #E2E8F0' }}>
+                      <span style={{ color: '#64748B' }}>Privacy: </span>
+                      <strong style={{ color: '#0F172A' }}>{rtspResult.privacy_mask}</strong>
                     </div>
                   </div>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                    ✅ Ready for deployment in <code style={{ color: 'var(--accent-cyan)' }}>edge/agent.py --video "{rtspUrl}"</code>
+                  <div style={{ fontSize: '11px', color: '#475569' }}>
+                    ✅ Ready for deployment in <code style={{ color: '#2563EB', fontWeight: 600 }}>edge/agent.py --video "{rtspUrl}"</code>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Footer */}
+            {/* Modal Footer */}
             <div style={{
               padding: '12px 20px',
-              borderTop: '1px solid var(--border-subtle)',
-              backgroundColor: 'var(--bg-card)',
+              borderTop: '1px solid #E2E8F0',
+              backgroundColor: '#F8FAFC',
               display: 'flex',
               justifyContent: 'flex-end'
             }}>
               <button
                 onClick={() => setShowRtspModal(false)}
-                style={{
-                  backgroundColor: 'var(--bg-secondary)',
-                  border: '1px solid var(--border-subtle)',
-                  color: 'var(--text-primary)',
-                  padding: '6px 14px',
-                  borderRadius: '6px',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  cursor: 'pointer'
-                }}
+                className="gov-btn-secondary"
               >
                 Close
               </button>

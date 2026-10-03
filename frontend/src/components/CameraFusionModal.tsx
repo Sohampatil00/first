@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Layers, Users, Eye, CheckCircle2, ShieldCheck, Zap } from 'lucide-react';
+import { X, Layers, Users, Eye, CheckCircle2, ShieldCheck, Zap, RefreshCw } from 'lucide-react';
 
 interface CameraFusionModalProps {
   isOpen: boolean;
@@ -43,7 +43,7 @@ export const CameraFusionModal: React.FC<CameraFusionModalProps> = ({ isOpen, on
     const x = Math.round(((e.clientX - rect.left) / rect.width) * 100);
     const y = Math.round(((e.clientY - rect.top) / rect.height) * 100);
 
-    // Simple geometric visibility heuristic
+    // Geometric visibility heuristic
     const vis1 = (x < 70 && y < 80);
     const vis2 = (x > 30 && y > 30);
 
@@ -64,39 +64,50 @@ export const CameraFusionModal: React.FC<CameraFusionModalProps> = ({ isOpen, on
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.85)',
+      backgroundColor: 'rgba(15, 23, 42, 0.65)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 1100,
-      backdropFilter: 'blur(5px)',
+      backdropFilter: 'blur(4px)',
       padding: '20px'
     }}>
       <div style={{
-        backgroundColor: 'var(--bg-secondary)',
+        backgroundColor: '#ffffff',
         border: '1px solid var(--border-subtle)',
-        borderRadius: '12px',
+        borderRadius: 'var(--radius-lg)',
         width: '100%',
         maxWidth: '880px',
         maxHeight: '92vh',
         overflowY: 'auto',
         display: 'flex',
         flexDirection: 'column',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)'
+        boxShadow: 'var(--shadow-modal)'
       }}>
         {/* Header */}
         <div style={{
-          padding: '16px 20px',
+          padding: '16px 24px',
           borderBottom: '1px solid var(--border-subtle)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          backgroundColor: 'var(--bg-card)'
+          backgroundColor: '#f8fafc'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Layers size={20} color="var(--accent-cyan)" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: 'var(--radius-sm)',
+              backgroundColor: 'var(--primary-light)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--primary)'
+            }}>
+              <Layers size={20} />
+            </div>
             <div>
-              <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>
+              <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
                 Multi-Camera Spatial Fusion & De-duplication Simulator
               </div>
               <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
@@ -111,7 +122,8 @@ export const CameraFusionModal: React.FC<CameraFusionModalProps> = ({ isOpen, on
               border: 'none',
               color: 'var(--text-muted)',
               cursor: 'pointer',
-              padding: '6px'
+              padding: '6px',
+              borderRadius: '4px'
             }}
           >
             <X size={20} />
@@ -123,50 +135,51 @@ export const CameraFusionModal: React.FC<CameraFusionModalProps> = ({ isOpen, on
           display: 'grid',
           gridTemplateColumns: 'repeat(4, 1fr)',
           gap: '12px',
-          padding: '16px 20px',
-          backgroundColor: 'rgba(15, 23, 42, 0.6)',
+          padding: '16px 24px',
+          backgroundColor: '#ffffff',
           borderBottom: '1px solid var(--border-subtle)'
         }}>
-          <div style={{ backgroundColor: 'var(--bg-card)', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Raw Sum (Naive Count)</div>
-            <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-secondary)' }}>
-              {rawSum} <span style={{ fontSize: '12px', fontWeight: 400 }}>({cam1Count} + {cam2Count})</span>
+          <div style={{ backgroundColor: '#f8fafc', padding: '12px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
+            <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Raw Sum (Naive Count)</div>
+            <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginTop: '2px' }} className="tabular-nums">
+              {rawSum} <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-muted)' }}>({cam1Count} + {cam2Count})</span>
             </div>
           </div>
 
-          <div style={{ backgroundColor: 'var(--bg-card)', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(56, 189, 248, 0.4)' }}>
-            <div style={{ fontSize: '11px', color: 'var(--accent-cyan)' }}>Fused Ground Headcount</div>
-            <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--accent-cyan)' }}>
-              {fusedHeadcount} <span style={{ fontSize: '12px', fontWeight: 400 }}>Physical</span>
+          <div style={{ backgroundColor: 'var(--primary-light)', padding: '12px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--primary-border)' }}>
+            <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--primary)', textTransform: 'uppercase' }}>Fused Ground Headcount</div>
+            <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--primary)', marginTop: '2px' }} className="tabular-nums">
+              {fusedHeadcount} <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--primary)' }}>Physical</span>
             </div>
           </div>
 
-          <div style={{ backgroundColor: 'var(--bg-card)', padding: '10px 14px', borderRadius: '8px', border: '1px solid rgba(34, 197, 94, 0.4)' }}>
-            <div style={{ fontSize: '11px', color: 'var(--status-normal)' }}>Double-Counts Eliminated</div>
-            <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--status-normal)' }}>
-              -{overlapDeduplicated} <span style={{ fontSize: '12px', fontWeight: 400 }}>Ghost Overlaps</span>
+          <div style={{ backgroundColor: 'var(--status-normal-bg)', padding: '12px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--status-normal-border)' }}>
+            <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--status-normal-text)', textTransform: 'uppercase' }}>Eliminated Overlaps</div>
+            <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--status-normal-text)', marginTop: '2px' }} className="tabular-nums">
+              -{overlapDeduplicated} <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--status-normal-text)' }}>Ghosts</span>
             </div>
           </div>
 
-          <div style={{ backgroundColor: 'var(--bg-card)', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Spatial Deduplication Rate</div>
-            <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--status-warning)' }}>
+          <div style={{ backgroundColor: '#f8fafc', padding: '12px 14px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
+            <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Deduplication Rate</div>
+            <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--status-warning-text)', marginTop: '2px' }} className="tabular-nums">
               {rawSum > 0 ? Math.round((overlapDeduplicated / rawSum) * 100) : 0}%
             </div>
           </div>
         </div>
 
         {/* 2D Floor Plan Canvas */}
-        <div style={{ padding: '20px', flex: 1 }}>
+        <div style={{ padding: '24px', flex: 1 }}>
           <div style={{
             position: 'relative',
             width: '100%',
             height: '360px',
-            backgroundColor: '#070a13',
-            border: '2px solid var(--border-subtle)',
-            borderRadius: '10px',
+            backgroundColor: '#0b132b',
+            border: '1px solid var(--border-strong)',
+            borderRadius: 'var(--radius-md)',
             overflow: 'hidden',
-            cursor: 'crosshair'
+            cursor: 'crosshair',
+            boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)'
           }}>
             <svg
               onClick={handleAddTrainee}
@@ -174,22 +187,22 @@ export const CameraFusionModal: React.FC<CameraFusionModalProps> = ({ isOpen, on
             >
               {/* Floor Grid */}
               <defs>
-                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255, 255, 255, 0.05)" strokeWidth="1" />
+                <pattern id="fusion-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255, 255, 255, 0.08)" strokeWidth="1" />
                 </pattern>
               </defs>
-              <rect width="100%" height="100%" fill="url(#grid)" />
+              <rect width="100%" height="100%" fill="url(#fusion-grid)" />
 
               {/* Classroom Teacher Podium / Board */}
               <rect x="35%" y="4%" width="30%" height="6%" fill="rgba(100, 116, 139, 0.4)" stroke="#64748b" rx="4" />
-              <text x="50%" y="8%" fill="#94a3b8" fontSize="10" textAnchor="middle" fontFamily="monospace">SMART BOARD / LECTERN</text>
+              <text x="50%" y="8%" fill="#94a3b8" fontSize="10" textAnchor="middle" fontFamily="var(--font-mono)">SMART BOARD / LECTERN</text>
 
               {/* Camera 1 Sight Cone (Front Left Angle) */}
               {showFrustums && (
                 <polygon
                   points="20,20 650,20 500,340 20,300"
-                  fill="rgba(56, 189, 248, 0.08)"
-                  stroke="rgba(56, 189, 248, 0.35)"
+                  fill="rgba(37, 99, 235, 0.12)"
+                  stroke="rgba(37, 99, 235, 0.5)"
                   strokeDasharray="4 4"
                 />
               )}
@@ -198,22 +211,22 @@ export const CameraFusionModal: React.FC<CameraFusionModalProps> = ({ isOpen, on
               {showFrustums && (
                 <polygon
                   points="820,340 250,340 350,60 820,80"
-                  fill="rgba(34, 197, 94, 0.08)"
-                  stroke="rgba(34, 197, 94, 0.35)"
+                  fill="rgba(5, 150, 105, 0.12)"
+                  stroke="rgba(5, 150, 105, 0.5)"
                   strokeDasharray="4 4"
                 />
               )}
 
               {/* Camera 1 Icon Node */}
               <g transform="translate(15, 15)">
-                <circle cx="12" cy="12" r="16" fill="rgba(56, 189, 248, 0.2)" stroke="#38bdf8" strokeWidth="2" />
-                <text x="12" y="16" fill="#38bdf8" fontSize="10" fontWeight="bold" textAnchor="middle">C1</text>
+                <circle cx="12" cy="12" r="16" fill="rgba(37, 99, 235, 0.25)" stroke="#2563eb" strokeWidth="2" />
+                <text x="12" y="16" fill="#60a5fa" fontSize="10" fontWeight="bold" textAnchor="middle">C1</text>
               </g>
 
               {/* Camera 2 Icon Node */}
               <g transform="translate(810, 310)">
-                <circle cx="12" cy="12" r="16" fill="rgba(34, 197, 94, 0.2)" stroke="#22c55e" strokeWidth="2" />
-                <text x="12" y="16" fill="#22c55e" fontSize="10" fontWeight="bold" textAnchor="middle">C2</text>
+                <circle cx="12" cy="12" r="16" fill="rgba(5, 150, 105, 0.25)" stroke="#059669" strokeWidth="2" />
+                <text x="12" y="16" fill="#34d399" fontSize="10" fontWeight="bold" textAnchor="middle">C2</text>
               </g>
 
               {/* Trainee Markers */}
@@ -226,7 +239,7 @@ export const CameraFusionModal: React.FC<CameraFusionModalProps> = ({ isOpen, on
                         cx="0"
                         cy="0"
                         r="18"
-                        fill="rgba(245, 158, 11, 0.2)"
+                        fill="rgba(217, 119, 6, 0.25)"
                         stroke="#f59e0b"
                         strokeWidth="1.5"
                         strokeDasharray="3 3"
@@ -236,18 +249,18 @@ export const CameraFusionModal: React.FC<CameraFusionModalProps> = ({ isOpen, on
                       cx="0"
                       cy="0"
                       r="10"
-                      fill={isOverlapping ? '#f59e0b' : t.visibleToCam1 ? '#38bdf8' : '#22c55e'}
+                      fill={isOverlapping ? '#d97706' : t.visibleToCam1 ? '#2563eb' : '#059669'}
                       stroke="#ffffff"
-                      strokeWidth="1.5"
+                      strokeWidth="2"
                     />
                     <text
                       x="0"
                       y="-14"
-                      fill="#e2e8f0"
+                      fill="#ffffff"
                       fontSize="9"
                       fontWeight="bold"
                       textAnchor="middle"
-                      fontFamily="monospace"
+                      fontFamily="var(--font-mono)"
                     >
                       {t.id} {isOverlapping ? '(FUSED)' : ''}
                     </text>
@@ -262,86 +275,63 @@ export const CameraFusionModal: React.FC<CameraFusionModalProps> = ({ isOpen, on
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            marginTop: '12px',
+            marginTop: '14px',
             fontSize: '12px',
             color: 'var(--text-muted)'
           }}>
             <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#38bdf8' }}></span>
-                <span>Camera 1 only</span>
+                <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#2563eb' }}></span>
+                <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Camera 1 only</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#22c55e' }}></span>
-                <span>Camera 2 only</span>
+                <span style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#059669' }}></span>
+                <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Camera 2 only</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#f59e0b', border: '1px dashed #ffffff' }}></span>
-                <span style={{ color: 'var(--accent-amber)', fontWeight: 600 }}>Multi-Angle Verified (Fused)</span>
+                <span style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: '#d97706', border: '1px dashed #ffffff' }}></span>
+                <span style={{ color: 'var(--status-warning-text)', fontWeight: 700 }}>Multi-Angle Verified (Fused)</span>
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: '8px' }}>
               <button
                 onClick={() => setShowFrustums(!showFrustums)}
-                style={{
-                  backgroundColor: 'var(--bg-card)',
-                  border: '1px solid var(--border-subtle)',
-                  color: 'var(--text-secondary)',
-                  padding: '4px 10px',
-                  borderRadius: '6px',
-                  fontSize: '11px',
-                  cursor: 'pointer'
-                }}
+                className="gov-btn-secondary"
+                style={{ padding: '5px 10px', fontSize: '11px' }}
               >
                 {showFrustums ? 'Hide Camera Cones' : 'Show Camera Cones'}
               </button>
               <button
                 onClick={() => setTrainees(trainees.slice(0, 4))}
-                style={{
-                  backgroundColor: 'var(--bg-card)',
-                  border: '1px solid var(--border-subtle)',
-                  color: 'var(--text-secondary)',
-                  padding: '4px 10px',
-                  borderRadius: '6px',
-                  fontSize: '11px',
-                  cursor: 'pointer'
-                }}
+                className="gov-btn-secondary"
+                style={{ padding: '5px 10px', fontSize: '11px' }}
               >
                 Reset Students
               </button>
             </div>
           </div>
-          <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '8px', textAlign: 'center' }}>
-            💡 Click anywhere inside the room canvas to place a trainee and test real-time spatial fusion de-duplication!
+          <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px', textAlign: 'center' }}>
+            💡 Click anywhere inside the room canvas to place a trainee and test real-time spatial fusion de-duplication.
           </p>
         </div>
 
         {/* Footer */}
         <div style={{
-          padding: '12px 20px',
+          padding: '14px 24px',
           borderTop: '1px solid var(--border-subtle)',
-          backgroundColor: 'var(--bg-card)',
+          backgroundColor: '#f8fafc',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          <div style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <ShieldCheck size={14} color="var(--accent-cyan)" />
+          <div style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <ShieldCheck size={16} color="var(--primary)" />
             <span>Algorithm: Euclidean spatial clustering + Hungarian association on calibrated ground plane</span>
           </div>
           <button
             onClick={onClose}
-            style={{
-              backgroundColor: 'var(--accent-cyan)',
-              color: '#000',
-              border: 'none',
-              padding: '6px 14px',
-              borderRadius: '6px',
-              fontSize: '12px',
-              fontWeight: 600,
-              cursor: 'pointer'
-            }}
+            className="gov-btn-primary"
           >
             Close Simulator
           </button>

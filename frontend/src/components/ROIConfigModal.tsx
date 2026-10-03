@@ -67,8 +67,6 @@ export const ROIConfigModal: React.FC<ROIConfigModalProps> = ({ centreId, room, 
     }
   };
 
-  const polygonSvgPoints = points.map(p => `${(p[0] / 960) * 100}%,${(p[1] / 540) * 100}%`).join(' ');
-
   return (
     <div style={{
       position: 'fixed',
@@ -76,48 +74,49 @@ export const ROIConfigModal: React.FC<ROIConfigModalProps> = ({ centreId, room, 
       left: 0,
       width: '100vw',
       height: '100vh',
-      backgroundColor: 'rgba(5, 8, 14, 0.85)',
-      backdropFilter: 'blur(8px)',
+      backgroundColor: 'rgba(15, 23, 42, 0.65)',
+      backdropFilter: 'blur(4px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      zIndex: 110,
+      zIndex: 1100,
       padding: '20px'
     }}>
       <div style={{
-        backgroundColor: 'var(--bg-secondary)',
-        border: '1px solid var(--border-strong)',
-        borderRadius: '12px',
+        backgroundColor: '#ffffff',
+        border: '1px solid var(--border-subtle)',
+        borderRadius: 'var(--radius-lg)',
         width: '100%',
         maxWidth: '860px',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
+        boxShadow: 'var(--shadow-modal)',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden'
       }}>
         {/* Header */}
         <div style={{
-          padding: '18px 24px',
+          padding: '16px 24px',
           borderBottom: '1px solid var(--border-subtle)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          backgroundColor: '#f8fafc'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '6px',
-              backgroundColor: 'rgba(56, 189, 248, 0.1)',
+              width: '36px',
+              height: '36px',
+              borderRadius: 'var(--radius-sm)',
+              backgroundColor: 'var(--primary-light)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: 'var(--accent-cyan)'
+              color: 'var(--primary)'
             }}>
-              <Crosshair size={18} />
+              <Crosshair size={20} />
             </div>
             <div>
-              <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>
+              <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
                 Visual Calibration: Classroom ROI Polygon
               </h2>
               <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
@@ -125,7 +124,7 @@ export const ROIConfigModal: React.FC<ROIConfigModalProps> = ({ centreId, room, 
               </div>
             </div>
           </div>
-          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '6px' }}>
             <X size={20} />
           </button>
         </div>
@@ -135,19 +134,19 @@ export const ROIConfigModal: React.FC<ROIConfigModalProps> = ({ centreId, room, 
           <div style={{
             fontSize: '12px',
             color: 'var(--text-secondary)',
-            backgroundColor: 'var(--bg-card)',
+            backgroundColor: 'var(--primary-light)',
             padding: '10px 14px',
-            borderRadius: '6px',
-            border: '1px solid var(--border-subtle)',
+            borderRadius: 'var(--radius-sm)',
+            border: '1px solid var(--primary-border)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between'
           }}>
             <span>
-              💡 <strong>Instructions:</strong> Click on the camera viewport to place ROI boundary vertices. Persons inside this boundary are verified for session dwell attendance.
+              💡 <strong>Calibration Instructions:</strong> Click inside the camera viewport to anchor 4 boundary vertices. Trainees within this zone are tracked for official session dwell verification.
             </span>
-            <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--accent-cyan)', fontWeight: 600 }}>
-              {points.length} Vertices Set
+            <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--primary)', fontWeight: 700 }}>
+              {points.length} / 4 Vertices Set
             </span>
           </div>
 
@@ -155,11 +154,12 @@ export const ROIConfigModal: React.FC<ROIConfigModalProps> = ({ centreId, room, 
             position: 'relative',
             width: '100%',
             height: '340px',
-            backgroundColor: '#070a10',
-            borderRadius: '8px',
+            backgroundColor: '#0b132b',
+            borderRadius: 'var(--radius-md)',
             overflow: 'hidden',
-            border: '1px solid var(--border-subtle)',
-            backgroundImage: 'radial-gradient(circle at center, #172439 0%, #070a10 100%)'
+            border: '1px solid var(--border-strong)',
+            backgroundImage: 'radial-gradient(circle at center, #172439 0%, #0b132b 100%)',
+            boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)'
           }}>
             {/* Background classroom mock grid */}
             <div style={{
@@ -169,10 +169,10 @@ export const ROIConfigModal: React.FC<ROIConfigModalProps> = ({ centreId, room, 
               transform: 'translate(-50%, -50%)',
               textAlign: 'center',
               pointerEvents: 'none',
-              opacity: 0.25
+              opacity: 0.35
             }}>
-              <Layers size={64} color="var(--accent-cyan)" style={{ margin: '0 auto 8px', display: 'block' }} />
-              <span style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 600 }}>
+              <Layers size={54} color="#60a5fa" style={{ margin: '0 auto 8px', display: 'block' }} />
+              <span style={{ fontSize: '13px', color: '#cbd5e1', fontWeight: 600 }}>
                 Live Stream Video Viewport (CAM-101-A1)
               </span>
             </div>
@@ -192,7 +192,7 @@ export const ROIConfigModal: React.FC<ROIConfigModalProps> = ({ centreId, room, 
               {points.length >= 3 && (
                 <polygon
                   points={points.map(p => `${(p[0] / 960) * 812},${(p[1] / 540) * 340}`).join(' ')}
-                  fill="rgba(16, 185, 129, 0.2)"
+                  fill="rgba(5, 150, 105, 0.25)"
                   stroke="#10b981"
                   strokeWidth="2.5"
                   strokeDasharray="6,4"
@@ -214,18 +214,18 @@ export const ROIConfigModal: React.FC<ROIConfigModalProps> = ({ centreId, room, 
             </svg>
           </div>
 
-          {/* Coordinate Coordinates Strip */}
+          {/* Coordinate Strip */}
           <div style={{
             fontSize: '11px',
             fontFamily: 'var(--font-mono)',
             color: 'var(--text-muted)',
             display: 'flex',
-            gap: '12px',
+            gap: '10px',
             overflowX: 'auto',
             paddingBottom: '4px'
           }}>
             {points.map((p, i) => (
-              <span key={i} style={{ backgroundColor: 'var(--bg-card)', padding: '3px 8px', borderRadius: '4px', border: '1px solid var(--border-subtle)' }}>
+              <span key={i} style={{ backgroundColor: '#f1f5f9', padding: '4px 10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>
                 P{i + 1}: [{p[0]}, {p[1]}]
               </span>
             ))}
@@ -234,44 +234,25 @@ export const ROIConfigModal: React.FC<ROIConfigModalProps> = ({ centreId, room, 
 
         {/* Footer */}
         <div style={{
-          padding: '16px 24px',
+          padding: '14px 24px',
           borderTop: '1px solid var(--border-subtle)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          backgroundColor: 'rgba(10, 14, 23, 0.4)'
+          backgroundColor: '#f8fafc'
         }}>
           <button
             onClick={handleReset}
-            style={{
-              backgroundColor: 'transparent',
-              border: '1px solid var(--border-subtle)',
-              color: 'var(--text-secondary)',
-              borderRadius: '6px',
-              padding: '8px 14px',
-              fontSize: '12px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
+            className="gov-btn-secondary"
           >
             <RotateCcw size={14} />
-            <span>Reset to Standard ROI</span>
+            <span>Reset Standard ROI</span>
           </button>
 
           <div style={{ display: 'flex', gap: '10px' }}>
             <button
               onClick={onClose}
-              style={{
-                backgroundColor: 'transparent',
-                border: 'none',
-                color: 'var(--text-muted)',
-                padding: '8px 14px',
-                fontSize: '12px',
-                cursor: 'pointer'
-              }}
+              className="gov-btn-secondary"
             >
               Cancel
             </button>
@@ -279,20 +260,7 @@ export const ROIConfigModal: React.FC<ROIConfigModalProps> = ({ centreId, room, 
             <button
               disabled={saving}
               onClick={handleSave}
-              style={{
-                backgroundColor: 'var(--accent-cyan)',
-                border: 'none',
-                color: '#000',
-                borderRadius: '6px',
-                padding: '8px 18px',
-                fontSize: '12px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                boxShadow: '0 0 12px rgba(56, 189, 248, 0.4)'
-              }}
+              className="gov-btn-primary"
             >
               {success ? <CheckCircle size={14} /> : <Save size={14} />}
               <span>{success ? 'Calibrated!' : (saving ? 'Saving...' : 'Save ROI Calibration')}</span>

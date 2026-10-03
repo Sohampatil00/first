@@ -1,7 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { KPIStrip } from '../components/KPIStrip';
 import { AnalyticsOverview, Centre, ComplianceEvent } from '../types';
-import { AlertCircle, CheckCircle, ChevronRight, Activity, Clock, ShieldAlert } from 'lucide-react';
+import { 
+  Building2, 
+  Video, 
+  AlertTriangle, 
+  ChevronRight, 
+  ShieldAlert, 
+  Clock, 
+  Download, 
+  Calendar, 
+  Globe, 
+  CheckCircle2, 
+  ArrowUpRight,
+  MapPin,
+  Filter
+} from 'lucide-react';
 
 interface OverviewScreenProps {
   analytics: AnalyticsOverview | null;
@@ -18,115 +32,279 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({
   onSelectAlert,
   onSelectCentre
 }) => {
-  const priorityAlerts = alerts.filter(a => a.status === 'NEW' || a.status === 'UNDER_REVIEW').slice(0, 5);
+  const [filterState, setFilterState] = useState<string>('ALL');
 
-  const getSeverityBadgeClass = (sev: string) => {
-    switch (sev) {
-      case 'CRITICAL': return 'status-badge critical';
-      case 'HIGH': return 'status-badge high';
-      case 'REVIEW': return 'status-badge review';
-      default: return 'status-badge normal';
+  const priorityAlerts = alerts
+    .filter(a => a.status === 'NEW' || a.status === 'UNDER_REVIEW' || a.status === 'ESCALATED_TO_STATE')
+    .slice(0, 6);
+
+  const filteredCentres = centres.filter(c => {
+    if (filterState === 'ALL') return true;
+    if (filterState === 'CRITICAL') {
+      return alerts.some(a => a.centre_id === c.id && a.severity === 'CRITICAL' && a.status !== 'DISMISSED');
     }
-  };
+    if (filterState === 'NORMAL') {
+      return !alerts.some(a => a.centre_id === c.id && a.severity === 'CRITICAL');
+    }
+    return true;
+  });
 
   return (
-    <div>
-      {/* Page Title */}
-      <div style={{ marginBottom: '20px' }}>
-        <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
-          National Command Centre Overview
-        </h1>
-        <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '2px' }}>
-          Real-time AI surveillance verification across MSDE sanctioned training institutes
-        </p>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {/* Operational Header Section */}
+      <section style={{
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '16px',
+        paddingBottom: '4px'
+      }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{
+              padding: '2px 8px',
+              borderRadius: '4px',
+              backgroundColor: '#EFF6FF',
+              border: '1px solid #BFDBFE',
+              color: '#1D4ED8',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '11px',
+              textTransform: 'uppercase',
+              fontWeight: 700,
+              letterSpacing: '0.04em'
+            }}>
+              National Command Matrix
+            </span>
 
-      {/* KPI Cards */}
-      <KPIStrip analytics={analytics} />
-
-      {/* Main Grid: Priority Alerts & Centres Requiring Attention */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px' }}>
-        
-        {/* Left Column: Monitored Centres Table */}
-        <div style={{
-          backgroundColor: 'var(--bg-secondary)',
-          border: '1px solid var(--border-subtle)',
-          borderRadius: '8px',
-          overflow: 'hidden'
-        }}>
-          <div style={{
-            padding: '16px 20px',
-            borderBottom: '1px solid var(--border-subtle)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}>
-            <div>
-              <h2 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)' }}>
-                Training Centres Status & Compliance
-              </h2>
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                Comparing observed attendance & inventory against sanction
-              </span>
-            </div>
-            <span style={{ fontSize: '12px', color: 'var(--accent-cyan)', fontWeight: 600 }}>
-              {centres.length} Active Hubs
+            <span style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: '#ECFDF5',
+              border: '1px solid #A7F3D0',
+              color: '#065F46',
+              padding: '2px 8px',
+              borderRadius: '4px',
+              fontSize: '11px',
+              fontFamily: 'var(--font-mono)',
+              fontWeight: 600
+            }}>
+              <span className="pulse-dot online"></span>
+              ACTIVE MONITORING CYCLE 04
             </span>
           </div>
 
+          <h1 style={{
+            fontSize: '26px',
+            fontWeight: 800,
+            color: '#0F172A',
+            letterSpacing: '-0.025em',
+            margin: 0
+          }}>
+            Training Centre Monitoring
+          </h1>
+
+          <p style={{ fontSize: '13px', color: '#475569', margin: 0, maxWidth: '680px' }}>
+            AI-assisted attendance & infrastructure compliance · Ministry of Skill Development and Entrepreneurship (MSDE), Government of India
+          </p>
+        </div>
+
+        {/* Date and Quick Actions */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '7px 12px',
+            borderRadius: '6px',
+            backgroundColor: '#FFFFFF',
+            border: '1px solid #CBD5E1',
+            fontSize: '12px',
+            fontFamily: 'var(--font-mono)',
+            color: '#334155',
+            boxShadow: 'var(--shadow-sm)'
+          }}>
+            <Calendar size={14} color="#2563EB" />
+            <span>Today, 24 Oct 2026</span>
+            <span style={{ color: '#CBD5E1' }}>/</span>
+            <span style={{ color: '#059669', fontWeight: 600 }}>Active Sessions Live</span>
+          </div>
+
+          <a
+            href="/api/alerts/feedback/export-csv"
+            download="national_briefing.csv"
+            className="gov-btn-secondary"
+            style={{ textDecoration: 'none' }}
+          >
+            <Download size={14} color="#64748B" />
+            <span>Export Briefing</span>
+          </a>
+        </div>
+      </section>
+
+      {/* 6-Card Command Metric Ledger */}
+      <KPIStrip analytics={analytics} />
+
+      {/* Middle Split: Geo Territory Matrix & Priority Discrepancy Stream */}
+      <div style={{ display: 'grid', gridTemplateColumns: '7fr 5fr', gap: '20px' }}>
+        
+        {/* Left Column: Geographic Mesh & Monitored Hubs Matrix */}
+        <div className="gov-card" style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Globe size={18} color="#2563EB" />
+                <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#0F172A', letterSpacing: '-0.01em', margin: 0 }}>
+                  Geographic National Mesh & Clusters
+                </h2>
+              </div>
+              <p style={{ fontSize: '12px', color: '#64748B', margin: '2px 0 0' }}>
+                Real-time edge telemetry mapped across regional ITI & PMKK hubs
+              </p>
+            </div>
+
+            {/* Filter Pills */}
+            <div style={{
+              display: 'flex',
+              backgroundColor: '#F1F5F9',
+              border: '1px solid #E2E8F0',
+              borderRadius: '6px',
+              padding: '3px',
+              gap: '4px'
+            }}>
+              {[
+                { id: 'ALL', label: `All (${centres.length})` },
+                { id: 'CRITICAL', label: 'Critical' },
+                { id: 'NORMAL', label: 'Compliant' },
+              ].map(f => (
+                <button
+                  key={f.id}
+                  onClick={() => setFilterState(f.id)}
+                  style={{
+                    backgroundColor: filterState === f.id ? '#FFFFFF' : 'transparent',
+                    color: filterState === f.id ? '#2563EB' : '#64748B',
+                    border: filterState === f.id ? '1px solid #CBD5E1' : 'none',
+                    borderRadius: '4px',
+                    padding: '3px 8px',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    fontFamily: 'var(--font-mono)',
+                    cursor: 'pointer',
+                    boxShadow: filterState === f.id ? 'var(--shadow-sm)' : 'none'
+                  }}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Interactive Map Visual Mockup Frame */}
+          <div style={{
+            position: 'relative',
+            width: '100%',
+            height: '220px',
+            backgroundColor: '#0F172A',
+            borderRadius: '6px',
+            border: '1px solid #E2E8F0',
+            overflow: 'hidden',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            {/* Dark Tactical Grid Canvas */}
+            <svg style={{ width: '100%', height: '100%' }}>
+              <defs>
+                <pattern id="tac-grid" width="30" height="30" patternUnits="userSpaceOnUse">
+                  <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(255, 255, 255, 0.05)" strokeWidth="1" />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#tac-grid)" />
+
+              {/* Connecting Nodes across States */}
+              <line x1="28%" y1="58%" x2="48%" y2="35%" stroke="rgba(56, 189, 248, 0.4)" strokeWidth="1.5" strokeDasharray="4 4" />
+              <line x1="48%" y1="35%" x2="72%" y2="52%" stroke="rgba(56, 189, 248, 0.4)" strokeWidth="1.5" strokeDasharray="4 4" />
+
+              {/* Pune Hub TC-101 (Maharashtra) */}
+              <g transform="translate(140, 130)" style={{ cursor: 'pointer' }} onClick={() => onSelectCentre('TC-101')}>
+                <circle cx="0" cy="0" r="14" fill="rgba(37, 99, 235, 0.25)" stroke="#38BDF8" strokeWidth="1.5" />
+                <circle cx="0" cy="0" r="5" fill="#38BDF8" />
+                <text x="18" y="4" fill="#E2E8F0" fontSize="11" fontWeight="bold" fontFamily="monospace">TC-101 (Pune Hub)</text>
+                <text x="18" y="16" fill="#38BDF8" fontSize="9" fontFamily="monospace">ONLINE · 24ms</text>
+              </g>
+
+              {/* Delhi Hub TC-102 (NCT Delhi) */}
+              <g transform="translate(240, 75)" style={{ cursor: 'pointer' }} onClick={() => onSelectCentre('TC-102')}>
+                <circle cx="0" cy="0" r="14" fill="rgba(34, 197, 94, 0.25)" stroke="#22C55E" strokeWidth="1.5" />
+                <circle cx="0" cy="0" r="5" fill="#22C55E" />
+                <text x="18" y="4" fill="#E2E8F0" fontSize="11" fontWeight="bold" fontFamily="monospace">TC-102 (Delhi Apex)</text>
+                <text x="18" y="16" fill="#4ADE80" fontSize="9" fontFamily="monospace">COMPLIANT</text>
+              </g>
+
+              {/* Ranchi Hub TC-103 (Jharkhand) */}
+              <g transform="translate(360, 115)" style={{ cursor: 'pointer' }} onClick={() => onSelectCentre('TC-103')}>
+                <circle cx="0" cy="0" r="14" fill="rgba(239, 68, 68, 0.25)" stroke="#EF4444" strokeWidth="1.5" />
+                <circle cx="0" cy="0" r="5" fill="#EF4444" />
+                <text x="18" y="4" fill="#E2E8F0" fontSize="11" fontWeight="bold" fontFamily="monospace">TC-103 (Ranchi)</text>
+                <text x="18" y="16" fill="#F87171" fontSize="9" fontFamily="monospace">DISCREPANCY DETECTED</text>
+              </g>
+            </svg>
+
+            {/* Tactical Watermark HUD */}
+            <div style={{
+              position: 'absolute',
+              bottom: '8px',
+              left: '12px',
+              fontSize: '10px',
+              fontFamily: 'var(--font-mono)',
+              color: '#94a3b8',
+              backgroundColor: 'rgba(15, 23, 42, 0.8)',
+              padding: '2px 8px',
+              borderRadius: '4px'
+            }}>
+              NIC / MSDE GIS Geospatial Layer Active · Precision ±5m
+            </div>
+          </div>
+
+          {/* Directory Summary Table */}
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
             <thead>
-              <tr style={{ backgroundColor: 'rgba(10, 14, 23, 0.6)', borderBottom: '1px solid var(--border-subtle)' }}>
-                <th style={{ padding: '12px 16px', color: 'var(--text-muted)', fontWeight: 600 }}>Centre Code & Name</th>
-                <th style={{ padding: '12px 16px', color: 'var(--text-muted)', fontWeight: 600 }}>State & District</th>
-                <th style={{ padding: '12px 16px', color: 'var(--text-muted)', fontWeight: 600 }}>Sanction Cap</th>
-                <th style={{ padding: '12px 16px', color: 'var(--text-muted)', fontWeight: 600 }}>Telemetry Status</th>
-                <th style={{ padding: '12px 16px', color: 'var(--text-muted)', fontWeight: 600 }}>Action</th>
+              <tr style={{ backgroundColor: '#F8FAFC', borderBottom: '1px solid #CBD5E1' }}>
+                <th style={{ padding: '8px 12px', color: '#64748B', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Centre Code & Title</th>
+                <th style={{ padding: '8px 12px', color: '#64748B', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>District</th>
+                <th style={{ padding: '8px 12px', color: '#64748B', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Capacity</th>
+                <th style={{ padding: '8px 12px', color: '#64748B', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Status</th>
+                <th style={{ padding: '8px 12px', color: '#64748B', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Action</th>
               </tr>
             </thead>
             <tbody>
-              {centres.map((centre) => {
-                const centreAlerts = alerts.filter(a => a.centre_id === centre.id && a.status === 'NEW');
+              {filteredCentres.map(c => {
+                const hasCritical = alerts.some(a => a.centre_id === c.id && a.severity === 'CRITICAL' && a.status !== 'DISMISSED');
                 return (
-                  <tr 
-                    key={centre.id}
-                    style={{ borderBottom: '1px solid var(--border-subtle)', transition: 'background 0.15s ease' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-card-hover)'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                  >
-                    <td style={{ padding: '14px 16px' }}>
-                      <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{centre.name}</div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                        {centre.id} • {centre.location}
-                      </div>
+                  <tr key={c.id} style={{ borderBottom: '1px solid #E2E8F0', transition: 'background 0.1s' }}>
+                    <td style={{ padding: '10px 12px' }}>
+                      <div style={{ fontWeight: 600, color: '#0F172A' }}>{c.name}</div>
+                      <div style={{ fontSize: '11px', color: '#64748B', fontFamily: 'var(--font-mono)' }}>{c.id}</div>
                     </td>
-                    <td style={{ padding: '14px 16px', color: 'var(--text-secondary)' }}>
-                      {centre.district}, {centre.state}
+                    <td style={{ padding: '10px 12px', color: '#475569' }}>{c.district}, {c.state}</td>
+                    <td style={{ padding: '10px 12px', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>{c.sanctioned_capacity} Trainees</td>
+                    <td style={{ padding: '10px 12px' }}>
+                      <span className={`status-badge ${hasCritical ? 'critical' : 'normal'}`}>
+                        {hasCritical ? 'Discrepancy' : 'Compliant'}
+                      </span>
                     </td>
-                    <td style={{ padding: '14px 16px', fontWeight: 600 }} className="tabular-nums">
-                      {centre.sanctioned_capacity} Trainees
-                    </td>
-                    <td style={{ padding: '14px 16px' }}>
-                      {centreAlerts.length > 0 ? (
-                        <span className="status-badge high">
-                          {centreAlerts.length} Flagged Gap
-                        </span>
-                      ) : (
-                        <span className="status-badge normal">
-                          Compliant
-                        </span>
-                      )}
-                    </td>
-                    <td style={{ padding: '14px 16px' }}>
+                    <td style={{ padding: '10px 12px' }}>
                       <button
-                        onClick={() => onSelectCentre(centre.id)}
+                        onClick={() => onSelectCentre(c.id)}
                         style={{
-                          backgroundColor: 'var(--bg-card)',
-                          border: '1px solid var(--border-subtle)',
+                          backgroundColor: '#EFF6FF',
+                          border: '1px solid #BFDBFE',
+                          color: '#1D4ED8',
+                          padding: '4px 10px',
                           borderRadius: '4px',
-                          color: 'var(--accent-cyan)',
-                          padding: '6px 12px',
-                          fontSize: '12px',
+                          fontSize: '11px',
                           fontWeight: 600,
                           cursor: 'pointer',
                           display: 'flex',
@@ -135,7 +313,7 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({
                         }}
                       >
                         <span>Inspect</span>
-                        <ChevronRight size={14} />
+                        <ChevronRight size={13} />
                       </button>
                     </td>
                   </tr>
@@ -145,100 +323,116 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({
           </table>
         </div>
 
-        {/* Right Column: Priority Alerts Feed */}
-        <div style={{
-          backgroundColor: 'var(--bg-secondary)',
-          border: '1px solid var(--border-subtle)',
-          borderRadius: '8px',
-          display: 'flex',
-          flexDirection: 'column'
-        }}>
-          <div style={{
-            padding: '16px 20px',
-            borderBottom: '1px solid var(--border-subtle)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}>
+        {/* Right Column: Priority Alerts Action Queue */}
+        <div className="gov-card" style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <ShieldAlert size={18} color="var(--status-critical)" />
-              <h2 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)' }}>
-                Priority Alerts Feed
+              <AlertTriangle size={18} color="#DC2626" />
+              <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#0F172A', letterSpacing: '-0.01em', margin: 0 }}>
+                Priority Discrepancy Stream
               </h2>
             </div>
             <span style={{
               fontSize: '11px',
-              backgroundColor: 'var(--status-critical-bg)',
-              color: 'var(--status-critical)',
+              fontFamily: 'var(--font-mono)',
               padding: '2px 8px',
-              borderRadius: '9999px',
+              borderRadius: '4px',
+              backgroundColor: '#FEF2F2',
+              color: '#991B1B',
+              border: '1px solid #FECACA',
               fontWeight: 700
             }}>
               {priorityAlerts.length} Actionable
             </span>
           </div>
 
-          <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
             {priorityAlerts.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-muted)' }}>
-                <CheckCircle size={32} color="var(--status-normal)" style={{ margin: '0 auto 8px', display: 'block' }} />
-                <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>No Pending Violations</div>
-                <div style={{ fontSize: '12px', marginTop: '4px' }}>All camera observations align with sanctioned thresholds.</div>
+              <div style={{
+                textAlign: 'center',
+                padding: '40px 20px',
+                color: '#64748B',
+                fontSize: '13px',
+                backgroundColor: '#F8FAFC',
+                borderRadius: '6px',
+                border: '1px dashed #CBD5E1'
+              }}>
+                <CheckCircle2 size={32} color="#059669" style={{ margin: '0 auto 8px', display: 'block' }} />
+                <div style={{ fontWeight: 600, color: '#0F172A' }}>No Open Discrepancies</div>
+                <div style={{ fontSize: '11px', marginTop: '4px' }}>All training centres operating within compliance thresholds.</div>
               </div>
             ) : (
-              priorityAlerts.map((alert) => (
-                <div
-                  key={alert.id}
-                  onClick={() => onSelectAlert(alert)}
-                  style={{
-                    backgroundColor: 'var(--bg-card)',
-                    border: '1px solid var(--border-subtle)',
-                    borderRadius: '6px',
-                    padding: '14px',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--border-strong)';
-                    e.currentTarget.style.backgroundColor = 'var(--bg-card-hover)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--border-subtle)';
-                    e.currentTarget.style.backgroundColor = 'var(--bg-card)';
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                    <span className={getSeverityBadgeClass(alert.severity)}>
-                      {alert.severity}
-                    </span>
-                    <span style={{ fontSize: '11px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <Clock size={12} />
-                      {new Date(alert.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
+              priorityAlerts.map(alert => {
+                let payload: any = {};
+                try { payload = alert.payload_json ? JSON.parse(alert.payload_json) : {}; } catch (e) {}
 
-                  <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--text-primary)', marginBottom: '4px' }}>
-                    {alert.event_type.replace(/_/g, ' ')}
-                  </div>
-                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-                    Centre: <strong style={{ color: 'var(--accent-cyan)' }}>{alert.centre_id}</strong>
-                  </div>
+                return (
+                  <div
+                    key={alert.id}
+                    style={{
+                      borderLeft: `3px solid ${alert.severity === 'CRITICAL' ? '#DC2626' : '#D97706'}`,
+                      backgroundColor: alert.severity === 'CRITICAL' ? '#FEF2F2' : '#FFFBEB',
+                      borderTop: '1px solid #E2E8F0',
+                      borderRight: '1px solid #E2E8F0',
+                      borderBottom: '1px solid #E2E8F0',
+                      borderRadius: '4px',
+                      padding: '12px 14px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span className={`status-badge ${alert.severity === 'CRITICAL' ? 'critical' : 'warning'}`}>
+                          {alert.severity}
+                        </span>
+                        <strong style={{ fontSize: '13px', color: '#0F172A' }}>
+                          {alert.event_type.replace(/_/g, ' ')}
+                        </strong>
+                      </div>
+                      <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: '#64748B' }}>
+                        {new Date(alert.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
 
-                  <div style={{
-                    marginTop: '10px',
-                    paddingTop: '8px',
-                    borderTop: '1px solid rgba(255, 255, 255, 0.05)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    fontSize: '11px',
-                    color: 'var(--accent-cyan)'
-                  }}>
-                    <span>Confidence: {(alert.confidence * 100).toFixed(0)}%</span>
-                    <span style={{ fontWeight: 600 }}>Review Evidence →</span>
+                    <div style={{ fontSize: '12px', color: '#334155' }}>
+                      <strong>Centre: {alert.centre_id}</strong>
+                      {payload.reported !== undefined && (
+                        <span> · Roster: {payload.reported} vs Observed: <strong style={{ color: '#DC2626' }}>{payload.observed}</strong> ({payload.difference} missing)</span>
+                      )}
+                      {payload.item_type && (
+                        <span> · Asset: <strong>{payload.item_type}</strong> (Required: {payload.required}, Observed: {payload.observed})</span>
+                      )}
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '4px' }}>
+                      <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: '#64748B' }}>
+                        AI Confidence: <strong>{Math.round(alert.confidence * 100)}%</strong>
+                      </span>
+                      <button
+                        onClick={() => onSelectAlert(alert)}
+                        style={{
+                          backgroundColor: '#FFFFFF',
+                          border: '1px solid #CBD5E1',
+                          color: '#0F172A',
+                          borderRadius: '4px',
+                          padding: '4px 10px',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                      >
+                        <span>Review Evidence</span>
+                        <ArrowUpRight size={13} color="#2563EB" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>

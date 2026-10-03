@@ -198,14 +198,14 @@ export function App() {
           position: 'fixed',
           bottom: '24px',
           right: '24px',
-          backgroundColor: '#1e293b',
-          border: '1px solid var(--accent-cyan)',
-          borderRadius: '8px',
+          backgroundColor: 'var(--bg-sidebar)',
+          border: '1px solid var(--border-sidebar)',
+          borderRadius: 'var(--radius-md)',
           padding: '12px 18px',
-          color: 'var(--text-primary)',
+          color: '#ffffff',
           fontSize: '13px',
           fontWeight: 600,
-          boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+          boxShadow: '0 10px 25px rgba(15, 23, 42, 0.4)',
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
@@ -219,9 +219,10 @@ export function App() {
             style={{
               background: 'transparent',
               border: 'none',
-              color: 'var(--text-muted)',
+              color: 'var(--text-sidebar-muted)',
               cursor: 'pointer',
-              marginLeft: '8px'
+              marginLeft: '8px',
+              fontSize: '16px'
             }}
           >
             ×

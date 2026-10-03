@@ -37,7 +37,7 @@ export interface ComplianceEvent {
   event_type: 'ATTENDANCE_MISMATCH' | 'INFRASTRUCTURE_GAP' | 'CAMERA_OFFLINE' | 'CAMERA_OBSTRUCTED';
   severity: 'NORMAL' | 'REVIEW' | 'HIGH' | 'CRITICAL';
   confidence: number;
-  status: 'NEW' | 'UNDER_REVIEW' | 'CONFIRMED' | 'DISMISSED' | 'RESOLVED';
+  status: 'NEW' | 'UNDER_REVIEW' | 'CONFIRMED' | 'DISMISSED' | 'RESOLVED' | 'ESCALATED_TO_STATE';
   evidence_uri?: string;
   payload_json?: string;
   review_notes?: string;

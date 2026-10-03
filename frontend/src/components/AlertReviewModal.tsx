@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, CheckCircle, XCircle, AlertTriangle, ShieldCheck, Eye, Clock } from 'lucide-react';
+import { X, CheckCircle, XCircle, AlertTriangle, ShieldCheck, Eye, Clock, Lock } from 'lucide-react';
 import { ComplianceEvent } from '../types';
 
 interface AlertReviewModalProps {
@@ -25,21 +25,13 @@ export const AlertReviewModal: React.FC<AlertReviewModalProps> = ({ alert, onClo
   const handleAction = async (status: 'CONFIRMED' | 'DISMISSED' | 'UNDER_REVIEW') => {
     setLoading(true);
     try {
-      const finalCategory = status === 'CONFIRMED' ? selectedCategory : (status === 'DISMISSED' ? (selectedCategory.startsWith('DISMISS') ? selectedCategory : 'CAMERA_OCCLUSION') : 'ESCALATION_INVESTIGATION');
+      const finalCategory = status === 'CONFIRMED' 
+        ? selectedCategory 
+        : (status === 'DISMISSED' ? (selectedCategory.startsWith('DISMISS') ? selectedCategory : 'CAMERA_OCCLUSION') : 'ESCALATION_INVESTIGATION');
       await onReviewSubmit(alert.id, status, notes || `Adjudicated as ${status} [Category: ${finalCategory}] by monitoring officer.`, finalCategory);
       onClose();
     } finally {
       setLoading(false);
-    }
-  };
-
-
-  const getSeverityBadgeClass = (sev: string) => {
-    switch (sev) {
-      case 'CRITICAL': return 'status-badge critical';
-      case 'HIGH': return 'status-badge high';
-      case 'REVIEW': return 'status-badge review';
-      default: return 'status-badge normal';
     }
   };
 
@@ -50,44 +42,44 @@ export const AlertReviewModal: React.FC<AlertReviewModalProps> = ({ alert, onClo
       left: 0,
       width: '100vw',
       height: '100vh',
-      backgroundColor: 'rgba(5, 8, 14, 0.8)',
-      backdropFilter: 'blur(8px)',
+      backgroundColor: 'rgba(15, 23, 42, 0.65)',
+      backdropFilter: 'blur(4px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      zIndex: 100,
+      zIndex: 1000,
       padding: '20px'
     }}>
-      <div style={{
-        backgroundColor: 'var(--bg-secondary)',
-        border: '1px solid var(--border-strong)',
-        borderRadius: '12px',
+      <div className="gov-card" style={{
         width: '100%',
         maxWidth: '820px',
-        maxHeight: '90vh',
+        maxHeight: '92vh',
         overflowY: 'auto',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
+        boxShadow: 'var(--shadow-modal)',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        backgroundColor: '#FFFFFF',
+        borderRadius: '8px'
       }}>
         {/* Modal Header */}
         <div style={{
-          padding: '20px 24px',
-          borderBottom: '1px solid var(--border-subtle)',
+          padding: '18px 24px',
+          borderBottom: '1px solid #E2E8F0',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          backgroundColor: '#F8FAFC'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <span className={getSeverityBadgeClass(alert.severity)}>
+            <span className={`status-badge ${alert.severity === 'CRITICAL' ? 'critical' : (alert.severity === 'HIGH' ? 'warning' : 'normal')}`}>
               {alert.severity}
             </span>
             <div>
-              <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#0F172A', margin: 0 }}>
                 {alert.event_type.replace(/_/g, ' ')}
               </h2>
-              <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                Case ID: <span style={{ fontFamily: 'var(--font-mono)' }}>{alert.id.slice(0, 8)}</span> • Centre: {alert.centre_id} • Camera: {alert.camera_id || 'N/A'}
+              <div style={{ fontSize: '12px', color: '#64748B', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>
+                Case UID: <strong>CASE-{alert.id.slice(0, 8)}</strong> · Centre: <strong>{alert.centre_id}</strong> · Camera: {alert.camera_id || 'N/A'}
               </div>
             </div>
           </div>
@@ -96,179 +88,131 @@ export const AlertReviewModal: React.FC<AlertReviewModalProps> = ({ alert, onClo
             style={{
               background: 'transparent',
               border: 'none',
-              color: 'var(--text-muted)',
+              color: '#64748B',
               cursor: 'pointer',
-              padding: '6px'
+              padding: '6px',
+              fontSize: '18px'
             }}
           >
-            <X size={20} />
+            ✕
           </button>
         </div>
 
         {/* Modal Body */}
-        <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           
           {/* Privacy Notice Banner */}
           <div style={{
-            backgroundColor: 'rgba(56, 189, 248, 0.08)',
-            border: '1px solid rgba(56, 189, 248, 0.25)',
+            backgroundColor: '#ECFDF5',
+            border: '1px solid #A7F3D0',
             borderRadius: '6px',
             padding: '10px 14px',
             display: 'flex',
             alignItems: 'center',
             gap: '10px',
             fontSize: '12px',
-            color: 'var(--accent-cyan)'
+            color: '#065F46'
           }}>
-            <ShieldCheck size={16} />
+            <Lock size={15} color="#059669" />
             <span>
-              <strong>Privacy Protection Standard:</strong> Head count and asset bounding boxes only. No facial identities, biometric profiles, or personal databases are accessed.
+              <strong>Privacy Protection Standard:</strong> Automated Gaussian blurring applied over face regions. No biometric vectors or Aadhaar identities accessed or stored.
             </span>
           </div>
 
           {/* Evidence Frame Preview */}
           <div style={{
-            backgroundColor: '#070a10',
-            border: '1px solid var(--border-subtle)',
-            borderRadius: '8px',
+            backgroundColor: '#070A13',
+            border: '1px solid #0F172A',
+            borderRadius: '6px',
             overflow: 'hidden',
             position: 'relative'
           }}>
             {alert.evidence_uri ? (
-              <div style={{ position: 'relative', width: '100%', height: '280px', backgroundColor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ position: 'relative', width: '100%', height: '270px', backgroundColor: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <img 
                   src={alert.evidence_uri} 
-                  alt="AI Evidence Snapshot" 
-                  style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
+                  alt="Audit Evidence Snapshot" 
+                  style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                 />
                 <div style={{
                   position: 'absolute',
-                  bottom: '10px',
-                  left: '12px',
-                  backgroundColor: 'rgba(0, 0, 0, 0.75)',
+                  top: '10px',
+                  right: '12px',
+                  backgroundColor: 'rgba(15, 23, 42, 0.85)',
                   padding: '4px 8px',
                   borderRadius: '4px',
                   fontSize: '11px',
-                  color: 'var(--accent-cyan)',
-                  fontFamily: 'var(--font-mono)'
+                  fontFamily: 'var(--font-mono)',
+                  color: '#4ADE80',
+                  fontWeight: 600
                 }}>
-                  Live Snapshot Overlay • YOLOv8 Tracked
+                  CONFIDENCE: {Math.round(alert.confidence * 100)}%
                 </div>
               </div>
             ) : (
-              <div style={{
-                height: '240px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                background: 'radial-gradient(circle at center, #172439 0%, #0a0e17 100%)',
-                position: 'relative'
-              }}>
-                {/* Simulated visual bounding box overlays */}
-                <div style={{
-                  position: 'absolute',
-                  top: '30px',
-                  left: '60px',
-                  width: '140px',
-                  height: '160px',
-                  border: '2px solid #10b981',
-                  borderRadius: '4px',
-                  backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  padding: '4px'
-                }}>
-                  <span style={{ fontSize: '10px', color: '#10b981', fontWeight: 700 }}>person #04 (94%)</span>
-                  <span style={{ fontSize: '9px', color: '#fff', background: 'rgba(0,0,0,0.6)', padding: '2px' }}>[Face Blurred]</span>
-                </div>
-
-                <div style={{
-                  position: 'absolute',
-                  top: '40px',
-                  right: '80px',
-                  width: '160px',
-                  height: '140px',
-                  border: alert.event_type.includes('INFRASTRUCTURE') ? '2px dashed #ef4444' : '2px solid #38bdf8',
-                  borderRadius: '4px',
-                  backgroundColor: alert.event_type.includes('INFRASTRUCTURE') ? 'rgba(239, 68, 68, 0.15)' : 'rgba(56, 189, 248, 0.1)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  padding: '4px'
-                }}>
-                  <span style={{ fontSize: '10px', color: alert.event_type.includes('INFRASTRUCTURE') ? '#ef4444' : '#38bdf8', fontWeight: 700 }}>
-                    {alert.event_type.includes('INFRASTRUCTURE') ? 'VACANT WORKBENCH (MISSING ASSET)' : 'computer #12 (89%)'}
-                  </span>
-                  <span style={{ fontSize: '9px', color: '#fff', background: 'rgba(0,0,0,0.6)', padding: '2px' }}>Sanctioned ROI</span>
-                </div>
-
-                <div style={{ textAlign: 'center', zIndex: 1, pointerEvents: 'none' }}>
-                  <Eye size={36} color="var(--accent-cyan)" style={{ opacity: 0.8, marginBottom: '8px' }} />
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
-                    Visual Evidence Snapshot Package
-                  </div>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                    Captured at: {new Date(alert.created_at).toLocaleString()} • Model: YOLOv8-Edge-v1.4
-                  </div>
-                </div>
+              <div style={{ height: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontSize: '13px' }}>
+                Structured Telemetry Package (No visual snapshot linked)
               </div>
             )}
           </div>
 
-          {/* Structured Observation vs Sanctioned Comparison */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '12px',
-            backgroundColor: 'var(--bg-card)',
-            padding: '16px',
-            borderRadius: '8px',
-            border: '1px solid var(--border-subtle)'
-          }}>
-            <div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                Sanctioned / Reported
+          {/* Discrepancy Breakdown Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+            <div style={{
+              backgroundColor: '#F8FAFC',
+              border: '1px solid #E2E8F0',
+              borderRadius: '6px',
+              padding: '12px 14px'
+            }}>
+              <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 600, textTransform: 'uppercase' }}>
+                Reported Batch Roster
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginTop: '4px' }} className="tabular-nums">
-                {payload.reported_count !== undefined ? payload.reported_count : (payload.sanctioned_quantity ?? '—')}
+              <div style={{ fontSize: '22px', fontWeight: 700, color: '#0F172A', marginTop: '4px' }} className="tabular-nums">
+                {payload.reported !== undefined ? payload.reported : (payload.required !== undefined ? payload.required : '—')}
               </div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Baseline target</div>
-            </div>
-
-            <div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                AI Observed (Dwell ≥ 3m)
-              </div>
-              <div style={{ fontSize: '20px', fontWeight: 700, color: 'var(--accent-cyan)', marginTop: '4px' }} className="tabular-nums">
-                {payload.observed_count !== undefined ? payload.observed_count : (payload.observed_quantity ?? '—')}
-              </div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                Confidence: {(alert.confidence * 100).toFixed(0)}%
+              <div style={{ fontSize: '11px', color: '#64748B' }}>
+                Center Self-Submission
               </div>
             </div>
 
-            <div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                Discrepancy Gap
+            <div style={{
+              backgroundColor: '#F8FAFC',
+              border: '1px solid #E2E8F0',
+              borderRadius: '6px',
+              padding: '12px 14px'
+            }}>
+              <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 600, textTransform: 'uppercase' }}>
+                AI Observed In Lab
               </div>
-              <div style={{ 
-                fontSize: '20px', 
-                fontWeight: 700, 
-                color: 'var(--status-critical)', 
-                marginTop: '4px' 
-              }} className="tabular-nums">
+              <div style={{ fontSize: '22px', fontWeight: 700, color: '#2563EB', marginTop: '4px' }} className="tabular-nums">
+                {payload.observed !== undefined ? payload.observed : '—'}
+              </div>
+              <div style={{ fontSize: '11px', color: '#059669', fontWeight: 600 }}>
+                Dwell Threshold &ge; 180s
+              </div>
+            </div>
+
+            <div style={{
+              backgroundColor: '#FEF2F2',
+              border: '1px solid #FECACA',
+              borderRadius: '6px',
+              padding: '12px 14px'
+            }}>
+              <div style={{ fontSize: '11px', color: '#991B1B', fontWeight: 600, textTransform: 'uppercase' }}>
+                Reconciled Delta Gap
+              </div>
+              <div style={{ fontSize: '22px', fontWeight: 700, color: '#DC2626', marginTop: '4px' }} className="tabular-nums">
                 {payload.difference !== undefined ? `-${payload.difference}` : (payload.gap !== undefined ? `-${payload.gap}` : '—')}
               </div>
-              <div style={{ fontSize: '11px', color: 'var(--status-critical)' }}>
-                {payload.relative_difference_pct ? `${payload.relative_difference_pct}% deficit` : 'Deficit detected'}
+              <div style={{ fontSize: '11px', color: '#DC2626', fontWeight: 600 }}>
+                {payload.relative_difference_pct ? `${payload.relative_difference_pct}% deficit` : 'Deficit Detected'}
               </div>
             </div>
           </div>
 
-          {/* Root Cause / Discrepancy Classification (Phases 12 & 19 Active Learning Feedback) */}
+          {/* Root Cause / Discrepancy Classification (Active Learning Feedback) */}
           <div>
-            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
+            <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
               Root Cause / Exception Category (Active Learning Feedback):
             </label>
             <select
@@ -276,15 +220,14 @@ export const AlertReviewModal: React.FC<AlertReviewModalProps> = ({ alert, onClo
               onChange={(e) => setSelectedCategory(e.target.value)}
               style={{
                 width: '100%',
-                backgroundColor: 'var(--bg-primary)',
-                border: '1px solid var(--border-subtle)',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #CBD5E1',
                 borderRadius: '6px',
                 padding: '8px 12px',
-                color: 'var(--accent-cyan)',
+                color: '#1D4ED8',
                 fontSize: '13px',
                 fontWeight: 600,
-                outline: 'none',
-                marginBottom: '12px'
+                outline: 'none'
               }}
             >
               <optgroup label="-- Violations (Confirming Violation) --">
@@ -304,8 +247,8 @@ export const AlertReviewModal: React.FC<AlertReviewModalProps> = ({ alert, onClo
 
           {/* Officer Review Notes Input */}
           <div>
-            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
-              Officer Review Assessment & Audit Notes:
+            <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
+              Officer Review Assessment &amp; Audit Notes:
             </label>
             <textarea
               rows={3}
@@ -314,14 +257,15 @@ export const AlertReviewModal: React.FC<AlertReviewModalProps> = ({ alert, onClo
               placeholder="e.g. Cross-checked with physical register TC-101-A. Attendance discrepancy confirmed."
               style={{
                 width: '100%',
-                backgroundColor: 'var(--bg-primary)',
-                border: '1px solid var(--border-subtle)',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #CBD5E1',
                 borderRadius: '6px',
                 padding: '10px 12px',
-                color: 'var(--text-primary)',
+                color: '#0F172A',
                 fontSize: '13px',
                 outline: 'none',
-                resize: 'none'
+                resize: 'none',
+                fontFamily: 'var(--font-sans)'
               }}
             />
           </div>
@@ -330,26 +274,26 @@ export const AlertReviewModal: React.FC<AlertReviewModalProps> = ({ alert, onClo
         {/* Modal Footer Actions */}
         <div style={{
           padding: '16px 24px',
-          borderTop: '1px solid var(--border-subtle)',
+          borderTop: '1px solid #E2E8F0',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          backgroundColor: 'rgba(10, 14, 23, 0.4)'
+          backgroundColor: '#F8FAFC'
         }}>
-          <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-            Actions are logged in the immutable government audit trail.
+          <span style={{ fontSize: '12px', color: '#64748B' }}>
+            Actions are recorded in the immutable SHA-256 government audit trail.
           </span>
           <div style={{ display: 'flex', gap: '10px' }}>
             <button
               disabled={loading}
               onClick={() => handleAction('DISMISSED')}
               style={{
-                backgroundColor: 'transparent',
-                border: '1px solid var(--border-strong)',
-                color: 'var(--text-secondary)',
-                borderRadius: '6px',
-                padding: '8px 16px',
-                fontSize: '13px',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #CBD5E1',
+                color: '#475569',
+                borderRadius: '4px',
+                padding: '8px 14px',
+                fontSize: '12px',
                 fontWeight: 600,
                 cursor: 'pointer',
                 display: 'flex',
@@ -357,7 +301,7 @@ export const AlertReviewModal: React.FC<AlertReviewModalProps> = ({ alert, onClo
                 gap: '6px'
               }}
             >
-              <XCircle size={16} />
+              <XCircle size={15} />
               <span>Dismiss False Positive</span>
             </button>
 
@@ -365,12 +309,12 @@ export const AlertReviewModal: React.FC<AlertReviewModalProps> = ({ alert, onClo
               disabled={loading}
               onClick={() => handleAction('UNDER_REVIEW')}
               style={{
-                backgroundColor: 'rgba(245, 158, 11, 0.15)',
-                border: '1px solid rgba(245, 158, 11, 0.4)',
-                color: 'var(--status-warning)',
-                borderRadius: '6px',
-                padding: '8px 16px',
-                fontSize: '13px',
+                backgroundColor: '#FFFBEB',
+                border: '1px solid #FDE68A',
+                color: '#92400E',
+                borderRadius: '4px',
+                padding: '8px 14px',
+                fontSize: '12px',
                 fontWeight: 600,
                 cursor: 'pointer',
                 display: 'flex',
@@ -378,7 +322,7 @@ export const AlertReviewModal: React.FC<AlertReviewModalProps> = ({ alert, onClo
                 gap: '6px'
               }}
             >
-              <AlertTriangle size={16} />
+              <AlertTriangle size={15} />
               <span>Escalate Case</span>
             </button>
 
@@ -386,21 +330,21 @@ export const AlertReviewModal: React.FC<AlertReviewModalProps> = ({ alert, onClo
               disabled={loading}
               onClick={() => handleAction('CONFIRMED')}
               style={{
-                backgroundColor: 'var(--status-critical)',
-                border: 'none',
-                color: '#fff',
-                borderRadius: '6px',
-                padding: '8px 18px',
-                fontSize: '13px',
+                backgroundColor: '#DC2626',
+                border: '1px solid #B91C1C',
+                color: '#FFFFFF',
+                borderRadius: '4px',
+                padding: '8px 16px',
+                fontSize: '12px',
                 fontWeight: 600,
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                boxShadow: '0 0 12px rgba(239, 68, 68, 0.4)'
+                boxShadow: 'var(--shadow-sm)'
               }}
             >
-              <CheckCircle size={16} />
+              <CheckCircle size={15} />
               <span>Confirm Violation</span>
             </button>
           </div>
