@@ -89,3 +89,30 @@ export async function updateSettings(settings: any): Promise<any> {
   if (!res.ok) throw new Error('Failed to update settings');
   return res.json();
 }
+
+export async function updateRoomROI(centreId: string, roomId: string, roiPolygonJson: string): Promise<any> {
+  const res = await fetch(`${BASE_URL}/centres/${centreId}/rooms/${roomId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ roi_polygon_json: roiPolygonJson })
+  });
+  if (!res.ok) throw new Error('Failed to update room ROI');
+  return res.json();
+}
+
+export async function submitReportedAttendance(data: {
+  centre_id: string;
+  room_id?: string;
+  session_date: string;
+  session_start: string;
+  session_end: string;
+  reported_count: number;
+}): Promise<any> {
+  const res = await fetch(`${BASE_URL}/attendance/reported`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) throw new Error('Failed to submit reported attendance');
+  return res.json();
+}

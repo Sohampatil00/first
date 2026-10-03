@@ -35,6 +35,11 @@ class RoomResponse(RoomBase):
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)
 
+class RoomUpdate(BaseModel):
+    name: Optional[str] = None
+    capacity: Optional[int] = None
+    roi_polygon_json: Optional[str] = None
+
 # --- Camera Schemas ---
 class CameraBase(BaseModel):
     name: str

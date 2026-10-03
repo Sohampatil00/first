@@ -5,7 +5,7 @@ from backend.db.session import get_db
 from backend.models.db_models import Centre, Room, SanctionedInventory, Camera
 from backend.models.schemas import (
     CentreCreate, CentreResponse, RoomCreate, RoomResponse, 
-    InventoryCreate, InventoryResponse, RoomBase, InventoryBase
+    InventoryCreate, InventoryResponse, RoomBase, InventoryBase, RoomUpdate
 )
 
 router = APIRouter(prefix="/api/centres", tags=["Centres"])
@@ -46,6 +46,21 @@ def get_centre_detail(centre_id: str, db: Session = Depends(get_db)):
 def add_room(centre_id: str, room_in: RoomBase, db: Session = Depends(get_db)):
     room = Room(centre_id=centre_id, **room_in.model_dump())
     db.add(room)
+    db.commit()
+    db.refresh(room)
+    return room
+
+@router.patch("/{centre_id}/rooms/{room_id}", response_model=RoomResponse)
+def update_room(centre_id: str, room_id: str, room_up: RoomUpdate, db: Session = Depends(get_db)):
+    room = db.query(Room).filter(Room.centre_id == centre_id, Room.id == room_id).first()
+    if not room:
+        raise HTTPException(status_code=404, detail="Room not found")
+    if room_up.roi_polygon_json is not None:
+        room.roi_polygon_json = room_up.roi_polygon_json
+    if room_up.name is not None:
+        room.name = room_up.name
+    if room_up.capacity is not None:
+        room.capacity = room_up.capacity
     db.commit()
     db.refresh(room)
     return room

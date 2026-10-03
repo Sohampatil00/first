@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Centre, Camera, InventoryItem } from '../types';
 import { fetchCentres, fetchCentreDetail } from '../api';
-import { Building, Video, Layers, CheckCircle2, ChevronRight, ArrowLeft } from 'lucide-react';
+import { Building, Video, Layers, CheckCircle2, ChevronRight, Crosshair, Users, PlusCircle } from 'lucide-react';
+import { ROIConfigModal } from '../components/ROIConfigModal';
+import { ReportAttendanceModal } from '../components/ReportAttendanceModal';
 
 interface CentresScreenProps {
   initialCentreId?: string | null;
+  currentRole?: string;
 }
 
-export const CentresScreen: React.FC<CentresScreenProps> = ({ initialCentreId }) => {
+export const CentresScreen: React.FC<CentresScreenProps> = ({ initialCentreId, currentRole = 'MINISTRY_OFFICER' }) => {
   const [centres, setCentres] = useState<Centre[]>([]);
   const [selectedCentreId, setSelectedCentreId] = useState<string | null>(initialCentreId || null);
   const [centreDetail, setCentreDetail] = useState<{
@@ -17,8 +20,12 @@ export const CentresScreen: React.FC<CentresScreenProps> = ({ initialCentreId })
     inventory: InventoryItem[];
   } | null>(null);
   const [loading, setLoading] = useState(false);
+  
+  // Modals state
+  const [selectedRoomForROI, setSelectedRoomForROI] = useState<any | null>(null);
+  const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
 
-  useEffect(() => {
+  const loadCentresList = () => {
     fetchCentres().then(data => {
       setCentres(data);
       if (initialCentreId) {
@@ -27,26 +34,59 @@ export const CentresScreen: React.FC<CentresScreenProps> = ({ initialCentreId })
         setSelectedCentreId(data[0].id);
       }
     });
-  }, [initialCentreId]);
+  };
 
-  useEffect(() => {
+  const loadCentreDetail = () => {
     if (selectedCentreId) {
       setLoading(true);
       fetchCentreDetail(selectedCentreId)
         .then(data => setCentreDetail(data))
         .finally(() => setLoading(false));
     }
+  };
+
+  useEffect(() => {
+    loadCentresList();
+  }, [initialCentreId]);
+
+  useEffect(() => {
+    loadCentreDetail();
   }, [selectedCentreId]);
 
   return (
     <div>
-      <div style={{ marginBottom: '20px' }}>
-        <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)' }}>
-          Training Centres & Digital Twin Registry
-        </h1>
-        <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-          Sanctioned capacity, room polygon ROIs, camera bindings, and physical asset inventories
-        </p>
+      <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+        <div>
+          <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--text-primary)' }}>
+            Training Centres & Digital Twin Registry
+          </h1>
+          <p style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+            Sanctioned capacity, room polygon ROIs, camera bindings, and physical asset inventories
+          </p>
+        </div>
+
+        {selectedCentreId && (
+          <button
+            onClick={() => setIsAttendanceModalOpen(true)}
+            style={{
+              backgroundColor: 'var(--status-normal)',
+              border: 'none',
+              borderRadius: '6px',
+              color: '#fff',
+              padding: '8px 16px',
+              fontSize: '12px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 0 12px rgba(16, 185, 129, 0.4)'
+            }}
+          >
+            <PlusCircle size={15} />
+            <span>Report Session Attendance</span>
+          </button>
+        )}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '20px' }}>
@@ -141,7 +181,7 @@ export const CentresScreen: React.FC<CentresScreenProps> = ({ initialCentreId })
                   <Layers size={16} color="var(--accent-cyan)" />
                   <span>Mapped Rooms & Calibration Zones ({centreDetail.rooms.length})</span>
                 </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px' }}>
                   {centreDetail.rooms.length === 0 ? (
                     <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>No rooms configured.</div>
                   ) : (
@@ -150,13 +190,42 @@ export const CentresScreen: React.FC<CentresScreenProps> = ({ initialCentreId })
                         backgroundColor: 'var(--bg-card)',
                         border: '1px solid var(--border-subtle)',
                         borderRadius: '6px',
-                        padding: '14px'
+                        padding: '16px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        gap: '12px'
                       }}>
-                        <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--text-primary)' }}>{room.name}</div>
-                        <div style={{ fontSize: '11px', color: 'var(--accent-cyan)', marginTop: '2px' }}>Type: {room.room_type}</div>
-                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '6px' }}>
-                          Capacity: {room.capacity} | ROI: Configured Polygon
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>{room.name}</div>
+                            <span className="status-badge info">{room.room_type}</span>
+                          </div>
+                          <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '6px' }}>
+                            Capacity: {room.capacity} trainees • ROI Bounds: {room.roi_polygon_json ? 'Active Polygon' : 'Default Bounds'}
+                          </div>
                         </div>
+
+                        <button
+                          onClick={() => setSelectedRoomForROI(room)}
+                          style={{
+                            backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                            border: '1px solid rgba(56, 189, 248, 0.3)',
+                            borderRadius: '4px',
+                            color: 'var(--accent-cyan)',
+                            padding: '6px 12px',
+                            fontSize: '11px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px'
+                          }}
+                        >
+                          <Crosshair size={13} />
+                          <span>Calibrate ROI Polygon</span>
+                        </button>
                       </div>
                     ))
                   )}
@@ -199,6 +268,26 @@ export const CentresScreen: React.FC<CentresScreenProps> = ({ initialCentreId })
           )}
         </div>
       </div>
+
+      {/* Visual Calibration Modal */}
+      {selectedRoomForROI && selectedCentreId && (
+        <ROIConfigModal
+          centreId={selectedCentreId}
+          room={selectedRoomForROI}
+          onClose={() => setSelectedRoomForROI(null)}
+          onSaved={loadCentreDetail}
+        />
+      )}
+
+      {/* Attendance Reporting Modal */}
+      {selectedCentreId && (
+        <ReportAttendanceModal
+          centreId={selectedCentreId}
+          isOpen={isAttendanceModalOpen}
+          onClose={() => setIsAttendanceModalOpen(false)}
+          onSubmitted={loadCentreDetail}
+        />
+      )}
     </div>
   );
 };
