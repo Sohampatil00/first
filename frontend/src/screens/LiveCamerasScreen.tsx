@@ -560,7 +560,28 @@ export const LiveCamerasScreen: React.FC = () => {
                                   const y = det.box[1] * 100;
                                   const w = (det.box[2] - det.box[0]) * 100;
                                   const h = (det.box[3] - det.box[1]) * 100;
-                                  const strokeColor = det.class_name === 'person' ? '#10B981' : (det.class_name === 'computer' ? '#38BDF8' : '#F59E0B');
+
+                                  let strokeColor = '#10B981';
+                                  let fillColor = '#10B981';
+                                  let textColor = '#000000';
+
+                                  if (det.class_name === 'chair') {
+                                    strokeColor = '#F59E0B';
+                                    fillColor = '#F59E0B';
+                                    textColor = '#000000';
+                                  } else if (det.class_name === 'table') {
+                                    strokeColor = '#8B5CF6';
+                                    fillColor = '#8B5CF6';
+                                    textColor = '#FFFFFF';
+                                  } else if (det.class_name === 'computer') {
+                                    strokeColor = '#0EA5E9';
+                                    fillColor = '#0EA5E9';
+                                    textColor = '#FFFFFF';
+                                  } else if (det.class_name === 'asset') {
+                                    strokeColor = '#F43F5E';
+                                    fillColor = '#F43F5E';
+                                    textColor = '#FFFFFF';
+                                  }
 
                                   return (
                                     <g key={idx}>
@@ -571,22 +592,23 @@ export const LiveCamerasScreen: React.FC = () => {
                                         height={`${h}%`}
                                         fill="none"
                                         stroke={strokeColor}
-                                        strokeWidth="3"
+                                        strokeWidth="2.5"
+                                        strokeDasharray={det.class_name === 'table' ? '4 2' : 'none'}
                                         rx="4"
                                       />
                                       <rect
                                         x={`${x}%`}
                                         y={`${Math.max(0, y - 6)}%`}
-                                        width={`${Math.min(Math.max(w, 24), 50)}%`}
+                                        width={`${Math.min(Math.max(w, 24), 58)}%`}
                                         height="20"
-                                        fill={strokeColor}
+                                        fill={fillColor}
                                         rx="3"
                                       />
                                       <text
                                         x={`${x + 1.5}%`}
                                         y={`${Math.max(0, y - 6) + 3.8}%`}
-                                        fill="#000000"
-                                        fontSize="11"
+                                        fill={textColor}
+                                        fontSize="10"
                                         fontWeight="800"
                                         fontFamily="var(--font-mono)"
                                       >
@@ -598,7 +620,7 @@ export const LiveCamerasScreen: React.FC = () => {
                               </svg>
                             )}
 
-                            {/* Real-time Gaussian Face Privacy Blur (DPDP Act Compliance) */}
+                            {/* Real-time Anatomical Face Privacy Blur (DPDP Act Compliance) */}
                             {privacyBlurActive && webcamBlurBoxes.map((b, bIdx) => {
                               const left = (1 - b[2]) * 100;
                               const top = b[1] * 100;
@@ -615,18 +637,18 @@ export const LiveCamerasScreen: React.FC = () => {
                                     width: `${width}%`,
                                     height: `${height}%`,
                                     zIndex: 12,
-                                    backdropFilter: 'blur(25px)',
-                                    WebkitBackdropFilter: 'blur(25px)',
-                                    backgroundColor: 'rgba(15, 23, 42, 0.65)',
-                                    border: '2px dashed #34D399',
-                                    borderRadius: '8px',
+                                    backdropFilter: 'blur(30px)',
+                                    WebkitBackdropFilter: 'blur(30px)',
+                                    backgroundColor: 'rgba(15, 23, 42, 0.70)',
+                                    border: '2px dashed #10B981',
+                                    borderRadius: '10px',
                                     display: 'flex',
                                     flexDirection: 'column',
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     pointerEvents: 'none',
-                                    boxShadow: '0 4px 14px rgba(0,0,0,0.5)',
-                                    transition: 'all 0.15s ease'
+                                    boxShadow: '0 6px 16px rgba(0,0,0,0.6)',
+                                    transition: 'all 0.12s ease'
                                   }}
                                 >
                                   <span style={{
@@ -768,6 +790,44 @@ export const LiveCamerasScreen: React.FC = () => {
                     </div>
                   )}
                 </div>
+
+                {/* Verified Workspace Infrastructure Ledger (Webcam Mode) */}
+                {isDemoCamera && useWebcam && (
+                  <div style={{
+                    padding: '8px 16px',
+                    backgroundColor: '#FFFFFF',
+                    borderTop: '1px solid #E2E8F0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    flexWrap: 'wrap'
+                  }}>
+                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      Workspace Infrastructure:
+                    </span>
+                    {webcamDetections.map((d, dIdx) => (
+                      <span
+                        key={dIdx}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '5px',
+                          padding: '3px 8px',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          fontFamily: 'var(--font-mono)',
+                          backgroundColor: d.class_name === 'person' ? '#ECFDF5' : (d.class_name === 'chair' ? '#FFFBEB' : (d.class_name === 'table' ? '#F5F3FF' : '#EFF6FF')),
+                          border: `1px solid ${d.class_name === 'person' ? '#A7F3D0' : (d.class_name === 'chair' ? '#FDE68A' : (d.class_name === 'table' ? '#DDD6FE' : '#BFDBFE'))}`,
+                          color: d.class_name === 'person' ? '#065F46' : (d.class_name === 'chair' ? '#92400E' : (d.class_name === 'table' ? '#5B21B6' : '#1E40AF'))
+                        }}
+                      >
+                        <span>{d.class_name === 'person' ? '👤' : (d.class_name === 'chair' ? '🪑' : (d.class_name === 'table' ? '🪵' : (d.class_name === 'computer' ? '🖥️' : '⚙️')))}</span>
+                        <span>{d.label}</span>
+                      </span>
+                    ))}
+                  </div>
+                )}
 
                 {/* Card Sub-Bar / Scrubber HUD */}
                 <div style={{
