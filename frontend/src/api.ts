@@ -134,7 +134,11 @@ export async function triggerSlaEscalation(forceHours?: number): Promise<any> {
   return res.json();
 }
 
-export async function inferWebcamFrame(base64Image: string, reconcile: boolean = false): Promise<any> {
+export async function inferWebcamFrame(
+  base64Image: string, 
+  reconcile: boolean = false,
+  visionEngine: string = 'deim'
+): Promise<any> {
   const res = await fetch(`${BASE_URL}/ai/webcam/infer`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -143,10 +147,17 @@ export async function inferWebcamFrame(base64Image: string, reconcile: boolean =
       centre_id: 'TC-101',
       camera_id: 'CAM-101-A1',
       room_id: 'ROOM-101-A',
-      reconcile
+      reconcile,
+      vision_engine: visionEngine
     })
   });
   if (!res.ok) throw new Error(`Webcam inference failed: ${res.statusText}`);
+  return res.json();
+}
+
+export async function fetchVisionEngines(): Promise<any> {
+  const res = await fetch(`${BASE_URL}/ai/vision-engines`);
+  if (!res.ok) throw new Error('Failed to fetch vision engines');
   return res.json();
 }
 

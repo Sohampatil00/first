@@ -141,5 +141,39 @@ def test_webcam_infer_endpoint():
     assert "detections" in data
     assert "latency_ms" in data
 
+def test_vision_engines_endpoint():
+    res = client.get("/api/ai/vision-engines")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["active_default"] == "deim"
+    engine_ids = [e["id"] for e in data["engines"]]
+    assert "deim" in engine_ids
+    assert "yolo" in engine_ids
+    deim_spec = next(e for e in data["engines"] if e["id"] == "deim")
+    assert deim_spec["nms_free"] is True
+    assert "CVPR 2025" in deim_spec["paper"]
+
+def test_webcam_infer_deim_engine():
+    import base64
+    import cv2
+    import numpy as np
+
+    img = np.zeros((240, 320, 3), dtype=np.uint8)
+    _, buf = cv2.imencode('.jpg', img)
+    b64 = base64.b64encode(buf).decode('utf-8')
+
+    res = client.post("/api/ai/webcam/infer", json={
+        "image_base64": b64,
+        "centre_id": "TC-101",
+        "camera_id": "CAM-101-A1",
+        "reconcile": False,
+        "vision_engine": "deim"
+    })
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "SUCCESS"
+    assert data["nms_free"] is True
+    assert "DEIM" in data["vision_engine"]
+
 
 

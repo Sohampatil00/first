@@ -25,5 +25,8 @@ build/
 # AI & Data
 models/*.pt
 models/*.onnx
+weights/*.pth
+weights/*.pt
+*.pt
 datasets/raw/
 evidence_storage/

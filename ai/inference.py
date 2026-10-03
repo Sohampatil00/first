@@ -31,7 +31,8 @@ class EdgeInferencePipeline:
         api_base_url: str = "http://localhost:8001/api",
         model_name: str = "yolov8n.pt",
         dwell_threshold_frames: int = 10,
-        roi_polygon: Optional[List[List[float]]] = None
+        roi_polygon: Optional[List[List[float]]] = None,
+        vision_engine: str = "deim"
     ):
         self.centre_id = centre_id
         self.camera_id = camera_id
@@ -39,11 +40,25 @@ class EdgeInferencePipeline:
         self.api_base_url = api_base_url
         self.dwell_threshold_frames = dwell_threshold_frames
         self.roi_polygon = roi_polygon or [[80, 130], [880, 130], [920, 510], [40, 510]]
+        self.vision_engine = vision_engine.lower()
 
-        # Lazy load YOLOv8
-        from ultralytics import YOLO
-        print(f"Loading YOLO model {model_name}...")
-        self.model = YOLO(model_name)
+        # Initialize vision model
+        self.deim_engine = None
+        self.model = None
+
+        if self.vision_engine == "deim":
+            try:
+                from ai.deim_engine import get_deim_engine
+                print("Loading DEIM (CVPR 2025 Real-Time DETR) engine...")
+                self.deim_engine = get_deim_engine()
+            except Exception as e:
+                print(f"Failed to load DEIM engine ({e}), falling back to YOLOv8...")
+                self.vision_engine = "yolo"
+
+        if self.vision_engine == "yolo" or self.deim_engine is None:
+            from ultralytics import YOLO
+            print(f"Loading YOLO model {model_name}...")
+            self.model = YOLO(model_name)
 
         self.tracker = MultiObjectTracker(max_age=15, iou_threshold=0.25)
         self.attendance_engine = AttendanceSessionTracker(
@@ -104,22 +119,20 @@ class EdgeInferencePipeline:
 
             last_frame = frame.copy()
 
-            # Run YOLOv8 inference
-            results = self.model(frame, verbose=False, conf=0.25)[0]
-            
             detections = []
             person_boxes = []
 
-            for box in results.boxes:
-                cls_id = int(box.cls[0])
-                cls_name = self.model.names[cls_id]
-                conf = float(box.conf[0])
-                xyxy = box.xyxy[0].tolist()
-
-                # Normalize COCO classes to our domain vocabulary
-                if cls_name in ['person', 'laptop', 'tv', 'chair', 'bench', 'table']:
+            if self.vision_engine == "deim" and self.deim_engine is not None:
+                # Run DEIM Real-Time DETR inference (CVPR 2025)
+                h, w = frame.shape[:2]
+                deim_out = self.deim_engine.predict(frame, conf_threshold=0.25)
+                for det in deim_out["detections"]:
+                    cls_name = det["class_name"]
+                    conf = det["confidence"]
+                    nb = det["box"]
+                    xyxy = [nb[0] * w, nb[1] * h, nb[2] * w, nb[3] * h]
                     mapped_name = 'person' if cls_name == 'person' else (
-                        'computer' if cls_name in ['laptop', 'tv'] else (
+                        'computer' if cls_name == 'computer' else (
                             'chair' if cls_name == 'chair' else 'workbench'
                         )
                     )
@@ -130,6 +143,29 @@ class EdgeInferencePipeline:
                     })
                     if mapped_name == 'person':
                         person_boxes.append(xyxy)
+            else:
+                # Run YOLOv8 inference
+                results = self.model(frame, verbose=False, conf=0.25)[0]
+                for box in results.boxes:
+                    cls_id = int(box.cls[0])
+                    cls_name = self.model.names[cls_id]
+                    conf = float(box.conf[0])
+                    xyxy = box.xyxy[0].tolist()
+
+                    # Normalize COCO classes to our domain vocabulary
+                    if cls_name in ['person', 'laptop', 'tv', 'chair', 'bench', 'table']:
+                        mapped_name = 'person' if cls_name == 'person' else (
+                            'computer' if cls_name in ['laptop', 'tv'] else (
+                                'chair' if cls_name == 'chair' else 'workbench'
+                            )
+                        )
+                        detections.append({
+                            'bbox': xyxy,
+                            'class_name': mapped_name,
+                            'confidence': conf
+                        })
+                        if mapped_name == 'person':
+                            person_boxes.append(xyxy)
 
             # If raw YOLOv8 (trained on photorealistic data) doesn't detect geometric shapes in synthetic demo video,
             # extract the simulated students & computers deterministically

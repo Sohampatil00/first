@@ -21,7 +21,8 @@ import {
   CameraOff,
   Sparkles,
   Shield,
-  UserCheck
+  UserCheck,
+  Zap
 } from 'lucide-react';
 import { CameraFusionModal } from '../components/CameraFusionModal';
 
@@ -33,6 +34,11 @@ export const LiveCamerasScreen: React.FC = () => {
   const [showRtspModal, setShowRtspModal] = useState<boolean>(false);
   const [showBoxes, setShowBoxes] = useState<boolean>(true);
   const [privacyBlurActive, setPrivacyBlurActive] = useState<boolean>(true);
+
+  // Vision Engine Selection State (DEIM CVPR 2025 vs YOLOv8)
+  const [selectedVisionEngine, setSelectedVisionEngine] = useState<'deim' | 'yolo'>('deim');
+  const [engineMetadata, setEngineMetadata] = useState<string>('DEIM-D-FINE-N (CVPR 2025)');
+  const [isNmsFree, setIsNmsFree] = useState<boolean>(true);
 
   // Laptop Webcam Integration State
   const [useWebcam, setUseWebcam] = useState<boolean>(false);
@@ -147,13 +153,15 @@ export const LiveCamerasScreen: React.FC = () => {
         ctx.drawImage(video, 0, 0, 640, 360);
         const base64 = canvas.toDataURL('image/jpeg', 0.70);
 
-        const res = await inferWebcamFrame(base64, false);
+        const res = await inferWebcamFrame(base64, false, selectedVisionEngine);
         if (isMounted && res) {
           setWebcamDetections(res.detections || []);
           setWebcamBlurBoxes(res.blur_boxes || []);
           setPersonCount(res.person_count || 0);
           setComputerCount(res.computer_count || 0);
           setWebcamLatency(res.latency_ms || 24);
+          if (res.vision_engine) setEngineMetadata(res.vision_engine);
+          if (res.nms_free !== undefined) setIsNmsFree(res.nms_free);
         }
       } catch (err) {
         console.warn("Webcam infer tick error:", err);
@@ -175,7 +183,7 @@ export const LiveCamerasScreen: React.FC = () => {
       clearInterval(interval);
       isInferringRef.current = false;
     };
-  }, [useWebcam, webcamStream]);
+  }, [useWebcam, webcamStream, selectedVisionEngine]);
 
 
   // Reconcile Webcam Attendance against Official Roster
@@ -190,13 +198,13 @@ export const LiveCamerasScreen: React.FC = () => {
       ctx.drawImage(videoRef.current, 0, 0, 640, 360);
       const base64 = canvas.toDataURL('image/jpeg', 0.85);
 
-      setReconcileResult("Evaluating webcam attendance against sanctioned roster...");
-      const res = await inferWebcamFrame(base64, true);
+      setReconcileResult(`Evaluating webcam attendance against roster with ${selectedVisionEngine.toUpperCase()}...`);
+      const res = await inferWebcamFrame(base64, true, selectedVisionEngine);
 
       if (res.alert_triggered) {
         setReconcileResult(`⚠️ Attendance Discrepancy Flagged! Observed ${res.person_count} vs Roster (Deficit > 15%). Evidence snapshot recorded.`);
       } else {
-        setReconcileResult(`✅ Attendance verified compliant (${res.person_count} trainees matched within tolerance).`);
+        setReconcileResult(`✅ Attendance verified compliant (${res.person_count} trainees matched within tolerance via ${res.vision_engine || 'DEIM'}).`);
       }
       setTimeout(() => setReconcileResult(null), 6000);
     } catch (err: any) {
@@ -297,6 +305,77 @@ export const LiveCamerasScreen: React.FC = () => {
 
         {/* Action Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          {/* Vision Engine Selector: DEIM vs YOLO */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            backgroundColor: '#F8FAFC',
+            border: '1px solid #CBD5E1',
+            borderRadius: '6px',
+            padding: '2px 4px',
+          }}>
+            <button
+              onClick={() => {
+                setSelectedVisionEngine('deim');
+                setDemoActionStatus("Switched vision pipeline to DEIM (CVPR 2025 Real-Time DETR · NMS-Free)!");
+                setTimeout(() => setDemoActionStatus(null), 3500);
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '4px 9px',
+                borderRadius: '4px',
+                border: 'none',
+                fontSize: '11px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                backgroundColor: selectedVisionEngine === 'deim' ? '#4F46E5' : 'transparent',
+                color: selectedVisionEngine === 'deim' ? '#FFFFFF' : '#475569',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <Zap size={12} color={selectedVisionEngine === 'deim' ? '#FDE047' : '#6366F1'} />
+              <span>DEIM (CVPR '25)</span>
+              <span style={{
+                fontSize: '9px',
+                padding: '1px 4px',
+                borderRadius: '3px',
+                backgroundColor: selectedVisionEngine === 'deim' ? 'rgba(255,255,255,0.2)' : '#EEF2FF',
+                color: selectedVisionEngine === 'deim' ? '#FFFFFF' : '#4F46E5',
+                fontWeight: 700
+              }}>
+                SOTA DETR
+              </span>
+            </button>
+
+            <button
+              onClick={() => {
+                setSelectedVisionEngine('yolo');
+                setDemoActionStatus("Switched vision pipeline to YOLOv8 + Pose.");
+                setTimeout(() => setDemoActionStatus(null), 3000);
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '4px 9px',
+                borderRadius: '4px',
+                border: 'none',
+                fontSize: '11px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                backgroundColor: selectedVisionEngine === 'yolo' ? '#0F172A' : 'transparent',
+                color: selectedVisionEngine === 'yolo' ? '#FFFFFF' : '#475569',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <Activity size={12} color={selectedVisionEngine === 'yolo' ? '#38BDF8' : '#64748B'} />
+              <span>YOLOv8 + Pose</span>
+            </button>
+          </div>
+
           {/* Main Laptop Webcam Button */}
           {useWebcam ? (
             <button
@@ -485,7 +564,21 @@ export const LiveCamerasScreen: React.FC = () => {
                     <div style={{ fontWeight: 700, fontSize: '14px', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span>{isDemoCamera && useWebcam ? "💻 My Laptop Webcam (Live Edge Feed)" : cam.name}</span>
                       {isDemoCamera && useWebcam && (
-                        <span className="status-badge normal">HARDWARE CAM ACTIVE</span>
+                        <>
+                          <span className="status-badge normal">HARDWARE CAM ACTIVE</span>
+                          <span style={{
+                            padding: '2px 8px',
+                            borderRadius: '4px',
+                            fontSize: '10px',
+                            fontWeight: 700,
+                            fontFamily: 'var(--font-mono)',
+                            backgroundColor: selectedVisionEngine === 'deim' ? '#EEF2FF' : '#F1F5F9',
+                            color: selectedVisionEngine === 'deim' ? '#4F46E5' : '#334155',
+                            border: `1px solid ${selectedVisionEngine === 'deim' ? '#C7D2FE' : '#CBD5E1'}`
+                          }}>
+                            {selectedVisionEngine === 'deim' ? '⚡ DEIM (CVPR 2025 · NMS-Free)' : 'YOLOv8 + Pose'}
+                          </span>
+                        </>
                       )}
                     </div>
                     <div style={{ fontSize: '11px', color: '#64748B', fontFamily: 'var(--font-mono)' }}>
@@ -735,12 +828,14 @@ export const LiveCamerasScreen: React.FC = () => {
                         padding: '4px 8px',
                         borderRadius: '4px',
                         fontSize: '11px',
-                        color: '#38BDF8',
+                        color: selectedVisionEngine === 'deim' ? '#A5B4FC' : '#38BDF8',
                         fontFamily: 'var(--font-mono)',
                         fontWeight: 600,
                         backdropFilter: 'blur(4px)'
                       }}>
-                        {useWebcam && isDemoCamera ? `${webcamLatency}ms · YOLOv8n` : '1.8 KB/s Metasync'}
+                        {useWebcam && isDemoCamera 
+                          ? `${webcamLatency}ms · ${selectedVisionEngine === 'deim' ? 'DEIM-D-FINE (NMS-Free)' : 'YOLOv8 + Pose'}` 
+                          : '1.8 KB/s Metasync'}
                       </div>
 
                       {/* Bottom-Left Privacy Overlay */}
@@ -843,8 +938,8 @@ export const LiveCamerasScreen: React.FC = () => {
                   gap: '8px'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Cpu size={13} color="#2563EB" />
-                    <span>{useWebcam && isDemoCamera ? "Client Camera + Local YOLOv8 Pipeline" : "YOLOv8 Edge Daemon"}</span>
+                    <Cpu size={13} color={selectedVisionEngine === 'deim' ? '#4F46E5' : '#2563EB'} />
+                    <span>{useWebcam && isDemoCamera ? (selectedVisionEngine === 'deim' ? "Client Camera + DEIM Real-Time DETR (CVPR 2025 · NMS-Free)" : "Client Camera + Local YOLOv8 + Pose Pipeline") : "Edge Inference Daemon"}</span>
                     <span style={{ color: '#CBD5E1' }}>·</span>
                     <span>{useWebcam && isDemoCamera ? `Inference: ${webcamLatency}ms` : `Last Ping: ${new Date(cam.last_seen_at).toLocaleTimeString()}`}</span>
                   </div>

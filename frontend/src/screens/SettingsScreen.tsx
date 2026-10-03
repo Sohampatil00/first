@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchSettings, updateSettings } from '../api';
-import { Sliders, Shield, Save, CheckCircle, Clock, AlertTriangle, EyeOff, ShieldCheck, Lock } from 'lucide-react';
+import { Sliders, Shield, Save, CheckCircle, Clock, AlertTriangle, EyeOff, ShieldCheck, Lock, Zap } from 'lucide-react';
 
 interface SettingsScreenProps {
   currentRole: string;
@@ -308,6 +308,63 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ currentRole }) =
             <Lock size={12} />
             <span>Guarantees DPDP Act 2023 compliance. Biometric features masked.</span>
           </span>
+        </div>
+
+        {/* SOTA Vision Model Architecture Card (DEIM CVPR 2025) */}
+        <div className="gov-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px', border: '1px solid #C7D2FE', backgroundColor: '#F8FAFF' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ fontSize: '14px', fontWeight: 700, color: '#1E1B4B', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Zap size={16} color="#4F46E5" />
+                <span>Default Edge Vision Architecture</span>
+              </div>
+              <span style={{
+                fontSize: '10px',
+                fontWeight: 700,
+                padding: '2px 8px',
+                borderRadius: '4px',
+                backgroundColor: '#EEF2FF',
+                color: '#4338CA',
+                border: '1px solid #C7D2FE'
+              }}>
+                CVPR 2025 SOTA
+              </span>
+            </div>
+            <div style={{ fontSize: '12px', color: '#475569', marginTop: '4px' }}>
+              Transformer-based detection framework for crowded classroom monitoring
+            </div>
+          </div>
+
+          <select
+            disabled={!isEditable}
+            value={settings.default_vision_engine || 'DEIM_HGNETV2_N'}
+            onChange={(e) => setSettings({ ...settings, default_vision_engine: e.target.value })}
+            style={{
+              width: '100%',
+              backgroundColor: '#FFFFFF',
+              border: '1px solid #CBD5E1',
+              borderRadius: '6px',
+              padding: '8px 12px',
+              fontSize: '13px',
+              color: '#0F172A',
+              fontWeight: 600
+            }}
+          >
+            <option value="DEIM_HGNETV2_N">DEIM-D-FINE-N (CVPR 2025 · Dense O2O · NMS-Free · 4.0M Params)</option>
+            <option value="DEIM_RTDETR_R18">DEIM-RT-DETR-R18 (ResNet18 Backbone · 20M Params)</option>
+            <option value="YOLOV8_POSE">Ultralytics YOLOv8n + YOLOv8-Pose (Anchor-Free CNN)</option>
+          </select>
+
+          <div style={{
+            fontSize: '11px',
+            color: '#3730A3',
+            backgroundColor: '#EEF2FF',
+            padding: '8px 10px',
+            borderRadius: '6px',
+            lineHeight: '1.4'
+          }}>
+            ⚡ <strong>Dense One-to-One Matching (Dense O2O):</strong> Removes Non-Maximum Suppression (NMS) latency and bounding box suppression artifacts in occluded training rooms.
+          </div>
         </div>
 
         {/* Evidence Retention Card */}

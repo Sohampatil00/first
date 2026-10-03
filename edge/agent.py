@@ -25,19 +25,22 @@ class EdgeAgentDaemon:
         camera_id: str = "CAM-101-A1",
         room_id: str = "ROOM-101-A",
         api_base_url: str = "http://localhost:8001/api",
-        simulate_offline: bool = False
+        simulate_offline: bool = False,
+        vision_engine: str = "deim"
     ):
         self.centre_id = centre_id
         self.camera_id = camera_id
         self.room_id = room_id
         self.api_base_url = api_base_url
         self.simulate_offline = simulate_offline
+        self.vision_engine = vision_engine
 
         self.pipeline = EdgeInferencePipeline(
             centre_id=centre_id,
             camera_id=camera_id,
             room_id=room_id,
-            api_base_url=api_base_url
+            api_base_url=api_base_url,
+            vision_engine=vision_engine
         )
 
     def send_heartbeat(self):
@@ -107,6 +110,7 @@ def main():
     parser.add_argument("--room", type=str, default="ROOM-101-A", help="Room ID")
     parser.add_argument("--api", type=str, default="http://localhost:8001/api", help="FastAPI Base URL")
     parser.add_argument("--offline", action="store_true", help="Simulate offline mode (buffer to SQLite)")
+    parser.add_argument("--engine", type=str, default="deim", choices=["deim", "yolo"], help="Vision engine: deim (CVPR 2025 DETR) or yolo (YOLOv8)")
     args = parser.parse_args()
 
     agent = EdgeAgentDaemon(
@@ -114,7 +118,8 @@ def main():
         camera_id=args.camera,
         room_id=args.room,
         api_base_url=args.api,
-        simulate_offline=args.offline
+        simulate_offline=args.offline,
+        vision_engine=args.engine
     )
 
     agent.run_cycle(args.video)
