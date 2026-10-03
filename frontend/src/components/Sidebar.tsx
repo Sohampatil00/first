@@ -7,7 +7,8 @@ import {
   FileText, 
   ShieldCheck, 
   Activity, 
-  Sliders
+  Sliders,
+  BarChart3
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -22,6 +23,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setCurrentTab, ope
     { id: 'centres', label: 'Centres Directory', icon: Building2 },
     { id: 'cameras', label: 'Live Video & Edge', icon: Video },
     { id: 'alerts', label: 'Compliance Alerts', icon: AlertTriangle, badge: openAlertsCount },
+    { id: 'analytics', label: 'Analytics & Trends', icon: BarChart3 },
     { id: 'audit', label: 'Governance & Audit', icon: ShieldCheck },
   ];
 

@@ -6,6 +6,7 @@ import { OverviewScreen } from './screens/OverviewScreen';
 import { CentresScreen } from './screens/CentresScreen';
 import { AlertsScreen } from './screens/AlertsScreen';
 import { LiveCamerasScreen } from './screens/LiveCamerasScreen';
+import { AnalyticsScreen } from './screens/AnalyticsScreen';
 import { AuditScreen } from './screens/AuditScreen';
 import { AnalyticsOverview, Centre, ComplianceEvent } from './types';
 import { fetchAnalyticsOverview, fetchCentres, fetchAlerts, reviewAlert } from './api';
@@ -161,6 +162,10 @@ export function App() {
 
           {currentTab === 'cameras' && (
             <LiveCamerasScreen />
+          )}
+
+          {currentTab === 'analytics' && (
+            <AnalyticsScreen analytics={analytics} alerts={alerts} />
           )}
 
           {currentTab === 'audit' && (
