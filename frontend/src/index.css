@@ -302,3 +302,34 @@ body {
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
+/* Responsive Mobile Navigation & Viewport Adjustments */
+@media (max-width: 768px) {
+  .header-container {
+    height: auto !important;
+    min-height: 52px;
+    padding: 8px 14px !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+  }
+  
+  .header-search-bar {
+    display: none !important;
+  }
+  
+  .header-privacy-pill {
+    display: none !important;
+  }
+
+  .header-latency-pill {
+    display: none !important;
+  }
+
+  .header-breadcrumb-prefix {
+    display: none !important;
+  }
+
+  .gov-container {
+    padding: 12px 14px !important;
+  }
+}
+

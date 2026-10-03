@@ -35,7 +35,7 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header style={{
+    <header className="header-container" style={{
       height: '64px',
       backgroundColor: '#FFFFFF',
       borderBottom: '1px solid #E2E8F0',
@@ -63,16 +63,18 @@ export const Header: React.FC<HeaderProps> = ({
           fontFamily: 'var(--font-mono)',
           color: '#334155'
         }}>
-          <span style={{ color: '#2563EB', fontWeight: 600 }}>All India</span>
-          <span style={{ color: '#94a3b8' }}>/</span>
-          <span>Western Zone</span>
-          <span style={{ color: '#94a3b8' }}>/</span>
+          <span className="header-breadcrumb-prefix">
+            <span style={{ color: '#2563EB', fontWeight: 600 }}>All India</span>
+            <span style={{ color: '#94a3b8', margin: '0 4px' }}>/</span>
+            <span>Western Zone</span>
+            <span style={{ color: '#94a3b8', margin: '0 4px' }}>/</span>
+          </span>
           <strong style={{ color: '#0F172A' }}>Pune (TC-101)</strong>
           <ChevronDown size={14} color="#64748B" />
         </div>
 
         {/* Privacy Protocol Pill */}
-        <div style={{
+        <div className="header-privacy-pill" style={{
           display: 'flex',
           alignItems: 'center',
           gap: '6px',
@@ -83,15 +85,16 @@ export const Header: React.FC<HeaderProps> = ({
           fontSize: '11px',
           fontFamily: 'var(--font-mono)',
           color: '#065F46',
-          fontWeight: 600
+          fontWeight: 600,
+          whiteSpace: 'nowrap'
         }}>
           <Lock size={12} color="#059669" />
-          <span>PRIVACY PROTOCOL: VECTOR METRICS ONLY · NO FACIAL ID</span>
+          <span>PRIVACY PROTOCOL: DPDP COMPLIANT</span>
         </div>
       </div>
 
       {/* Center Search Bar */}
-      <div style={{
+      <div className="header-search-bar" style={{
         display: 'flex',
         alignItems: 'center',
         position: 'relative',
@@ -134,7 +137,7 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Right Command & Profile Section */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
         {/* Realtime Pipeline Latency Pip */}
-        <div style={{
+        <div className="header-latency-pill" style={{
           display: 'flex',
           alignItems: 'center',
           gap: '12px',

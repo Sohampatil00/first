@@ -117,6 +117,19 @@ export const LiveCamerasScreen: React.FC = () => {
   const startWebcam = async (targetDeviceId?: string, targetFacingMode?: 'user' | 'environment') => {
     try {
       setWebcamError(null);
+
+      // Verify browser support & Secure Context (HTTPS or localhost)
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        const isNotHttps = window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+        if (isNotHttps) {
+          const httpsTarget = `https://${window.location.hostname || '192.168.1.15'}:3000`;
+          setWebcamError(`Mobile camera access requires HTTPS (Safari & Chrome security rule). Please open: ${httpsTarget}`);
+        } else {
+          setWebcamError("Camera access API is unavailable in this browser context. Please use Safari (iOS) or Chrome (Android) over HTTPS.");
+        }
+        return;
+      }
+
       if (webcamStream) {
         webcamStream.getTracks().forEach(track => track.stop());
       }
@@ -614,25 +627,54 @@ export const LiveCamerasScreen: React.FC = () => {
         <div style={{
           backgroundColor: '#FEF2F2',
           border: '1px solid #FECACA',
-          borderRadius: '6px',
-          padding: '12px 16px',
+          borderRadius: '8px',
+          padding: '14px 18px',
           fontSize: '13px',
           color: '#DC2626',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
+          flexDirection: 'column',
+          gap: '12px'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <AlertTriangle size={16} />
-            <span>{webcamError}</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: '240px' }}>
+              <AlertTriangle size={18} color="#DC2626" style={{ flexShrink: 0 }} />
+              <span style={{ fontWeight: 600 }}>{webcamError}</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              {window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && (
+                <button
+                  onClick={() => {
+                    window.location.href = `https://${window.location.hostname}:3000${window.location.pathname}${window.location.search}`;
+                  }}
+                  className="gov-btn-primary"
+                  style={{ backgroundColor: '#2563EB', padding: '5px 12px', fontSize: '11px', fontWeight: 700 }}
+                >
+                  🔒 Switch to HTTPS Now
+                </button>
+              )}
+              <button
+                onClick={() => startWebcam()}
+                className="gov-btn-secondary"
+                style={{ padding: '5px 12px', fontSize: '11px' }}
+              >
+                Retry Permission
+              </button>
+            </div>
           </div>
-          <button
-            onClick={() => startWebcam()}
-            className="gov-btn-secondary"
-            style={{ padding: '4px 10px', fontSize: '11px' }}
-          >
-            Retry Permission
-          </button>
+
+          {window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && (
+            <div style={{
+              backgroundColor: '#FFFBEB',
+              border: '1px solid #FDE68A',
+              borderRadius: '6px',
+              padding: '10px 14px',
+              color: '#92400E',
+              fontSize: '11px',
+              lineHeight: 1.5
+            }}>
+              <strong>📌 Apple iOS Safari / Chrome Camera Policy:</strong> Mobile operating systems strictly disable the camera API on non-localhost plain HTTP. Open <strong>https://{window.location.hostname}:3000</strong>. When Safari shows <em>"This Connection Is Not Private"</em>, tap <strong>"Show Details"</strong> → <strong>"visit this website"</strong> (trusting your local dev SSL). The camera prompt will then immediately appear!
+            </div>
+          )}
         </div>
       )}
 
@@ -1487,7 +1529,7 @@ export const LiveCamerasScreen: React.FC = () => {
                   <input
                     type="text"
                     readOnly
-                    value="http://192.168.1.15:3000"
+                    value="https://192.168.1.15:3000"
                     style={{
                       flex: 1,
                       border: 'none',
@@ -1501,8 +1543,8 @@ export const LiveCamerasScreen: React.FC = () => {
                   />
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText('http://192.168.1.15:3000');
-                      setDemoActionStatus("Copied mobile URL to clipboard!");
+                      navigator.clipboard.writeText('https://192.168.1.15:3000');
+                      setDemoActionStatus("Copied mobile HTTPS URL to clipboard!");
                       setTimeout(() => setDemoActionStatus(null), 3000);
                     }}
                     className="gov-btn-secondary"
@@ -1513,8 +1555,20 @@ export const LiveCamerasScreen: React.FC = () => {
                   </button>
                 </div>
 
+                <div style={{
+                  fontSize: '11px',
+                  color: '#92400E',
+                  backgroundColor: '#FEF3C7',
+                  border: '1px solid #FDE68A',
+                  padding: '8px 10px',
+                  borderRadius: '5px',
+                  lineHeight: 1.4
+                }}>
+                  <strong>🔒 Apple iOS / Android Requirement:</strong> Mobile browsers only grant camera access over <strong>HTTPS</strong>. When Safari shows <em>"This Connection Is Not Private"</em>, tap <strong>"Show Details"</strong> → <strong>"visit this website"</strong>. Then tap <strong>"Use Camera"</strong> and <strong>"Allow"</strong>!
+                </div>
+
                 <div style={{ fontSize: '11px', color: '#64748B', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span>👉 On your phone, tap <strong>"Use Camera"</strong>, then tap <strong>"Switch to Back Cam"</strong> to aim at the classroom workspace.</span>
+                  <span>👉 On your phone, tap <strong>"Use Camera"</strong>, then tap <strong>"Flip to Rear Cam"</strong> to aim at the classroom workspace.</span>
                 </div>
               </div>
 
