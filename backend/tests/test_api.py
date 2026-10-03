@@ -118,4 +118,28 @@ def test_review_feedback_and_export():
     assert "text/csv" in csv_res.headers["content-type"]
     assert "GHOST_TRAINEES" in csv_res.text
 
+def test_webcam_infer_endpoint():
+    import base64
+    import cv2
+    import numpy as np
+
+    # Generate a dummy test frame
+    img = np.zeros((240, 320, 3), dtype=np.uint8)
+    _, buf = cv2.imencode('.jpg', img)
+    b64 = base64.b64encode(buf).decode('utf-8')
+
+    res = client.post("/api/ai/webcam/infer", json={
+        "image_base64": b64,
+        "centre_id": "TC-101",
+        "camera_id": "CAM-101-A1",
+        "reconcile": False
+    })
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] == "SUCCESS"
+    assert "person_count" in data
+    assert "detections" in data
+    assert "latency_ms" in data
+
+
 

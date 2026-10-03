@@ -134,3 +134,20 @@ export async function triggerSlaEscalation(forceHours?: number): Promise<any> {
   return res.json();
 }
 
+export async function inferWebcamFrame(base64Image: string, reconcile: boolean = false): Promise<any> {
+  const res = await fetch(`${BASE_URL}/ai/webcam/infer`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      image_base64: base64Image,
+      centre_id: 'TC-101',
+      camera_id: 'CAM-101-A1',
+      room_id: 'ROOM-101-A',
+      reconcile
+    })
+  });
+  if (!res.ok) throw new Error(`Webcam inference failed: ${res.statusText}`);
+  return res.json();
+}
+
+

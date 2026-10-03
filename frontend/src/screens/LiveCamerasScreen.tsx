@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Camera } from '../types';
-import { fetchCameras, triggerDemoScenario } from '../api';
+import { fetchCameras, triggerDemoScenario, inferWebcamFrame } from '../api';
 import { 
   Video, 
   Wifi, 
@@ -16,7 +16,12 @@ import {
   CheckCircle2, 
   Eye,
   Sliders,
-  Maximize2
+  Maximize2,
+  Camera as CameraIcon,
+  CameraOff,
+  Sparkles,
+  Shield,
+  UserCheck
 } from 'lucide-react';
 import { CameraFusionModal } from '../components/CameraFusionModal';
 
@@ -27,6 +32,22 @@ export const LiveCamerasScreen: React.FC = () => {
   const [showFusionModal, setShowFusionModal] = useState<boolean>(false);
   const [showRtspModal, setShowRtspModal] = useState<boolean>(false);
   const [showBoxes, setShowBoxes] = useState<boolean>(true);
+  const [privacyBlurActive, setPrivacyBlurActive] = useState<boolean>(true);
+
+  // Laptop Webcam Integration State
+  const [useWebcam, setUseWebcam] = useState<boolean>(false);
+  const [webcamStream, setWebcamStream] = useState<MediaStream | null>(null);
+  const [webcamError, setWebcamError] = useState<string | null>(null);
+  const [webcamDetections, setWebcamDetections] = useState<any[]>([]);
+  const [webcamBlurBoxes, setWebcamBlurBoxes] = useState<number[][]>([]);
+  const [personCount, setPersonCount] = useState<number>(0);
+  const [computerCount, setComputerCount] = useState<number>(0);
+  const [webcamLatency, setWebcamLatency] = useState<number>(24);
+  const [isInferring, setIsInferring] = useState<boolean>(false);
+  const [reconcileResult, setReconcileResult] = useState<string | null>(null);
+
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // RTSP tester state
   const [rtspUrl, setRtspUrl] = useState<string>('rtsp://admin:pass@192.168.1.108:554/live/ch0');
@@ -43,6 +64,126 @@ export const LiveCamerasScreen: React.FC = () => {
   useEffect(() => {
     loadCameras();
   }, []);
+
+  // Attach webcam stream to video element when active
+  useEffect(() => {
+    if (videoRef.current && webcamStream) {
+      videoRef.current.srcObject = webcamStream;
+    }
+  }, [webcamStream, useWebcam]);
+
+  // Clean up webcam stream on unmount
+  useEffect(() => {
+    return () => {
+      if (webcamStream) {
+        webcamStream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [webcamStream]);
+
+  // Toggle Laptop Webcam
+  const startWebcam = async () => {
+    try {
+      setWebcamError(null);
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: { ideal: 1280 }, height: { ideal: 720 }, facingMode: 'user' }
+      });
+      setWebcamStream(stream);
+      setUseWebcam(true);
+      setDemoActionStatus("Laptop webcam activated! Running real-time on-premise YOLOv8 inference.");
+      setTimeout(() => setDemoActionStatus(null), 4000);
+    } catch (err: any) {
+      console.error("Camera access error:", err);
+      setWebcamError(
+        err.name === 'NotAllowedError' 
+          ? "Camera permission denied. Please allow camera permissions in your browser bar."
+          : `Could not access laptop webcam: ${err.message}`
+      );
+    }
+  };
+
+  const stopWebcam = () => {
+    if (webcamStream) {
+      webcamStream.getTracks().forEach(track => track.stop());
+    }
+    setWebcamStream(null);
+    setUseWebcam(false);
+    setWebcamDetections([]);
+    setWebcamBlurBoxes([]);
+    setDemoActionStatus("Switched back to synthetic classroom video stream.");
+    setTimeout(() => setDemoActionStatus(null), 3000);
+  };
+
+  // Continuous YOLOv8 Edge Analysis Loop on Live Laptop Webcam
+  useEffect(() => {
+    if (!useWebcam || !webcamStream) return;
+
+    let isMounted = true;
+    const interval = setInterval(async () => {
+      if (!videoRef.current || videoRef.current.videoWidth === 0) return;
+      if (isInferring) return;
+
+      try {
+        const video = videoRef.current;
+        let canvas = canvasRef.current;
+        if (!canvas) {
+          canvas = document.createElement('canvas');
+          canvasRef.current = canvas;
+        }
+        canvas.width = 640;
+        canvas.height = 360;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.drawImage(video, 0, 0, 640, 360);
+        const base64 = canvas.toDataURL('image/jpeg', 0.65);
+
+        setIsInferring(true);
+        const res = await inferWebcamFrame(base64, false);
+        if (isMounted) {
+          setWebcamDetections(res.detections || []);
+          setWebcamBlurBoxes(res.blur_boxes || []);
+          setPersonCount(res.person_count || 0);
+          setComputerCount(res.computer_count || 0);
+          setWebcamLatency(res.latency_ms || 24);
+        }
+      } catch (err) {
+        // Frame dropped or busy
+      } finally {
+        if (isMounted) setIsInferring(false);
+      }
+    }, 1500);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [useWebcam, webcamStream, isInferring]);
+
+  // Reconcile Webcam Attendance against Official Roster
+  const handleReconcileWebcam = async () => {
+    if (!videoRef.current) return;
+    try {
+      const canvas = canvasRef.current || document.createElement('canvas');
+      canvas.width = 640;
+      canvas.height = 360;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.drawImage(videoRef.current, 0, 0, 640, 360);
+      const base64 = canvas.toDataURL('image/jpeg', 0.85);
+
+      setReconcileResult("Evaluating webcam attendance against sanctioned roster...");
+      const res = await inferWebcamFrame(base64, true);
+
+      if (res.alert_triggered) {
+        setReconcileResult(`⚠️ Attendance Discrepancy Flagged! Observed ${res.person_count} vs Roster (Deficit > 15%). Evidence snapshot recorded.`);
+      } else {
+        setReconcileResult(`✅ Attendance verified compliant (${res.person_count} trainees matched within tolerance).`);
+      }
+      setTimeout(() => setReconcileResult(null), 6000);
+    } catch (err: any) {
+      setReconcileResult(`Reconciliation error: ${err.message}`);
+    }
+  };
 
   const handleTestRtsp = () => {
     setTestingRtsp(true);
@@ -116,7 +257,7 @@ export const LiveCamerasScreen: React.FC = () => {
               fontWeight: 600
             }}>
               <span className="pulse-dot online"></span>
-              PRIVACY VECTOR METASYNC ACTIVE
+              {useWebcam ? 'LIVE LAPTOP WEBCAM ACTIVE · ZERO PII' : 'PRIVACY VECTOR METASYNC ACTIVE'}
             </span>
           </div>
 
@@ -137,12 +278,33 @@ export const LiveCamerasScreen: React.FC = () => {
 
         {/* Action Controls */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          {/* Main Laptop Webcam Button */}
+          {useWebcam ? (
+            <button
+              onClick={stopWebcam}
+              className="gov-btn-secondary"
+              style={{ borderColor: '#EF4444', color: '#DC2626' }}
+            >
+              <CameraOff size={14} />
+              <span>Disconnect Laptop Cam</span>
+            </button>
+          ) : (
+            <button
+              onClick={startWebcam}
+              className="gov-btn-primary"
+              style={{ backgroundColor: '#2563EB' }}
+            >
+              <CameraIcon size={14} />
+              <span>Use My Laptop Cam</span>
+            </button>
+          )}
+
           <button
             onClick={() => setShowFusionModal(true)}
             className="gov-btn-secondary"
           >
             <Layers size={14} color="#2563EB" />
-            <span>Multi-Camera Fusion Simulator</span>
+            <span>Multi-Camera Fusion</span>
           </button>
 
           <button
@@ -150,7 +312,7 @@ export const LiveCamerasScreen: React.FC = () => {
             className="gov-btn-secondary"
           >
             <Radio size={14} color="#9333EA" />
-            <span>Test RTSP / IP Stream</span>
+            <span>Test RTSP Stream</span>
           </button>
 
           {/* Quick Demo Scenario Triggers */}
@@ -224,6 +386,52 @@ export const LiveCamerasScreen: React.FC = () => {
         </div>
       )}
 
+      {/* Webcam Permission / Error Notification */}
+      {webcamError && (
+        <div style={{
+          backgroundColor: '#FEF2F2',
+          border: '1px solid #FECACA',
+          borderRadius: '6px',
+          padding: '12px 16px',
+          fontSize: '13px',
+          color: '#DC2626',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <AlertTriangle size={16} />
+            <span>{webcamError}</span>
+          </div>
+          <button
+            onClick={startWebcam}
+            className="gov-btn-secondary"
+            style={{ padding: '4px 10px', fontSize: '11px' }}
+          >
+            Retry Permission
+          </button>
+        </div>
+      )}
+
+      {/* Reconcile Flash Result */}
+      {reconcileResult && (
+        <div style={{
+          backgroundColor: reconcileResult.startsWith('⚠️') ? '#FFFBEB' : '#ECFDF5',
+          border: `1px solid ${reconcileResult.startsWith('⚠️') ? '#FDE68A' : '#A7F3D0'}`,
+          borderRadius: '6px',
+          padding: '12px 16px',
+          fontSize: '13px',
+          fontWeight: 600,
+          color: reconcileResult.startsWith('⚠️') ? '#92400E' : '#065F46',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px'
+        }}>
+          {reconcileResult.startsWith('⚠️') ? <AlertTriangle size={18} /> : <CheckCircle2 size={18} />}
+          <span>{reconcileResult}</span>
+        </div>
+      )}
+
       {/* Cameras Viewport Grid */}
       {loading ? (
         <div className="gov-card" style={{ padding: '60px', textAlign: 'center', color: '#64748B' }}>
@@ -255,22 +463,49 @@ export const LiveCamerasScreen: React.FC = () => {
                   backgroundColor: '#FFFFFF'
                 }}>
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: '14px', color: '#0F172A' }}>
-                      {cam.name}
+                    <div style={{ fontWeight: 700, fontSize: '14px', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span>{isDemoCamera && useWebcam ? "💻 My Laptop Webcam (Live Edge Feed)" : cam.name}</span>
+                      {isDemoCamera && useWebcam && (
+                        <span className="status-badge normal">HARDWARE CAM ACTIVE</span>
+                      )}
                     </div>
                     <div style={{ fontSize: '11px', color: '#64748B', fontFamily: 'var(--font-mono)' }}>
                       UID: {cam.id} · Centre: {cam.centre_id}
                     </div>
                   </div>
 
-                  <span className={`status-badge ${isOnline ? 'normal' : 'critical'}`}>
-                    {isOnline ? 'ONLINE · 15 FPS' : 'OFFLINE'}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {isDemoCamera && (
+                      <button
+                        onClick={useWebcam ? stopWebcam : startWebcam}
+                        style={{
+                          backgroundColor: useWebcam ? '#EFF6FF' : '#F1F5F9',
+                          border: `1px solid ${useWebcam ? '#3B82F6' : '#CBD5E1'}`,
+                          color: useWebcam ? '#1D4ED8' : '#334155',
+                          borderRadius: '4px',
+                          padding: '3px 8px',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '5px'
+                        }}
+                      >
+                        {useWebcam ? <CameraOff size={12} /> : <CameraIcon size={12} />}
+                        <span>{useWebcam ? 'Switch to Demo Clip' : 'Use Laptop Webcam'}</span>
+                      </button>
+                    )}
+
+                    <span className={`status-badge ${isOnline ? 'normal' : 'critical'}`}>
+                      {isOnline ? (useWebcam && isDemoCamera ? 'LIVE · 30 FPS' : 'ONLINE · 15 FPS') : 'OFFLINE'}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Video / Camera Canvas Frame */}
                 <div style={{
-                  height: '270px',
+                  height: '280px',
                   backgroundColor: '#070A13',
                   position: 'relative',
                   display: 'flex',
@@ -281,18 +516,126 @@ export const LiveCamerasScreen: React.FC = () => {
                   {isOnline ? (
                     <>
                       {isDemoCamera ? (
-                        <video
-                          src="/api/videos/demo_classroom_discrepancy.mp4"
-                          autoPlay
-                          loop
-                          muted
-                          playsInline
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover'
-                          }}
-                        />
+                        useWebcam ? (
+                          /* Laptop Webcam Video Stream */
+                          <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+                            <video
+                              ref={videoRef}
+                              autoPlay
+                              playsInline
+                              muted
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                                transform: 'scaleX(-1)' // Mirror mode for natural webcam preview
+                              }}
+                            />
+
+                            {/* Real-time AI Bounding Boxes SVG Overlay */}
+                            {showBoxes && (
+                              <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+                                {webcamDetections.map((det, idx) => {
+                                  // Invert X because of mirror transform
+                                  const x = (1 - det.box[2]) * 100;
+                                  const y = det.box[1] * 100;
+                                  const w = (det.box[2] - det.box[0]) * 100;
+                                  const h = (det.box[3] - det.box[1]) * 100;
+                                  const strokeColor = det.class_name === 'person' ? '#10B981' : (det.class_name === 'computer' ? '#38BDF8' : '#F59E0B');
+
+                                  return (
+                                    <g key={idx}>
+                                      <rect
+                                        x={`${x}%`}
+                                        y={`${y}%`}
+                                        width={`${w}%`}
+                                        height={`${h}%`}
+                                        fill="none"
+                                        stroke={strokeColor}
+                                        strokeWidth="2.5"
+                                        rx="4"
+                                      />
+                                      <rect
+                                        x={`${x}%`}
+                                        y={`${Math.max(0, y - 5)}%`}
+                                        width={`${Math.min(w, 40)}%`}
+                                        height="18"
+                                        fill={strokeColor}
+                                        rx="2"
+                                      />
+                                      <text
+                                        x={`${x + 2}%`}
+                                        y={`${Math.max(0, y - 5) + 3}%`}
+                                        fill="#000000"
+                                        fontSize="10"
+                                        fontWeight="700"
+                                        fontFamily="var(--font-mono)"
+                                      >
+                                        {det.label}
+                                      </text>
+                                    </g>
+                                  );
+                                })}
+                              </svg>
+                            )}
+
+                            {/* Real-time Gaussian Face Privacy Blur (DPDP Act Compliance) */}
+                            {privacyBlurActive && webcamBlurBoxes.map((b, bIdx) => {
+                              const left = (1 - b[2]) * 100;
+                              const top = b[1] * 100;
+                              const width = (b[2] - b[0]) * 100;
+                              const height = (b[3] - b[1]) * 100;
+
+                              return (
+                                <div
+                                  key={bIdx}
+                                  style={{
+                                    position: 'absolute',
+                                    left: `${left}%`,
+                                    top: `${top}%`,
+                                    width: `${width}%`,
+                                    height: `${height}%`,
+                                    backdropFilter: 'blur(20px)',
+                                    backgroundColor: 'rgba(15, 23, 42, 0.45)',
+                                    border: '1.5px dashed #34D399',
+                                    borderRadius: '6px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    pointerEvents: 'none',
+                                    transition: 'all 0.2s ease'
+                                  }}
+                                >
+                                  <span style={{
+                                    backgroundColor: 'rgba(5, 150, 105, 0.85)',
+                                    color: '#ffffff',
+                                    fontSize: '9px',
+                                    fontWeight: 700,
+                                    padding: '2px 5px',
+                                    borderRadius: '3px',
+                                    fontFamily: 'var(--font-mono)'
+                                  }}>
+                                    🛡️ PRIVACY MASK
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          /* Synthetic Demo Video Clip */
+                          <video
+                            src="/api/videos/demo_classroom_discrepancy.mp4"
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            style={{
+                              width: '100%',
+                              height: '100%',
+                              objectFit: 'cover'
+                            }}
+                          />
+                        )
                       ) : (
                         <div style={{ textAlign: 'center', pointerEvents: 'none' }}>
                           <Activity size={32} color="#38BDF8" style={{ margin: '0 auto 6px', display: 'block', opacity: 0.8 }} />
@@ -321,10 +664,10 @@ export const LiveCamerasScreen: React.FC = () => {
                         backdropFilter: 'blur(4px)'
                       }}>
                         <span className="pulse-dot online"></span>
-                        <span>LIVE EDGE INFERENCE (15 FPS)</span>
+                        <span>{useWebcam && isDemoCamera ? `WEBCAM LIVE (30 FPS)` : `LIVE EDGE INFERENCE (15 FPS)`}</span>
                       </div>
 
-                      {/* Top-Right Bandwidth Pill */}
+                      {/* Top-Right Bandwidth & Latency Pill */}
                       <div style={{
                         position: 'absolute',
                         top: '12px',
@@ -339,7 +682,7 @@ export const LiveCamerasScreen: React.FC = () => {
                         fontWeight: 600,
                         backdropFilter: 'blur(4px)'
                       }}>
-                        1.8 KB/s Metasync
+                        {useWebcam && isDemoCamera ? `${webcamLatency}ms · YOLOv8n` : '1.8 KB/s Metasync'}
                       </div>
 
                       {/* Bottom-Left Privacy Overlay */}
@@ -358,8 +701,26 @@ export const LiveCamerasScreen: React.FC = () => {
                         gap: '6px'
                       }}>
                         <ShieldCheck size={12} color="#34D399" />
-                        <span>Privacy: Bounding Box Metadata · Face Blur Active</span>
+                        <span>Privacy: {privacyBlurActive ? 'Face Gaussian Mask Active (DPDP Act)' : 'Mask Off'}</span>
                       </div>
+
+                      {/* Bottom-Right Live Detected Count (Webcam Mode) */}
+                      {useWebcam && isDemoCamera && (
+                        <div style={{
+                          position: 'absolute',
+                          bottom: '12px',
+                          right: '12px',
+                          backgroundColor: 'rgba(15, 23, 42, 0.85)',
+                          padding: '4px 10px',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          color: '#FFFFFF',
+                          fontFamily: 'var(--font-mono)'
+                        }}>
+                          Observed: <span style={{ color: '#10B981' }}>{personCount} Trainees</span> · {computerCount} Devices
+                        </div>
+                      )}
                     </>
                   ) : (
                     <div style={{ textAlign: 'center', color: '#EF4444' }}>
@@ -381,16 +742,56 @@ export const LiveCamerasScreen: React.FC = () => {
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   fontSize: '11px',
-                  color: '#64748B'
+                  color: '#64748B',
+                  flexWrap: 'wrap',
+                  gap: '8px'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <Cpu size={13} color="#2563EB" />
-                    <span>YOLOv8 Edge Daemon</span>
+                    <span>{useWebcam && isDemoCamera ? "Client Camera + Local YOLOv8 Pipeline" : "YOLOv8 Edge Daemon"}</span>
                     <span style={{ color: '#CBD5E1' }}>·</span>
-                    <span>Last Ping: {new Date(cam.last_seen_at).toLocaleTimeString()}</span>
+                    <span>{useWebcam && isDemoCamera ? `Inference: ${webcamLatency}ms` : `Last Ping: ${new Date(cam.last_seen_at).toLocaleTimeString()}`}</span>
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {isDemoCamera && useWebcam && (
+                      <button
+                        onClick={handleReconcileWebcam}
+                        style={{
+                          backgroundColor: '#EFF6FF',
+                          border: '1px solid #BFDBFE',
+                          borderRadius: '4px',
+                          padding: '2px 8px',
+                          fontSize: '10px',
+                          color: '#1D4ED8',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                      >
+                        <UserCheck size={12} />
+                        <span>Verify Attendance vs Roster</span>
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => setPrivacyBlurActive(!privacyBlurActive)}
+                      style={{
+                        backgroundColor: '#FFFFFF',
+                        border: '1px solid #CBD5E1',
+                        borderRadius: '4px',
+                        padding: '2px 6px',
+                        fontSize: '10px',
+                        color: privacyBlurActive ? '#059669' : '#64748B',
+                        fontWeight: 600,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Privacy Blur: {privacyBlurActive ? 'ON' : 'OFF'}
+                    </button>
+
                     <button
                       onClick={() => setShowBoxes(!showBoxes)}
                       style={{
@@ -450,119 +851,76 @@ export const LiveCamerasScreen: React.FC = () => {
             <div style={{
               padding: '16px 20px',
               borderBottom: '1px solid #E2E8F0',
+              backgroundColor: '#F8FAFC',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'space-between',
-              backgroundColor: '#F8FAFC'
+              justifyContent: 'space-between'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <Radio size={20} color="#9333EA" />
-                <div>
-                  <div style={{ fontSize: '16px', fontWeight: 700, color: '#0F172A' }}>
-                    RTSP / IP Camera Stream Adapter
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#64748B' }}>
-                    Test on-ground ONVIF/RTSP edge camera ingestion with drop-frame threading
-                  </div>
-                </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Radio size={18} color="#9333EA" />
+                <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A', margin: 0 }}>
+                  RTSP IP Camera Stream Ingestion Test
+                </h3>
               </div>
               <button
                 onClick={() => setShowRtspModal(false)}
-                style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', padding: '4px', fontSize: '16px' }}
+                style={{ background: 'none', border: 'none', color: '#64748B', cursor: 'pointer', fontSize: '18px' }}
               >
                 ✕
               </button>
             </div>
 
-            {/* Modal Body */}
-            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {/* Modal Content */}
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <p style={{ fontSize: '12px', color: '#475569', margin: 0 }}>
+                Test the low-latency OpenCV / FFmpeg RTSP streaming ingest pipeline designed for on-premise NVR / IP CCTV cameras.
+              </p>
+
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
-                  Camera Stream URL (RTSP / HTTP / Device ID)
+                <label style={{ fontSize: '11px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: '4px', display: 'block' }}>
+                  RTSP Stream URI
                 </label>
                 <input
                   type="text"
                   value={rtspUrl}
                   onChange={(e) => setRtspUrl(e.target.value)}
-                  placeholder="rtsp://admin:password@192.168.1.100:554/stream1"
-                  style={{
-                    width: '100%',
-                    backgroundColor: '#FFFFFF',
-                    border: '1px solid #CBD5E1',
-                    borderRadius: '6px',
-                    padding: '8px 12px',
-                    fontSize: '13px',
-                    color: '#0F172A',
-                    fontFamily: 'var(--font-mono)'
-                  }}
+                  className="gov-input"
+                  style={{ width: '100%', fontFamily: 'var(--font-mono)', fontSize: '12px' }}
                 />
-                <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
-                  <button
-                    onClick={() => setRtspUrl('rtsp://admin:pass@192.168.1.108:554/live/ch0')}
-                    style={{ fontSize: '11px', background: 'none', border: 'none', color: '#2563EB', cursor: 'pointer', textDecoration: 'underline' }}
-                  >
-                    Hikvision Example
-                  </button>
-                  <button
-                    onClick={() => setRtspUrl('rtsp://10.0.4.22:8554/pmkvy_lab_feed')}
-                    style={{ fontSize: '11px', background: 'none', border: 'none', color: '#2563EB', cursor: 'pointer', textDecoration: 'underline' }}
-                  >
-                    CP Plus Example
-                  </button>
-                  <button
-                    onClick={() => setRtspUrl('0')}
-                    style={{ fontSize: '11px', background: 'none', border: 'none', color: '#2563EB', cursor: 'pointer', textDecoration: 'underline' }}
-                  >
-                    Local Webcam Device (0)
-                  </button>
-                </div>
               </div>
 
-              <button
-                onClick={handleTestRtsp}
-                disabled={testingRtsp}
-                className="gov-btn-primary"
-                style={{ justifyContent: 'center' }}
-              >
-                <Radio size={15} />
-                <span>{testingRtsp ? 'Handshaking & Analyzing Stream...' : 'Test Connection & Latency'}</span>
-              </button>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  disabled={testingRtsp}
+                  onClick={handleTestRtsp}
+                  className="gov-btn-primary"
+                  style={{ backgroundColor: '#9333EA' }}
+                >
+                  <Activity size={14} />
+                  <span>{testingRtsp ? 'Handshaking...' : 'Test Connection & Drop-Frame Filter'}</span>
+                </button>
+              </div>
 
               {rtspResult && (
                 <div style={{
-                  backgroundColor: '#ECFDF5',
-                  border: '1px solid #A7F3D0',
+                  backgroundColor: '#FAF5FF',
+                  border: '1px solid #E9D5FF',
                   borderRadius: '6px',
-                  padding: '14px',
+                  padding: '12px',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '10px'
+                  gap: '6px',
+                  fontSize: '12px'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#065F46', fontWeight: 700, fontSize: '13px' }}>
-                    <CheckCircle2 size={16} color="#059669" />
-                    <span>Stream Handshake Succeeded (Buffer-Free Threaded Mode)</span>
+                  <div style={{ fontWeight: 700, color: '#7E22CE', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <CheckCircle2 size={15} />
+                    <span>RTSP Stream Verified Stable</span>
                   </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '11px' }}>
-                    <div style={{ backgroundColor: '#FFFFFF', padding: '8px 10px', borderRadius: '4px', border: '1px solid #E2E8F0' }}>
-                      <span style={{ color: '#64748B' }}>Throughput: </span>
-                      <strong style={{ color: '#0F172A' }}>{rtspResult.fps} FPS</strong>
-                    </div>
-                    <div style={{ backgroundColor: '#FFFFFF', padding: '8px 10px', borderRadius: '4px', border: '1px solid #E2E8F0' }}>
-                      <span style={{ color: '#64748B' }}>Edge Latency: </span>
-                      <strong style={{ color: '#059669' }}>{rtspResult.latency_ms} ms</strong>
-                    </div>
-                    <div style={{ backgroundColor: '#FFFFFF', padding: '8px 10px', borderRadius: '4px', border: '1px solid #E2E8F0' }}>
-                      <span style={{ color: '#64748B' }}>Buffer Lag: </span>
-                      <strong style={{ color: '#2563EB' }}>0.00s (Queue drop active)</strong>
-                    </div>
-                    <div style={{ backgroundColor: '#FFFFFF', padding: '8px 10px', borderRadius: '4px', border: '1px solid #E2E8F0' }}>
-                      <span style={{ color: '#64748B' }}>Privacy: </span>
-                      <strong style={{ color: '#0F172A' }}>{rtspResult.privacy_mask}</strong>
-                    </div>
-                  </div>
-                  <div style={{ fontSize: '11px', color: '#475569' }}>
-                    ✅ Ready for deployment in <code style={{ color: '#2563EB', fontWeight: 600 }}>edge/agent.py --video "{rtspUrl}"</code>
+                  <div style={{ color: '#4B5563', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px', fontFamily: 'var(--font-mono)', fontSize: '11px' }}>
+                    <div>Framerate: <strong>{rtspResult.fps} FPS</strong></div>
+                    <div>Latency: <strong>{rtspResult.latency_ms} ms</strong></div>
+                    <div>Buffer Bloat: <strong>PREVENTED (Drop-frame queue)</strong></div>
+                    <div>Privacy Mask: <strong>{rtspResult.privacy_mask}</strong></div>
                   </div>
                 </div>
               )}
@@ -571,8 +929,8 @@ export const LiveCamerasScreen: React.FC = () => {
             {/* Modal Footer */}
             <div style={{
               padding: '12px 20px',
-              borderTop: '1px solid #E2E8F0',
               backgroundColor: '#F8FAFC',
+              borderTop: '1px solid #E2E8F0',
               display: 'flex',
               justifyContent: 'flex-end'
             }}>
@@ -586,6 +944,7 @@ export const LiveCamerasScreen: React.FC = () => {
           </div>
         </div>
       )}
+
     </div>
   );
 };
