@@ -114,17 +114,27 @@ export const LiveCamerasScreen: React.FC = () => {
     setTimeout(() => setDemoActionStatus(null), 3000);
   };
 
+  const isInferringRef = useRef<boolean>(false);
+
   // Continuous YOLOv8 Edge Analysis Loop on Live Laptop Webcam
   useEffect(() => {
     if (!useWebcam || !webcamStream) return;
 
     let isMounted = true;
-    const interval = setInterval(async () => {
-      if (!videoRef.current || videoRef.current.videoWidth === 0) return;
-      if (isInferring) return;
+
+    const captureAndInfer = async () => {
+      if (!isMounted) return;
+      if (isInferringRef.current) return;
+
+      const video = videoRef.current;
+      if (!video || video.readyState < 2 || video.videoWidth === 0) {
+        return;
+      }
+
+      isInferringRef.current = true;
+      setIsInferring(true);
 
       try {
-        const video = videoRef.current;
         let canvas = canvasRef.current;
         if (!canvas) {
           canvas = document.createElement('canvas');
@@ -135,11 +145,10 @@ export const LiveCamerasScreen: React.FC = () => {
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
         ctx.drawImage(video, 0, 0, 640, 360);
-        const base64 = canvas.toDataURL('image/jpeg', 0.65);
+        const base64 = canvas.toDataURL('image/jpeg', 0.70);
 
-        setIsInferring(true);
         const res = await inferWebcamFrame(base64, false);
-        if (isMounted) {
+        if (isMounted && res) {
           setWebcamDetections(res.detections || []);
           setWebcamBlurBoxes(res.blur_boxes || []);
           setPersonCount(res.person_count || 0);
@@ -147,17 +156,27 @@ export const LiveCamerasScreen: React.FC = () => {
           setWebcamLatency(res.latency_ms || 24);
         }
       } catch (err) {
-        // Frame dropped or busy
+        console.warn("Webcam infer tick error:", err);
       } finally {
+        isInferringRef.current = false;
         if (isMounted) setIsInferring(false);
       }
-    }, 1500);
+    };
+
+    // Initial warm-up capture once camera stream initializes
+    const warmupTimer = setTimeout(captureAndInfer, 350);
+
+    // Continuous inference interval every 1.0 second
+    const interval = setInterval(captureAndInfer, 1000);
 
     return () => {
       isMounted = false;
+      clearTimeout(warmupTimer);
       clearInterval(interval);
+      isInferringRef.current = false;
     };
-  }, [useWebcam, webcamStream, isInferring]);
+  }, [useWebcam, webcamStream]);
+
 
   // Reconcile Webcam Attendance against Official Roster
   const handleReconcileWebcam = async () => {
@@ -534,7 +553,7 @@ export const LiveCamerasScreen: React.FC = () => {
 
                             {/* Real-time AI Bounding Boxes SVG Overlay */}
                             {showBoxes && (
-                              <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+                              <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 10 }}>
                                 {webcamDetections.map((det, idx) => {
                                   // Invert X because of mirror transform
                                   const x = (1 - det.box[2]) * 100;
@@ -552,23 +571,23 @@ export const LiveCamerasScreen: React.FC = () => {
                                         height={`${h}%`}
                                         fill="none"
                                         stroke={strokeColor}
-                                        strokeWidth="2.5"
+                                        strokeWidth="3"
                                         rx="4"
                                       />
                                       <rect
                                         x={`${x}%`}
-                                        y={`${Math.max(0, y - 5)}%`}
-                                        width={`${Math.min(w, 40)}%`}
-                                        height="18"
+                                        y={`${Math.max(0, y - 6)}%`}
+                                        width={`${Math.min(Math.max(w, 24), 50)}%`}
+                                        height="20"
                                         fill={strokeColor}
-                                        rx="2"
+                                        rx="3"
                                       />
                                       <text
-                                        x={`${x + 2}%`}
-                                        y={`${Math.max(0, y - 5) + 3}%`}
+                                        x={`${x + 1.5}%`}
+                                        y={`${Math.max(0, y - 6) + 3.8}%`}
                                         fill="#000000"
-                                        fontSize="10"
-                                        fontWeight="700"
+                                        fontSize="11"
+                                        fontWeight="800"
                                         fontFamily="var(--font-mono)"
                                       >
                                         {det.label}
@@ -595,27 +614,44 @@ export const LiveCamerasScreen: React.FC = () => {
                                     top: `${top}%`,
                                     width: `${width}%`,
                                     height: `${height}%`,
-                                    backdropFilter: 'blur(20px)',
-                                    backgroundColor: 'rgba(15, 23, 42, 0.45)',
-                                    border: '1.5px dashed #34D399',
-                                    borderRadius: '6px',
+                                    zIndex: 12,
+                                    backdropFilter: 'blur(25px)',
+                                    WebkitBackdropFilter: 'blur(25px)',
+                                    backgroundColor: 'rgba(15, 23, 42, 0.65)',
+                                    border: '2px dashed #34D399',
+                                    borderRadius: '8px',
                                     display: 'flex',
+                                    flexDirection: 'column',
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     pointerEvents: 'none',
-                                    transition: 'all 0.2s ease'
+                                    boxShadow: '0 4px 14px rgba(0,0,0,0.5)',
+                                    transition: 'all 0.15s ease'
                                   }}
                                 >
                                   <span style={{
-                                    backgroundColor: 'rgba(5, 150, 105, 0.85)',
+                                    backgroundColor: '#059669',
                                     color: '#ffffff',
-                                    fontSize: '9px',
+                                    fontSize: '10px',
                                     fontWeight: 700,
-                                    padding: '2px 5px',
-                                    borderRadius: '3px',
-                                    fontFamily: 'var(--font-mono)'
+                                    padding: '3px 8px',
+                                    borderRadius: '4px',
+                                    fontFamily: 'var(--font-mono)',
+                                    boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px'
                                   }}>
                                     🛡️ PRIVACY MASK
+                                  </span>
+                                  <span style={{
+                                    fontSize: '9px',
+                                    color: '#A7F3D0',
+                                    marginTop: '2px',
+                                    fontFamily: 'var(--font-mono)',
+                                    fontWeight: 600
+                                  }}>
+                                    ZERO FACIAL PII STORED
                                   </span>
                                 </div>
                               );

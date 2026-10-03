@@ -57,7 +57,8 @@ async def process_webcam_frame(
         
         h, w = frame.shape[:2]
         model = get_webcam_yolo()
-        results = model(frame, verbose=False, conf=0.3)[0]
+        # conf=0.18 ensures reliable detection for desk/selfie angle webcams
+        results = model(frame, verbose=False, conf=0.18)[0]
 
         detections = []
         person_count = 0
