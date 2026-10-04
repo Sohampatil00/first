@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --port 3000 --host",
+    "dev:https": "VITE_HTTPS=true vite --port 3000 --host",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
