@@ -21,8 +21,9 @@ class CentreResponse(CentreBase):
 
 # --- Room Schemas ---
 class RoomBase(BaseModel):
+    id: Optional[str] = None
     name: str
-    room_type: str
+    room_type: str = "LAB"
     capacity: int = 30
     roi_polygon_json: Optional[str] = None
 
@@ -68,11 +69,11 @@ class CameraResponse(CameraBase):
 class InventoryBase(BaseModel):
     item_type: str
     required_quantity: int
+    room_id: Optional[str] = None
     active: bool = True
 
 class InventoryCreate(InventoryBase):
     centre_id: str
-    room_id: Optional[str] = None
 
 class InventoryResponse(InventoryBase):
     id: str

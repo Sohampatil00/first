@@ -6,7 +6,14 @@ Usage:
   python edge/webcam_stream.py --camera-index 0 --centre TC-101 --camera CAM-101-A1
 """
 
+import os
 import sys
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
 import time
 import argparse
 import logging

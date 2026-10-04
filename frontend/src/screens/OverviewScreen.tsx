@@ -148,7 +148,7 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({
       <KPIStrip analytics={analytics} />
 
       {/* Middle Split: Geo Territory Matrix & Priority Discrepancy Stream */}
-      <div style={{ display: 'grid', gridTemplateColumns: '7fr 5fr', gap: '20px' }}>
+      <div className="overview-split-layout" style={{ display: 'grid', gridTemplateColumns: '7fr 5fr', gap: '20px' }}>
         
         {/* Left Column: Geographic Mesh & Monitored Hubs Matrix */}
         <div className="gov-card" style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>

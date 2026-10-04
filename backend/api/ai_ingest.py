@@ -19,6 +19,7 @@ from backend.models.schemas import (
 )
 from backend.services.compliance import evaluate_attendance_discrepancy, evaluate_infrastructure_compliance
 from backend.services.alert_engine import trigger_compliance_event, ws_manager
+from ai.infrastructure.camera_trust import evaluate_camera_trust
 
 router = APIRouter(prefix="/api/ai", tags=["AI Telemetry & Observations"])
 
@@ -273,55 +274,221 @@ async def process_webcam_frame(
                     })
                     table_count = 1
 
+        # 3. Camera Health & Optics Quality Check
+        is_healthy, health_status, health_metrics = evaluate_camera_trust(frame)
+
         latency_ms = int((time.time() - start_t) * 1000)
 
         alert_triggered = False
         alert_id = None
+        created_event = None
+
+        # Fetch latest self-reported attendance for centre (or specific room if provided)
+        att_query = db.query(ReportedAttendance).filter(ReportedAttendance.centre_id == payload.centre_id)
+        latest_reported = None
+        if payload.room_id:
+            latest_reported = att_query.filter(ReportedAttendance.room_id == payload.room_id).order_by(ReportedAttendance.created_at.desc()).first()
+        if not latest_reported:
+            latest_reported = att_query.order_by(ReportedAttendance.created_at.desc()).first()
+
+        if latest_reported:
+            reported_roster_count = latest_reported.reported_count
+        else:
+            room_obj = db.query(Room).filter(Room.id == payload.room_id).first() if payload.room_id else None
+            if room_obj and room_obj.capacity:
+                reported_roster_count = room_obj.capacity
+            else:
+                centre_obj = db.query(Centre).filter(Centre.id == payload.centre_id).first()
+                reported_roster_count = centre_obj.sanctioned_capacity if (centre_obj and centre_obj.sanctioned_capacity) else 20
+
+        att_status, att_severity, att_dict = evaluate_attendance_discrepancy(
+            reported=reported_roster_count,
+            observed=person_count
+        )
+
+        # Check sanctioned inventory requirements (for room or centre)
+        inv_query = db.query(SanctionedInventory).filter(
+            SanctionedInventory.centre_id == payload.centre_id,
+            SanctionedInventory.active == True
+        )
+        sanctioned_inventory = []
+        if payload.room_id:
+            room_inv = inv_query.filter(SanctionedInventory.room_id == payload.room_id).all()
+            if room_inv:
+                sanctioned_inventory = room_inv
+        if not sanctioned_inventory:
+            sanctioned_inventory = inv_query.all()
+
+        infra_summary = []
+        for inv in sanctioned_inventory:
+            mandate = inv.required_quantity
+            obs_cnt = 0
+            if inv.item_type == "computer":
+                obs_cnt = computer_count
+            elif inv.item_type in ["chair", "chairs"]:
+                obs_cnt = chair_count
+            elif inv.item_type in ["table", "workbench", "workbenches"]:
+                obs_cnt = table_count
+
+            _, inf_sev, inf_dict = evaluate_infrastructure_compliance(
+                sanctioned=mandate,
+                observed=obs_cnt,
+                item_type=inv.item_type
+            )
+            infra_summary.append({
+                "item_type": inv.item_type,
+                "mandate": mandate,
+                "observed": obs_cnt,
+                "gap": mandate - obs_cnt,
+                "severity": inf_sev
+            })
 
         if payload.reconcile:
-            latest_reported = db.query(ReportedAttendance).filter(
-                ReportedAttendance.centre_id == payload.centre_id
-            ).order_by(ReportedAttendance.created_at.desc()).first()
+            # 1. Check Camera Health Obstruction first
+            if not is_healthy:
+                snap_filename = f"cam_health_{payload.centre_id}_{int(time.time())}.jpg"
+                snap_path = f"evidence_storage/{snap_filename}"
+                cv2.imwrite(snap_path, frame)
 
-            if latest_reported:
-                status, severity, p_dict = evaluate_attendance_discrepancy(
-                    reported=latest_reported.reported_count,
-                    observed=person_count
+                event = trigger_compliance_event(
+                    db=db,
+                    centre_id=payload.centre_id,
+                    camera_id=payload.camera_id,
+                    room_id=payload.room_id,
+                    event_type="CAMERA_OBSTRUCTED",
+                    severity="HIGH" if health_status != "CAMERA_OCCLUDED_BLACK" else "CRITICAL",
+                    confidence=0.95,
+                    payload_dict={"health_status": health_status, **health_metrics},
+                    evidence_uri=f"/api/evidence/{snap_filename}"
                 )
-                if severity in ["REVIEW", "HIGH", "CRITICAL"]:
-                    annotated = frame.copy()
-                    for b in blur_boxes:
-                        bx1, by1, bx2, by2 = int(b[0]*w), int(b[1]*h), int(b[2]*w), int(b[3]*h)
-                        bx1, by1 = max(0, bx1), max(0, by1)
-                        bx2, by2 = min(w, bx2), min(h, by2)
-                        if (by2 - by1) > 4 and (bx2 - bx1) > 4:
-                            annotated[by1:by2, bx1:bx2] = cv2.GaussianBlur(annotated[by1:by2, bx1:bx2], (31, 31), 30)
+                alert_triggered = True
+                alert_id = event.id
+                created_event = {
+                    "id": event.id,
+                    "centre_id": event.centre_id,
+                    "camera_id": event.camera_id,
+                    "event_type": event.event_type,
+                    "severity": event.severity,
+                    "confidence": event.confidence,
+                    "evidence_uri": event.evidence_uri,
+                    "payload_json": event.payload_json,
+                    "status": event.status,
+                    "created_at": event.created_at.isoformat() if event.created_at else None
+                }
+                await ws_manager.broadcast({
+                    "type": "NEW_ALERT",
+                    "event_id": event.id,
+                    "centre_id": event.centre_id,
+                    "event_type": event.event_type,
+                    "severity": event.severity,
+                    "payload": {"health_status": health_status, **health_metrics}
+                })
 
-                    snap_filename = f"webcam_{payload.centre_id}_{int(time.time())}.jpg"
-                    snap_path = f"evidence_storage/{snap_filename}"
-                    cv2.imwrite(snap_path, annotated)
+            # 2. Check Attendance Discrepancy (if camera is healthy)
+            elif att_severity in ["REVIEW", "HIGH", "CRITICAL"]:
+                annotated = frame.copy()
+                for b in blur_boxes:
+                    bx1, by1, bx2, by2 = int(b[0]*w), int(b[1]*h), int(b[2]*w), int(b[3]*h)
+                    bx1, by1 = max(0, bx1), max(0, by1)
+                    bx2, by2 = min(w, bx2), min(h, by2)
+                    if (by2 - by1) > 4 and (bx2 - bx1) > 4:
+                        annotated[by1:by2, bx1:bx2] = cv2.GaussianBlur(annotated[by1:by2, bx1:bx2], (31, 31), 30)
 
-                    event = trigger_compliance_event(
-                        db=db,
-                        centre_id=payload.centre_id,
-                        camera_id=payload.camera_id,
-                        room_id=payload.room_id,
-                        event_type="ATTENDANCE_MISMATCH",
-                        severity=severity,
-                        confidence=0.92,
-                        payload_dict=p_dict,
-                        evidence_uri=f"/api/evidence/{snap_filename}"
-                    )
-                    alert_triggered = True
-                    alert_id = event.id
-                    await ws_manager.broadcast({
-                        "type": "NEW_ALERT",
-                        "event_id": event.id,
-                        "centre_id": event.centre_id,
-                        "event_type": event.event_type,
-                        "severity": event.severity,
-                        "payload": p_dict
-                    })
+                snap_filename = f"webcam_{payload.centre_id}_{int(time.time())}.jpg"
+                snap_path = f"evidence_storage/{snap_filename}"
+                cv2.imwrite(snap_path, annotated)
+
+                event = trigger_compliance_event(
+                    db=db,
+                    centre_id=payload.centre_id,
+                    camera_id=payload.camera_id,
+                    room_id=payload.room_id,
+                    event_type="ATTENDANCE_MISMATCH",
+                    severity=att_severity,
+                    confidence=0.92,
+                    payload_dict=att_dict,
+                    evidence_uri=f"/api/evidence/{snap_filename}"
+                )
+                alert_triggered = True
+                alert_id = event.id
+                created_event = {
+                    "id": event.id,
+                    "centre_id": event.centre_id,
+                    "camera_id": event.camera_id,
+                    "event_type": event.event_type,
+                    "severity": event.severity,
+                    "confidence": event.confidence,
+                    "evidence_uri": event.evidence_uri,
+                    "payload_json": event.payload_json,
+                    "status": event.status,
+                    "created_at": event.created_at.isoformat() if event.created_at else None
+                }
+                await ws_manager.broadcast({
+                    "type": "NEW_ALERT",
+                    "event_id": event.id,
+                    "centre_id": event.centre_id,
+                    "event_type": event.event_type,
+                    "severity": event.severity,
+                    "payload": att_dict
+                })
+
+            # 3. Check Infrastructure Deficit (if camera is healthy and attendance is compliant)
+            elif any(item.get("severity") in ["REVIEW", "HIGH", "CRITICAL"] for item in infra_summary):
+                deficit_item = next(item for item in infra_summary if item.get("severity") in ["REVIEW", "HIGH", "CRITICAL"])
+                annotated = frame.copy()
+                for b in blur_boxes:
+                    bx1, by1, bx2, by2 = int(b[0]*w), int(b[1]*h), int(b[2]*w), int(b[3]*h)
+                    bx1, by1 = max(0, bx1), max(0, by1)
+                    bx2, by2 = min(w, bx2), min(h, by2)
+                    if (by2 - by1) > 4 and (bx2 - bx1) > 4:
+                        annotated[by1:by2, bx1:bx2] = cv2.GaussianBlur(annotated[by1:by2, bx1:bx2], (31, 31), 30)
+
+                snap_filename = f"infra_{payload.centre_id}_{int(time.time())}.jpg"
+                snap_path = f"evidence_storage/{snap_filename}"
+                cv2.imwrite(snap_path, annotated)
+
+                event = trigger_compliance_event(
+                    db=db,
+                    centre_id=payload.centre_id,
+                    camera_id=payload.camera_id,
+                    room_id=payload.room_id,
+                    event_type="INFRASTRUCTURE_DEFICIT",
+                    severity=deficit_item["severity"],
+                    confidence=0.91,
+                    payload_dict={
+                        "item_type": deficit_item["item_type"],
+                        "mandate": deficit_item["mandate"],
+                        "observed": deficit_item["observed"],
+                        "gap": deficit_item["gap"],
+                        "all_infrastructure": infra_summary
+                    },
+                    evidence_uri=f"/api/evidence/{snap_filename}"
+                )
+                alert_triggered = True
+                alert_id = event.id
+                created_event = {
+                    "id": event.id,
+                    "centre_id": event.centre_id,
+                    "camera_id": event.camera_id,
+                    "event_type": event.event_type,
+                    "severity": event.severity,
+                    "confidence": event.confidence,
+                    "evidence_uri": event.evidence_uri,
+                    "payload_json": event.payload_json,
+                    "status": event.status,
+                    "created_at": event.created_at.isoformat() if event.created_at else None
+                }
+                await ws_manager.broadcast({
+                    "type": "NEW_ALERT",
+                    "event_id": event.id,
+                    "centre_id": event.centre_id,
+                    "event_type": event.event_type,
+                    "severity": event.severity,
+                    "payload": {
+                        "item_type": deficit_item["item_type"],
+                        "gap": deficit_item["gap"]
+                    }
+                })
 
         return {
             "status": "SUCCESS",
@@ -336,7 +503,22 @@ async def process_webcam_frame(
             "blur_boxes": blur_boxes,
             "latency_ms": latency_ms,
             "alert_triggered": alert_triggered,
-            "alert_id": alert_id
+            "alert_id": alert_id,
+            "event": created_event,
+            "camera_health": {
+                "is_healthy": is_healthy,
+                "status": health_status,
+                "metrics": health_metrics
+            },
+            "attendance_comparison": {
+                "reported": reported_roster_count,
+                "observed": person_count,
+                "status": att_status,
+                "severity": att_severity,
+                "difference": reported_roster_count - person_count,
+                "deficit_pct": round((abs(reported_roster_count - person_count) / max(1, reported_roster_count)) * 100, 1)
+            },
+            "infrastructure_summary": infra_summary
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

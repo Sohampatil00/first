@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Camera } from '../types';
-import { fetchCameras, triggerDemoScenario, inferWebcamFrame } from '../api';
+import { Camera, ComplianceEvent } from '../types';
+import { fetchCameras, triggerDemoScenario, inferWebcamFrame, reviewAlert, fetchCentres, fetchCentreDetail } from '../api';
+import { AlertReviewModal } from '../components/AlertReviewModal';
 import { 
   Video, 
   Wifi, 
@@ -28,11 +29,25 @@ import {
   QrCode,
   FlipHorizontal,
   Copy,
-  ExternalLink
+  ExternalLink,
+  Building2,
+  Scale,
+  FileCheck,
+  CheckCircle,
+  Clock,
+  ArrowRight
 } from 'lucide-react';
 import { CameraFusionModal } from '../components/CameraFusionModal';
 
-export const LiveCamerasScreen: React.FC = () => {
+interface LiveCamerasScreenProps {
+  initialCentreId?: string | null;
+  initialRoomId?: string | null;
+}
+
+export const LiveCamerasScreen: React.FC<LiveCamerasScreenProps> = ({ 
+  initialCentreId, 
+  initialRoomId 
+}) => {
   const [cameras, setCameras] = useState<Camera[]>([]);
   const [loading, setLoading] = useState(true);
   const [demoActionStatus, setDemoActionStatus] = useState<string | null>(null);
@@ -41,6 +56,13 @@ export const LiveCamerasScreen: React.FC = () => {
   const [showMobileModal, setShowMobileModal] = useState<boolean>(false);
   const [showBoxes, setShowBoxes] = useState<boolean>(true);
   const [privacyBlurActive, setPrivacyBlurActive] = useState<boolean>(true);
+
+  // Target Centre, Lab & Camera Selection State
+  const [centresList, setCentresList] = useState<any[]>([]);
+  const [roomsList, setRoomsList] = useState<any[]>([]);
+  const [selectedCentreId, setSelectedCentreId] = useState<string>(initialCentreId || 'TC-101');
+  const [selectedRoomId, setSelectedRoomId] = useState<string>(initialRoomId || '');
+  const [selectedCameraId, setSelectedCameraId] = useState<string>('CAM-101-A1');
 
   // Vision Engine Selection State (DEIM CVPR 2025 vs YOLOv8)
   const [selectedVisionEngine, setSelectedVisionEngine] = useState<'deim' | 'yolo'>('deim');
@@ -61,9 +83,39 @@ export const LiveCamerasScreen: React.FC = () => {
   const [webcamBlurBoxes, setWebcamBlurBoxes] = useState<number[][]>([]);
   const [personCount, setPersonCount] = useState<number>(0);
   const [computerCount, setComputerCount] = useState<number>(0);
+  const [chairCount, setChairCount] = useState<number>(0);
+  const [tableCount, setTableCount] = useState<number>(0);
   const [webcamLatency, setWebcamLatency] = useState<number>(24);
   const [isInferring, setIsInferring] = useState<boolean>(false);
   const [reconcileResult, setReconcileResult] = useState<string | null>(null);
+
+  // Camera Health & Compliance Engine State
+  const [cameraHealth, setCameraHealth] = useState<any>({
+    is_healthy: true,
+    status: 'OPTICS_OK',
+    metrics: { laplacian_variance: 218.4, mean_brightness: 114.2, contrast_std: 56.8 }
+  });
+  const [attendanceComparison, setAttendanceComparison] = useState<any>({
+    reported: 20,
+    observed: 0,
+    status: 'DISCREPANCY_SEVERE',
+    severity: 'CRITICAL',
+    difference: 20,
+    deficit_pct: 100.0
+  });
+  const [infraSummary, setInfraSummary] = useState<any[]>([
+    { item_type: 'computer', mandate: 20, observed: 0, gap: 20, severity: 'CRITICAL' },
+    { item_type: 'chair', mandate: 20, observed: 0, gap: 20, severity: 'CRITICAL' },
+    { item_type: 'table', mandate: 20, observed: 0, gap: 20, severity: 'CRITICAL' }
+  ]);
+  const [pendingAlert, setPendingAlert] = useState<ComplianceEvent | null>(null);
+  const [reviewModalAlert, setReviewModalAlert] = useState<ComplianceEvent | null>(null);
+  const [autoAudit, setAutoAudit] = useState<boolean>(false);
+
+  // Active centre and room objects derived dynamically
+  const selectedCentre = centresList.find(c => c.id === selectedCentreId);
+  const selectedRoom = roomsList.find(r => r.id === selectedRoomId);
+  const activeRosterCount = attendanceComparison?.reported ?? (selectedRoom?.capacity || selectedCentre?.sanctioned_capacity || 20);
 
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -82,7 +134,84 @@ export const LiveCamerasScreen: React.FC = () => {
 
   useEffect(() => {
     loadCameras();
-  }, []);
+    fetchCentres().then(data => {
+      setCentresList(data);
+      if (initialCentreId) {
+        setSelectedCentreId(initialCentreId);
+      } else if (data.length > 0 && !selectedCentreId) {
+        setSelectedCentreId(data[0].id);
+      }
+    });
+  }, [initialCentreId]);
+
+  useEffect(() => {
+    if (initialRoomId) {
+      setSelectedRoomId(initialRoomId);
+    }
+  }, [initialRoomId]);
+
+  useEffect(() => {
+    if (selectedCentreId) {
+      fetchCentreDetail(selectedCentreId).then(detail => {
+        if (detail && detail.rooms) {
+          setRoomsList(detail.rooms);
+          const targetRoom = (initialRoomId && detail.rooms.some((r: any) => r.id === initialRoomId))
+            ? detail.rooms.find((r: any) => r.id === initialRoomId)
+            : (selectedRoomId ? detail.rooms.find((r: any) => r.id === selectedRoomId) : detail.rooms[0]);
+
+          if (targetRoom) {
+            setSelectedRoomId(targetRoom.id);
+          }
+
+          // Immediately sync attendance and infra mandates to active room & centre
+          const activeCap = targetRoom?.capacity || detail.centre.sanctioned_capacity || 20;
+          setAttendanceComparison((prev: any) => ({
+            ...prev,
+            reported: activeCap,
+            difference: activeCap - personCount,
+            deficit_pct: Math.round(((activeCap - personCount) / Math.max(1, activeCap)) * 100)
+          }));
+
+          if (detail.inventory && detail.inventory.length > 0) {
+            const relevantInv = detail.inventory.filter((inv: any) => !inv.room_id || inv.room_id === (targetRoom?.id || selectedRoomId));
+            if (relevantInv.length > 0) {
+              setInfraSummary(relevantInv.map((inv: any) => ({
+                item_type: inv.item_type,
+                mandate: inv.required_quantity,
+                observed: 0,
+                gap: inv.required_quantity,
+                severity: 'CRITICAL'
+              })));
+            }
+          }
+
+          if (detail.cameras && detail.cameras.length > 0) {
+            const camForRoom = detail.cameras.find((c: any) => c.room_id === (initialRoomId || selectedRoomId));
+            if (camForRoom) {
+              setSelectedCameraId(camForRoom.id);
+            } else {
+              setSelectedCameraId(detail.cameras[0].id);
+            }
+          } else {
+            setSelectedCameraId(`CAM-${selectedCentreId}-01`);
+          }
+        }
+      }).catch(err => console.warn("Failed to load centre detail in cameras screen:", err));
+    }
+  }, [selectedCentreId, initialRoomId]);
+
+  // Sync roster count immediately when selectedRoom changes
+  useEffect(() => {
+    if (selectedRoom) {
+      const roomCap = selectedRoom.capacity || 20;
+      setAttendanceComparison((prev: any) => ({
+        ...prev,
+        reported: roomCap,
+        difference: roomCap - personCount,
+        deficit_pct: Math.round(((roomCap - personCount) / Math.max(1, roomCap)) * 100)
+      }));
+    }
+  }, [selectedRoomId, selectedRoom]);
 
   // Attach webcam stream to video element when active
   useEffect(() => {
@@ -242,15 +371,32 @@ export const LiveCamerasScreen: React.FC = () => {
         ctx.drawImage(video, 0, 0, 640, 360);
         const base64 = canvas.toDataURL('image/jpeg', 0.70);
 
-        const res = await inferWebcamFrame(base64, false, selectedVisionEngine);
+        const shouldAudit = autoAudit;
+        const res = await inferWebcamFrame(
+          base64, 
+          shouldAudit, 
+          selectedVisionEngine,
+          selectedCentreId || 'TC-101',
+          selectedCameraId || 'CAM-101-A1',
+          selectedRoomId || undefined
+        );
         if (isMounted && res) {
           setWebcamDetections(res.detections || []);
           setWebcamBlurBoxes(res.blur_boxes || []);
           setPersonCount(res.person_count || 0);
           setComputerCount(res.computer_count || 0);
+          if (res.chair_count !== undefined) setChairCount(res.chair_count);
+          if (res.table_count !== undefined) setTableCount(res.table_count);
           setWebcamLatency(res.latency_ms || 24);
+          if (res.camera_health) setCameraHealth(res.camera_health);
+          if (res.attendance_comparison) setAttendanceComparison(res.attendance_comparison);
+          if (res.infrastructure_summary) setInfraSummary(res.infrastructure_summary);
           if (res.vision_engine) setEngineMetadata(res.vision_engine);
           if (res.nms_free !== undefined) setIsNmsFree(res.nms_free);
+
+          if (res.alert_triggered && res.event) {
+            setPendingAlert(res.event);
+          }
         }
       } catch (err) {
         console.warn("Webcam infer tick error:", err);
@@ -272,10 +418,10 @@ export const LiveCamerasScreen: React.FC = () => {
       clearInterval(interval);
       isInferringRef.current = false;
     };
-  }, [useWebcam, webcamStream, selectedVisionEngine]);
+  }, [useWebcam, webcamStream, selectedVisionEngine, autoAudit, selectedCentreId, selectedCameraId, selectedRoomId]);
 
 
-  // Reconcile Webcam Attendance against Official Roster
+  // Reconcile Webcam Attendance & Infrastructure against Official Roster
   const handleReconcileWebcam = async () => {
     if (!videoRef.current) return;
     try {
@@ -287,17 +433,53 @@ export const LiveCamerasScreen: React.FC = () => {
       ctx.drawImage(videoRef.current, 0, 0, 640, 360);
       const base64 = canvas.toDataURL('image/jpeg', 0.85);
 
-      setReconcileResult(`Evaluating webcam attendance against roster with ${selectedVisionEngine.toUpperCase()}...`);
-      const res = await inferWebcamFrame(base64, true, selectedVisionEngine);
+      setReconcileResult(`Evaluating edge video & optics against official sanctioned records...`);
+      const res = await inferWebcamFrame(
+        base64, 
+        true, 
+        selectedVisionEngine,
+        selectedCentreId || 'TC-101',
+        selectedCameraId || 'CAM-101-A1',
+        selectedRoomId || undefined
+      );
 
-      if (res.alert_triggered) {
-        setReconcileResult(`⚠️ Attendance Discrepancy Flagged! Observed ${res.person_count} vs Roster (Deficit > 15%). Evidence snapshot recorded.`);
+      if (res.camera_health) setCameraHealth(res.camera_health);
+      if (res.attendance_comparison) setAttendanceComparison(res.attendance_comparison);
+      if (res.infrastructure_summary) setInfraSummary(res.infrastructure_summary);
+      if (res.chair_count !== undefined) setChairCount(res.chair_count);
+      if (res.table_count !== undefined) setTableCount(res.table_count);
+
+      if (res.alert_triggered && res.event) {
+        setPendingAlert(res.event);
+        setReconcileResult(`⚠️ Discrepancy Flagged (${res.event.event_type.replace(/_/g, ' ')})! Blurred evidence snapshot recorded. Ready for officer review.`);
       } else {
-        setReconcileResult(`✅ Attendance verified compliant (${res.person_count} trainees matched within tolerance via ${res.vision_engine || 'DEIM'}).`);
+        setReconcileResult(`✅ Compliance Verified! AI Headcount (${res.person_count}) and equipment matched official records.`);
       }
-      setTimeout(() => setReconcileResult(null), 6000);
+      setTimeout(() => setReconcileResult(null), 8000);
     } catch (err: any) {
       setReconcileResult(`Reconciliation error: ${err.message}`);
+    }
+  };
+
+  const handleAlertReviewSubmit = async (
+    alertId: string, 
+    status: 'CONFIRMED' | 'DISMISSED' | 'UNDER_REVIEW', 
+    notes: string, 
+    category?: string
+  ) => {
+    try {
+      await reviewAlert(alertId, {
+        status,
+        review_notes: notes,
+        reviewed_by: 'Monitoring Officer (Live Console)',
+        category
+      });
+      setReviewModalAlert(null);
+      setPendingAlert(null);
+      setDemoActionStatus(`Case CASE-${alertId.slice(0, 8)} successfully adjudicated as ${status}. Escalation & audit trail updated!`);
+      setTimeout(() => setDemoActionStatus(null), 5000);
+    } catch (e: any) {
+      setDemoActionStatus(`Review error: ${e.message}`);
     }
   };
 
@@ -604,6 +786,125 @@ export const LiveCamerasScreen: React.FC = () => {
         </div>
       </section>
 
+      {/* Target Lab & Centre Assignment Toolbar */}
+      <div style={{
+        backgroundColor: '#FFFFFF',
+        border: '1.5px solid #CBD5E1',
+        borderRadius: '8px',
+        padding: '14px 18px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '14px',
+        boxShadow: 'var(--shadow-sm)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Building2 size={16} color="#1D4ED8" />
+            <span style={{ fontSize: '12px', fontWeight: 700, color: '#334155' }}>Active Centre:</span>
+            <select
+              value={selectedCentreId}
+              onChange={(e) => {
+                setSelectedCentreId(e.target.value);
+                setSelectedRoomId('');
+              }}
+              style={{
+                backgroundColor: '#F8FAFC',
+                border: '1px solid #CBD5E1',
+                borderRadius: '6px',
+                padding: '6px 12px',
+                fontSize: '12px',
+                fontWeight: 600,
+                color: '#0F172A',
+                cursor: 'pointer'
+              }}
+            >
+              {centresList.map(c => (
+                <option key={c.id} value={c.id}>{c.name} ({c.id})</option>
+              ))}
+            </select>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <Video size={16} color="#4F46E5" />
+            <span style={{ fontSize: '12px', fontWeight: 700, color: '#334155' }}>Target Lab / Room:</span>
+            <select
+              value={selectedRoomId}
+              onChange={(e) => {
+                const rId = e.target.value;
+                setSelectedRoomId(rId);
+                const matchingCam = cameras.find(c => c.room_id === rId);
+                if (matchingCam) setSelectedCameraId(matchingCam.id);
+                else setSelectedCameraId(`CAM-${rId || selectedCentreId}`);
+              }}
+              style={{
+                backgroundColor: '#F8FAFC',
+                border: '1px solid #CBD5E1',
+                borderRadius: '6px',
+                padding: '6px 12px',
+                fontSize: '12px',
+                fontWeight: 600,
+                color: '#0F172A',
+                cursor: 'pointer'
+              }}
+            >
+              <option value="">-- All Labs / Unspecified --</option>
+              {roomsList.map(r => (
+                <option key={r.id} value={r.id}>{r.name} ({r.id}) - {r.room_type}</option>
+              ))}
+            </select>
+          </div>
+
+          {selectedRoomId && (
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '4px 10px',
+              borderRadius: '4px',
+              backgroundColor: '#EFF6FF',
+              border: '1px solid #BFDBFE',
+              color: '#1D4ED8',
+              fontSize: '11px',
+              fontWeight: 700,
+              fontFamily: 'var(--font-mono)'
+            }}>
+              <span>📍 Live Streaming for:</span>
+              <strong>{roomsList.find(r => r.id === selectedRoomId)?.name || selectedRoomId}</strong>
+            </span>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {useWebcam ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span className="pulse-dot online"></span>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: '#059669' }}>
+                Camera Active for {roomsList.find(r => r.id === selectedRoomId)?.name || selectedCentreId}
+              </span>
+            </div>
+          ) : (
+            <button
+              onClick={() => startWebcam()}
+              className="gov-btn-primary"
+              style={{
+                backgroundColor: '#2563EB',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '7px 14px',
+                fontSize: '12px',
+                fontWeight: 700
+              }}
+            >
+              <CameraIcon size={14} />
+              <span>Open Camera for this Lab</span>
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Action Notification Strip */}
       {demoActionStatus && (
         <div style={{
@@ -678,6 +979,349 @@ export const LiveCamerasScreen: React.FC = () => {
         </div>
       )}
 
+      {/* Interactive Operational Architecture Flow Pipeline (Matching End-to-End Diagram) */}
+      <section style={{
+        backgroundColor: '#FFFFFF',
+        border: '1px solid #E2E8F0',
+        borderRadius: '8px',
+        padding: '16px 20px',
+        boxShadow: 'var(--shadow-sm)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '14px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{
+              backgroundColor: '#EFF6FF',
+              border: '1px solid #BFDBFE',
+              color: '#1D4ED8',
+              padding: '2px 8px',
+              borderRadius: '4px',
+              fontSize: '11px',
+              fontWeight: 800,
+              fontFamily: 'var(--font-mono)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em'
+            }}>
+              SYSTEM PIPELINE FLOW
+            </span>
+            <span style={{ fontSize: '13px', fontWeight: 700, color: '#0F172A' }}>
+              Training Centre CCTV → AI Analysis → Compliance Reconciler → Human Review → Escalation
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <label style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '12px',
+              fontWeight: 600,
+              color: '#334155',
+              cursor: 'pointer',
+              backgroundColor: '#F8FAFC',
+              padding: '4px 8px',
+              borderRadius: '6px',
+              border: '1px solid #E2E8F0'
+            }}>
+              <input 
+                type="checkbox" 
+                checked={autoAudit} 
+                onChange={(e) => setAutoAudit(e.target.checked)} 
+                style={{ cursor: 'pointer' }}
+              />
+              <span>Auto-Audit Compliance (Continuous)</span>
+            </label>
+
+            <button
+              onClick={handleReconcileWebcam}
+              className="gov-btn-primary"
+              style={{ backgroundColor: '#2563EB', padding: '5px 12px', fontSize: '11px', fontWeight: 700 }}
+            >
+              <Scale size={13} />
+              <span>Evaluate Compliance Now</span>
+            </button>
+          </div>
+        </div>
+
+        {/* 8-Stage Architecture Flow Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+          gap: '8px',
+          alignItems: 'stretch'
+        }}>
+          {/* Step 1: Training Centre */}
+          <div style={{
+            backgroundColor: '#F8FAFC',
+            border: '1px solid #E2E8F0',
+            borderRadius: '6px',
+            padding: '10px 12px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#1D4ED8', fontSize: '10px', fontWeight: 800, textTransform: 'uppercase' }}>
+              <Building2 size={13} />
+              <span>1. Training Centre</span>
+            </div>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {selectedRoom ? `${selectedRoom.name}` : (selectedCentre ? `${selectedCentre.name}` : selectedCentreId)}
+            </div>
+            <div style={{ fontSize: '10px', color: '#64748B', fontFamily: 'var(--font-mono)' }}>
+              {selectedRoom ? `Cap: ${selectedRoom.capacity || 20} Trainees` : `Cap: ${selectedCentre?.sanctioned_capacity || 20} Trainees`}
+            </div>
+          </div>
+
+          {/* Step 2: CCTV Cameras */}
+          <div style={{
+            backgroundColor: '#F8FAFC',
+            border: '1px solid #E2E8F0',
+            borderRadius: '6px',
+            padding: '10px 12px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#4F46E5', fontSize: '10px', fontWeight: 800, textTransform: 'uppercase' }}>
+              <Video size={13} />
+              <span>2. CCTV Feed</span>
+            </div>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: '#0F172A' }}>
+              {useWebcam ? (facingMode === 'environment' ? '📱 Mobile Cam' : '💻 Laptop Cam') : 'RTSP Live Feed'}
+            </div>
+            <div style={{ fontSize: '10px', color: '#059669', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
+              {useWebcam ? '30 FPS · Edge Ingest' : '15 FPS · Metasync'}
+            </div>
+          </div>
+
+          {/* Step 3: Video Processing & Optics Check */}
+          <div style={{
+            backgroundColor: cameraHealth?.is_healthy ? '#F0FDF4' : '#FEF2F2',
+            border: `1px solid ${cameraHealth?.is_healthy ? '#BBF7D0' : '#FECACA'}`,
+            borderRadius: '6px',
+            padding: '10px 12px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: cameraHealth?.is_healthy ? '#166534' : '#991B1B', fontSize: '10px', fontWeight: 800, textTransform: 'uppercase' }}>
+              <ShieldCheck size={13} />
+              <span>3. Video Quality</span>
+            </div>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: cameraHealth?.is_healthy ? '#15803D' : '#DC2626' }}>
+              {cameraHealth?.status || 'OPTICS_OK'}
+            </div>
+            <div style={{ fontSize: '10px', color: '#64748B', fontFamily: 'var(--font-mono)' }}>
+              Sharp: {cameraHealth?.metrics?.laplacian_variance ?? 214}
+            </div>
+          </div>
+
+          {/* Step 4: AI Analysis */}
+          <div style={{
+            backgroundColor: '#EFF6FF',
+            border: '1px solid #BFDBFE',
+            borderRadius: '6px',
+            padding: '10px 12px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#1D4ED8', fontSize: '10px', fontWeight: 800, textTransform: 'uppercase' }}>
+              <Zap size={13} />
+              <span>4. AI Analysis</span>
+            </div>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: '#1E40AF' }}>
+              👤 {personCount} Trainees
+            </div>
+            <div style={{ fontSize: '10px', color: '#475569', fontFamily: 'var(--font-mono)' }}>
+              🖥️ {computerCount} · 🪑 {chairCount} · 🪵 {tableCount}
+            </div>
+          </div>
+
+          {/* Step 5: Compliance Engine */}
+          <div style={{
+            backgroundColor: '#F8FAFC',
+            border: '1px solid #E2E8F0',
+            borderRadius: '6px',
+            padding: '10px 12px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#0F766E', fontSize: '10px', fontWeight: 800, textTransform: 'uppercase' }}>
+              <Scale size={13} />
+              <span>5. Record Check</span>
+            </div>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: '#0F172A' }}>
+              Roster: {activeRosterCount} Claimed
+            </div>
+            <div style={{ fontSize: '10px', color: '#64748B', fontFamily: 'var(--font-mono)' }}>
+              Tolerance: ±15%
+            </div>
+          </div>
+
+          {/* Step 6: Discrepancy & Evidence */}
+          <div style={{
+            backgroundColor: pendingAlert ? '#FEF2F2' : '#F8FAFC',
+            border: `1px solid ${pendingAlert ? '#FECACA' : '#E2E8F0'}`,
+            borderRadius: '6px',
+            padding: '10px 12px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: pendingAlert ? '#DC2626' : '#64748B', fontSize: '10px', fontWeight: 800, textTransform: 'uppercase' }}>
+              <AlertTriangle size={13} />
+              <span>6. Discrepancy</span>
+            </div>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: pendingAlert ? '#991B1B' : '#334155' }}>
+              {pendingAlert ? 'FLAGGED (Evidence)' : `${attendanceComparison?.status || 'NORMAL'}`}
+            </div>
+            <div style={{ fontSize: '10px', color: pendingAlert ? '#DC2626' : '#64748B', fontFamily: 'var(--font-mono)' }}>
+              Gap: {activeRosterCount - personCount} Trainees
+            </div>
+          </div>
+
+          {/* Step 7: Human Review */}
+          <div style={{
+            backgroundColor: pendingAlert ? '#FFFBEB' : '#F8FAFC',
+            border: `1px solid ${pendingAlert ? '#FDE68A' : '#E2E8F0'}`,
+            borderRadius: '6px',
+            padding: '10px 12px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px',
+            cursor: pendingAlert ? 'pointer' : 'default'
+          }}
+            onClick={() => { if (pendingAlert) setReviewModalAlert(pendingAlert); }}
+            title={pendingAlert ? 'Click to open Officer Review Modal' : 'Awaiting discrepancy flag'}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: pendingAlert ? '#D97706' : '#64748B', fontSize: '10px', fontWeight: 800, textTransform: 'uppercase' }}>
+              <UserCheck size={13} />
+              <span>7. Human Review</span>
+            </div>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: pendingAlert ? '#B45309' : '#475569' }}>
+              {pendingAlert ? '⚡ Review Ready' : 'Officer Desk'}
+            </div>
+            <div style={{ fontSize: '10px', color: '#64748B', fontFamily: 'var(--font-mono)' }}>
+              {pendingAlert ? 'Click to Adjudicate' : 'Zero Auto-Fines'}
+            </div>
+          </div>
+
+          {/* Step 8: Action & Escalation */}
+          <div style={{
+            backgroundColor: '#F8FAFC',
+            border: '1px solid #E2E8F0',
+            borderRadius: '6px',
+            padding: '10px 12px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '4px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#9333EA', fontSize: '10px', fontWeight: 800, textTransform: 'uppercase' }}>
+              <FileCheck size={13} />
+              <span>8. Escalation</span>
+            </div>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: '#0F172A' }}>
+              Audit &amp; State SLA
+            </div>
+            <div style={{ fontSize: '10px', color: '#64748B', fontFamily: 'var(--font-mono)' }}>
+              Immutable Log
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Discrepancy Alert & Officer Evidence Review Banner */}
+      {pendingAlert && (
+        <div style={{
+          backgroundColor: '#FEF2F2',
+          border: '2px solid #F87171',
+          borderRadius: '8px',
+          padding: '16px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '14px',
+          boxShadow: '0 4px 14px rgba(220, 38, 38, 0.15)',
+          animation: 'fadeIn 0.25s ease-in-out'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={{
+              backgroundColor: '#DC2626',
+              color: '#FFFFFF',
+              width: '42px',
+              height: '42px',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <AlertTriangle size={24} />
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                <span style={{ fontWeight: 800, fontSize: '15px', color: '#991B1B' }}>
+                  DISCREPANCY FLAGGED: {pendingAlert.event_type.replace(/_/g, ' ')}
+                </span>
+                <span className={`status-badge ${pendingAlert.severity === 'CRITICAL' ? 'critical' : 'warning'}`}>
+                  {pendingAlert.severity}
+                </span>
+                <span style={{ fontSize: '11px', color: '#B91C1C', fontFamily: 'var(--font-mono)', fontWeight: 600 }}>
+                  CASE-{pendingAlert.id.slice(0, 8)} · Centre: {pendingAlert.centre_id}
+                </span>
+              </div>
+              <div style={{ fontSize: '13px', color: '#7F1D1D', marginTop: '3px' }}>
+                Camera Headcount: <strong>{personCount} Trainees</strong> vs Official Sanctioned Roster: <strong>{activeRosterCount} Students</strong> (Deficit: <strong>{activeRosterCount - personCount}</strong>). Anonymized evidence snapshot saved with facial blur (DPDP Act).
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <button
+              onClick={() => setReviewModalAlert(pendingAlert)}
+              style={{
+                backgroundColor: '#DC2626',
+                color: '#FFFFFF',
+                border: 'none',
+                padding: '9px 18px',
+                borderRadius: '6px',
+                fontWeight: 800,
+                fontSize: '13px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                boxShadow: '0 2px 8px rgba(220, 38, 38, 0.4)'
+              }}
+            >
+              <Eye size={16} />
+              <span>Review Evidence &amp; Adjudicate</span>
+            </button>
+
+            <button
+              onClick={() => setPendingAlert(null)}
+              style={{
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #FECACA',
+                color: '#991B1B',
+                padding: '9px 14px',
+                borderRadius: '6px',
+                fontWeight: 600,
+                fontSize: '12px',
+                cursor: 'pointer'
+              }}
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Reconcile Flash Result */}
       {reconcileResult && (
         <div style={{
@@ -703,89 +1347,120 @@ export const LiveCamerasScreen: React.FC = () => {
           Initializing camera streams...
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))', gap: '20px' }}>
-          {cameras.map((cam) => {
-            const isOnline = cam.status === 'ONLINE';
-            const isDemoCamera = cam.id === 'CAM-101-A1';
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 360px), 1fr))', gap: '20px' }}>
+          {(() => {
+            const displayCameras = [...cameras];
+            const hasCamForRoom = selectedRoomId && cameras.some(c => c.room_id === selectedRoomId);
+            if (selectedRoomId && !hasCamForRoom) {
+              const currentRoom = roomsList.find(r => r.id === selectedRoomId);
+              displayCameras.unshift({
+                id: selectedCameraId || `CAM-${selectedRoomId}`,
+                centre_id: selectedCentreId,
+                room_id: selectedRoomId,
+                name: `Live Lab Cam (${currentRoom?.name || selectedRoomId})`,
+                source_type: 'WEBCAM',
+                stream_url: 'browser://webrtc/live',
+                status: 'ONLINE',
+                last_seen_at: new Date().toISOString()
+              });
+            }
 
-            return (
-              <div
-                key={cam.id}
-                className="gov-card"
-                style={{
-                  overflow: 'hidden',
-                  display: 'flex',
-                  flexDirection: 'column'
-                }}
-              >
-                {/* Camera Card Header */}
-                <div style={{
-                  padding: '12px 16px',
-                  borderBottom: '1px solid #E2E8F0',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  backgroundColor: '#FFFFFF'
-                }}>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: '14px', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span>{isDemoCamera && useWebcam ? (facingMode === 'environment' ? "📱 Mobile / Back Camera (Live Edge Feed)" : "💻 Laptop / Front Camera (Live Edge Feed)") : cam.name}</span>
+            return displayCameras.map((cam) => {
+              const isOnline = cam.status === 'ONLINE';
+              const isDemoCamera = cam.id === selectedCameraId || (selectedRoomId && cam.room_id === selectedRoomId) || (!selectedRoomId && cam.id === 'CAM-101-A1');
+
+              return (
+                <div
+                  key={cam.id}
+                  className="gov-card"
+                  style={{
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}
+                >
+                  {/* Camera Card Header */}
+                  <div style={{
+                    padding: '12px 16px',
+                    borderBottom: '1px solid #E2E8F0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    backgroundColor: '#FFFFFF',
+                    flexWrap: 'wrap',
+                    gap: '8px'
+                  }}>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '14px', color: '#0F172A', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <span>{isDemoCamera && useWebcam ? (facingMode === 'environment' ? "📱 Mobile / Back Camera (Live Edge Feed)" : "💻 Laptop / Front Camera (Live Edge Feed)") : cam.name}</span>
+                        {cam.room_id && (
+                          <span style={{ fontSize: '10px', padding: '1px 6px', borderRadius: '4px', backgroundColor: '#EEF2FF', color: '#4338CA', border: '1px solid #C7D2FE', fontWeight: 600 }}>
+                            Lab: {roomsList.find(r => r.id === cam.room_id)?.name || cam.room_id}
+                          </span>
+                        )}
+                        {isDemoCamera && useWebcam && (
+                          <>
+                            <span className="status-badge normal">
+                              {facingMode === 'environment' ? 'MOBILE REAR CAM' : 'FRONT CAM ACTIVE'}
+                            </span>
+                            <span style={{
+                              padding: '2px 8px',
+                              borderRadius: '4px',
+                              fontSize: '10px',
+                              fontWeight: 700,
+                              fontFamily: 'var(--font-mono)',
+                              backgroundColor: selectedVisionEngine === 'deim' ? '#EEF2FF' : '#F1F5F9',
+                              color: selectedVisionEngine === 'deim' ? '#4F46E5' : '#334155',
+                              border: `1px solid ${selectedVisionEngine === 'deim' ? '#C7D2FE' : '#CBD5E1'}`
+                            }}>
+                              {selectedVisionEngine === 'deim' ? '⚡ DEIM (CVPR 2025 · NMS-Free)' : 'YOLOv8 + Pose'}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#64748B', fontFamily: 'var(--font-mono)' }}>
+                        UID: {cam.id} · Centre: {cam.centre_id}
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                       {isDemoCamera && useWebcam && (
-                        <>
-                          <span className="status-badge normal">
-                            {facingMode === 'environment' ? 'MOBILE REAR CAM' : 'FRONT CAM ACTIVE'}
-                          </span>
-                          <span style={{
-                            padding: '2px 8px',
+                        <button
+                          onClick={switchCamera}
+                          title="Flip between front/laptop camera and mobile rear camera"
+                          style={{
+                            backgroundColor: '#EEF2FF',
+                            border: '1px solid #C7D2FE',
+                            color: '#4338CA',
                             borderRadius: '4px',
-                            fontSize: '10px',
-                            fontWeight: 700,
-                            fontFamily: 'var(--font-mono)',
-                            backgroundColor: selectedVisionEngine === 'deim' ? '#EEF2FF' : '#F1F5F9',
-                            color: selectedVisionEngine === 'deim' ? '#4F46E5' : '#334155',
-                            border: `1px solid ${selectedVisionEngine === 'deim' ? '#C7D2FE' : '#CBD5E1'}`
-                          }}>
-                            {selectedVisionEngine === 'deim' ? '⚡ DEIM (CVPR 2025 · NMS-Free)' : 'YOLOv8 + Pose'}
-                          </span>
-                        </>
+                            padding: '3px 8px',
+                            fontSize: '11px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          <SwitchCamera size={12} />
+                          <span>{facingMode === 'user' ? 'Switch to Back Cam' : 'Switch to Front Cam'}</span>
+                        </button>
                       )}
-                    </div>
-                    <div style={{ fontSize: '11px', color: '#64748B', fontFamily: 'var(--font-mono)' }}>
-                      UID: {cam.id} · Centre: {cam.centre_id}
-                    </div>
-                  </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    {isDemoCamera && useWebcam && (
                       <button
-                        onClick={switchCamera}
-                        title="Flip between front/laptop camera and mobile rear camera"
-                        style={{
-                          backgroundColor: '#EEF2FF',
-                          border: '1px solid #C7D2FE',
-                          color: '#4338CA',
-                          borderRadius: '4px',
-                          padding: '3px 8px',
-                          fontSize: '11px',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px'
+                        onClick={() => {
+                          setSelectedCameraId(cam.id);
+                          if (cam.room_id) setSelectedRoomId(cam.room_id);
+                          if (!useWebcam) {
+                            startWebcam();
+                          } else if (isDemoCamera) {
+                            stopWebcam();
+                          }
                         }}
-                      >
-                        <SwitchCamera size={12} />
-                        <span>{facingMode === 'user' ? 'Switch to Back Cam' : 'Switch to Front Cam'}</span>
-                      </button>
-                    )}
-
-                    {isDemoCamera && (
-                      <button
-                        onClick={useWebcam ? stopWebcam : () => startWebcam()}
                         style={{
-                          backgroundColor: useWebcam ? '#EFF6FF' : '#F1F5F9',
-                          border: `1px solid ${useWebcam ? '#3B82F6' : '#CBD5E1'}`,
-                          color: useWebcam ? '#1D4ED8' : '#334155',
+                          backgroundColor: (isDemoCamera && useWebcam) ? '#EFF6FF' : '#F1F5F9',
+                          border: `1px solid ${(isDemoCamera && useWebcam) ? '#3B82F6' : '#CBD5E1'}`,
+                          color: (isDemoCamera && useWebcam) ? '#1D4ED8' : '#334155',
                           borderRadius: '4px',
                           padding: '3px 8px',
                           fontSize: '11px',
@@ -796,16 +1471,15 @@ export const LiveCamerasScreen: React.FC = () => {
                           gap: '5px'
                         }}
                       >
-                        {useWebcam ? <CameraOff size={12} /> : <CameraIcon size={12} />}
-                        <span>{useWebcam ? 'Disconnect Cam' : 'Use Camera'}</span>
+                        {(isDemoCamera && useWebcam) ? <CameraOff size={12} /> : <CameraIcon size={12} />}
+                        <span>{(isDemoCamera && useWebcam) ? 'Disconnect Cam' : 'Use Camera'}</span>
                       </button>
-                    )}
 
-                    <span className={`status-badge ${isOnline ? 'normal' : 'critical'}`}>
-                      {isOnline ? (useWebcam && isDemoCamera ? 'LIVE · 30 FPS' : 'ONLINE · 15 FPS') : 'OFFLINE'}
-                    </span>
+                      <span className={`status-badge ${isOnline ? 'normal' : 'critical'}`}>
+                        {isOnline ? (useWebcam && isDemoCamera ? 'LIVE · 30 FPS' : 'ONLINE · 15 FPS') : 'OFFLINE'}
+                      </span>
+                    </div>
                   </div>
-                </div>
 
                 {/* Video / Camera Canvas Frame */}
                 <div style={{
@@ -1165,6 +1839,115 @@ export const LiveCamerasScreen: React.FC = () => {
                   )}
                 </div>
 
+                {/* 3-Pillar AI Analysis Telemetry HUD (Webcam Mode) */}
+                {isDemoCamera && useWebcam && (
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                    gap: '12px',
+                    padding: '12px 16px',
+                    backgroundColor: '#F8FAFC',
+                    borderTop: '1px solid #E2E8F0'
+                  }}>
+                    {/* Pillar 1: Camera Health & Optics Quality Check */}
+                    <div style={{
+                      backgroundColor: '#FFFFFF',
+                      border: '1px solid #E2E8F0',
+                      borderRadius: '6px',
+                      padding: '10px 12px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '4px'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: '10px', fontWeight: 800, color: '#475569', textTransform: 'uppercase' }}>
+                          1. Camera Health &amp; Optics
+                        </span>
+                        <span className={`status-badge ${cameraHealth?.is_healthy ? 'normal' : 'critical'}`} style={{ fontSize: '9px', padding: '1px 5px' }}>
+                          {cameraHealth?.status || 'OPTICS_OK'}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#1E293B', fontFamily: 'var(--font-mono)' }}>
+                        Sharpness: <strong>{cameraHealth?.metrics?.laplacian_variance ?? 214}</strong> (min 65)
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#64748B', fontFamily: 'var(--font-mono)' }}>
+                        Brightness: {cameraHealth?.metrics?.mean_brightness ?? 118} · Contrast: {cameraHealth?.metrics?.contrast_std ?? 58}
+                      </div>
+                      <div style={{ fontSize: '10px', color: '#059669', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+                        <ShieldCheck size={12} />
+                        <span>DPDP Privacy: Face Blur Active</span>
+                      </div>
+                    </div>
+
+                    {/* Pillar 2: Attendance Headcount vs Official Roster */}
+                    <div style={{
+                      backgroundColor: '#FFFFFF',
+                      border: '1px solid #E2E8F0',
+                      borderRadius: '6px',
+                      padding: '10px 12px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '4px'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: '10px', fontWeight: 800, color: '#475569', textTransform: 'uppercase' }}>
+                          2. Attendance Intelligence
+                        </span>
+                        <span className={`status-badge ${(attendanceComparison?.difference || (25 - personCount)) === 0 ? 'normal' : 'critical'}`} style={{ fontSize: '9px', padding: '1px 5px' }}>
+                          {(attendanceComparison?.difference || (25 - personCount)) === 0 ? 'MATCH' : 'MISMATCH'}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#1E293B', fontFamily: 'var(--font-mono)' }}>
+                        Observed: <strong style={{ color: '#059669' }}>{personCount} Trainees</strong>
+                      </div>
+                      <div style={{ fontSize: '11px', color: '#64748B', fontFamily: 'var(--font-mono)' }}>
+                        Official Roster: <strong>{activeRosterCount} Students</strong>
+                      </div>
+                      <div style={{ fontSize: '10px', color: '#DC2626', fontWeight: 600, marginTop: '2px' }}>
+                        Gap: {activeRosterCount - personCount} Trainees ({Math.round(((activeRosterCount - personCount) / Math.max(1, activeRosterCount)) * 100)}% deficit)
+                      </div>
+                    </div>
+
+                    {/* Pillar 3: Infrastructure Sanction Compliance */}
+                    <div style={{
+                      backgroundColor: '#FFFFFF',
+                      border: '1px solid #E2E8F0',
+                      borderRadius: '6px',
+                      padding: '10px 12px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '4px'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: '10px', fontWeight: 800, color: '#475569', textTransform: 'uppercase' }}>
+                          3. Infrastructure Compliance
+                        </span>
+                        <span className="status-badge normal" style={{ fontSize: '9px', padding: '1px 5px' }}>
+                          DIGITAL TWIN
+                        </span>
+                      </div>
+                      {(() => {
+                        const compMandate = infraSummary.find(i => i.item_type === 'computer')?.mandate ?? 20;
+                        const chairMandate = infraSummary.find(i => i.item_type === 'chair')?.mandate ?? 20;
+                        const deskMandate = infraSummary.find(i => i.item_type === 'table' || i.item_type === 'workbench')?.mandate ?? 20;
+                        return (
+                          <>
+                            <div style={{ fontSize: '11px', color: '#1E293B', fontFamily: 'var(--font-mono)' }}>
+                              Computers: <strong>{computerCount} / {compMandate} Mandated</strong>
+                            </div>
+                            <div style={{ fontSize: '11px', color: '#64748B', fontFamily: 'var(--font-mono)' }}>
+                              Chairs: <strong>{chairCount} / {chairMandate}</strong> · Desks: <strong>{tableCount} / {deskMandate}</strong>
+                            </div>
+                          </>
+                        );
+                      })()}
+                      <div style={{ fontSize: '10px', color: '#2563EB', fontWeight: 600, marginTop: '2px' }}>
+                        Sanctioned Inventory Tracked
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Verified Workspace Infrastructure Ledger (Webcam Mode) */}
                 {isDemoCamera && useWebcam && (
                   <div style={{
@@ -1177,7 +1960,7 @@ export const LiveCamerasScreen: React.FC = () => {
                     flexWrap: 'wrap'
                   }}>
                     <span style={{ fontSize: '11px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      Workspace Infrastructure:
+                      Detected Objects:
                     </span>
                     {webcamDetections.map((d, dIdx) => (
                       <span
@@ -1225,25 +2008,49 @@ export const LiveCamerasScreen: React.FC = () => {
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     {isDemoCamera && useWebcam && (
-                      <button
-                        onClick={handleReconcileWebcam}
-                        style={{
-                          backgroundColor: '#EFF6FF',
-                          border: '1px solid #BFDBFE',
-                          borderRadius: '4px',
-                          padding: '2px 8px',
-                          fontSize: '10px',
-                          color: '#1D4ED8',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px'
-                        }}
-                      >
-                        <UserCheck size={12} />
-                        <span>Verify Attendance vs Roster</span>
-                      </button>
+                      <>
+                        <button
+                          onClick={handleReconcileWebcam}
+                          style={{
+                            backgroundColor: '#EFF6FF',
+                            border: '1px solid #BFDBFE',
+                            borderRadius: '4px',
+                            padding: '3px 9px',
+                            fontSize: '11px',
+                            color: '#1D4ED8',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          <Scale size={12} />
+                          <span>Audit vs Roster</span>
+                        </button>
+
+                        {pendingAlert && (
+                          <button
+                            onClick={() => setReviewModalAlert(pendingAlert)}
+                            style={{
+                              backgroundColor: '#FEF2F2',
+                              border: '1px solid #FECACA',
+                              borderRadius: '4px',
+                              padding: '3px 9px',
+                              fontSize: '11px',
+                              color: '#DC2626',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            <Eye size={12} />
+                            <span>Review Evidence</span>
+                          </button>
+                        )}
+                      </>
                     )}
 
                     <button
@@ -1282,7 +2089,8 @@ export const LiveCamerasScreen: React.FC = () => {
 
               </div>
             );
-          })}
+          });
+        })()}
         </div>
       )}
 
@@ -1666,6 +2474,13 @@ export const LiveCamerasScreen: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Evidence Review Modal (Human Officer Adjudication) */}
+      <AlertReviewModal
+        alert={reviewModalAlert}
+        onClose={() => setReviewModalAlert(null)}
+        onReviewSubmit={handleAlertReviewSubmit}
+      />
 
     </div>
   );

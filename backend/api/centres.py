@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 from backend.db.session import get_db
-from backend.models.db_models import Centre, Room, SanctionedInventory, Camera
+from backend.models.db_models import Centre, Room, SanctionedInventory, Camera, ReportedAttendance
+from datetime import datetime
 from backend.models.schemas import (
     CentreCreate, CentreResponse, RoomCreate, RoomResponse, 
     InventoryCreate, InventoryResponse, RoomBase, InventoryBase, RoomUpdate
@@ -21,6 +22,17 @@ def create_centre(centre_in: CentreCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail=f"Centre {centre_in.id} already exists")
     centre = Centre(**centre_in.model_dump())
     db.add(centre)
+    
+    # Auto-seed initial official reported roster from sanctioned capacity
+    cap = centre.sanctioned_capacity or 20
+    rep = ReportedAttendance(
+        centre_id=centre.id,
+        session_date=datetime.now().strftime("%Y-%m-%d"),
+        session_start="09:00",
+        session_end="17:00",
+        reported_count=cap
+    )
+    db.add(rep)
     db.commit()
     db.refresh(centre)
     return centre
@@ -44,8 +56,23 @@ def get_centre_detail(centre_id: str, db: Session = Depends(get_db)):
 
 @router.post("/{centre_id}/rooms", response_model=RoomResponse)
 def add_room(centre_id: str, room_in: RoomBase, db: Session = Depends(get_db)):
-    room = Room(centre_id=centre_id, **room_in.model_dump())
+    data = room_in.model_dump()
+    if not data.get("id"):
+        data.pop("id", None)
+    room = Room(centre_id=centre_id, **data)
     db.add(room)
+    
+    # Auto-seed initial official reported roster for this room
+    room_cap = room.capacity or 20
+    rep = ReportedAttendance(
+        centre_id=centre_id,
+        room_id=room.id,
+        session_date=datetime.now().strftime("%Y-%m-%d"),
+        session_start="09:00",
+        session_end="17:00",
+        reported_count=room_cap
+    )
+    db.add(rep)
     db.commit()
     db.refresh(room)
     return room
@@ -67,7 +94,23 @@ def update_room(centre_id: str, room_id: str, room_up: RoomUpdate, db: Session =
 
 @router.post("/{centre_id}/inventory", response_model=InventoryResponse)
 def add_inventory(centre_id: str, inv_in: InventoryBase, db: Session = Depends(get_db)):
-    inv = SanctionedInventory(centre_id=centre_id, **inv_in.model_dump())
+    data = inv_in.model_dump()
+    data["item_type"] = data["item_type"].lower().strip()
+    
+    existing = db.query(SanctionedInventory).filter(
+        SanctionedInventory.centre_id == centre_id,
+        SanctionedInventory.item_type == data["item_type"],
+        SanctionedInventory.room_id == data.get("room_id")
+    ).first()
+    
+    if existing:
+        existing.required_quantity = data["required_quantity"]
+        existing.active = data.get("active", True)
+        db.commit()
+        db.refresh(existing)
+        return existing
+        
+    inv = SanctionedInventory(centre_id=centre_id, **data)
     db.add(inv)
     db.commit()
     db.refresh(inv)

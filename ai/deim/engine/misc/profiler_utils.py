@@ -3,7 +3,10 @@ Copyright (c) 2024 The D-FINE Authors. All Rights Reserved.
 """
 
 import copy
-from calflops import calculate_flops
+try:
+    from calflops import calculate_flops
+except ImportError:
+    calculate_flops = None
 from typing import Tuple
 
 def stats(

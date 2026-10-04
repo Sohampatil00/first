@@ -25,6 +25,61 @@ export async function fetchCentreDetail(centreId: string): Promise<{
   return res.json();
 }
 
+export async function createCentre(data: {
+  id: string;
+  name: string;
+  location: string;
+  district: string;
+  state: string;
+  sanctioned_capacity?: number;
+}): Promise<Centre> {
+  const res = await fetch(`${BASE_URL}/centres`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: 'Failed to create centre' }));
+    throw new Error(err.detail || 'Failed to create centre');
+  }
+  return res.json();
+}
+
+export async function createRoom(centreId: string, data: {
+  id?: string;
+  name: string;
+  room_type?: string;
+  capacity?: number;
+}): Promise<any> {
+  const res = await fetch(`${BASE_URL}/centres/${centreId}/rooms`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: 'Failed to create room' }));
+    throw new Error(err.detail || 'Failed to create room');
+  }
+  return res.json();
+}
+
+export async function addInventoryItem(centreId: string, data: {
+  item_type: string;
+  required_quantity: number;
+  room_id?: string;
+}): Promise<any> {
+  const res = await fetch(`${BASE_URL}/centres/${centreId}/inventory`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: 'Failed to add inventory item' }));
+    throw new Error(err.detail || 'Failed to add inventory item');
+  }
+  return res.json();
+}
+
 export async function fetchAlerts(params?: {
   centre_id?: string;
   status?: string;
@@ -134,19 +189,42 @@ export async function triggerSlaEscalation(forceHours?: number): Promise<any> {
   return res.json();
 }
 
+export async function registerCamera(data: {
+  id: string;
+  centre_id: string;
+  room_id?: string;
+  name: string;
+  source_type?: string;
+  stream_url?: string;
+}): Promise<Camera> {
+  const res = await fetch(`${BASE_URL}/cameras`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: 'Failed to register camera' }));
+    throw new Error(err.detail || 'Failed to register camera');
+  }
+  return res.json();
+}
+
 export async function inferWebcamFrame(
   base64Image: string, 
   reconcile: boolean = false,
-  visionEngine: string = 'deim'
+  visionEngine: string = 'deim',
+  centreId: string = 'TC-101',
+  cameraId: string = 'CAM-101-A1',
+  roomId?: string
 ): Promise<any> {
   const res = await fetch(`${BASE_URL}/ai/webcam/infer`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       image_base64: base64Image,
-      centre_id: 'TC-101',
-      camera_id: 'CAM-101-A1',
-      room_id: 'ROOM-101-A',
+      centre_id: centreId || 'TC-101',
+      camera_id: cameraId || 'CAM-101-A1',
+      room_id: roomId || undefined,
       reconcile,
       vision_engine: visionEngine
     })

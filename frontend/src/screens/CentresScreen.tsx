@@ -19,13 +19,23 @@ import {
 } from 'lucide-react';
 import { ROIConfigModal } from '../components/ROIConfigModal';
 import { ReportAttendanceModal } from '../components/ReportAttendanceModal';
+import { CreateCentreModal } from '../components/CreateCentreModal';
+import { CreateRoomModal } from '../components/CreateRoomModal';
+import { AddInventoryModal } from '../components/AddInventoryModal';
+import { RegisterCameraModal } from '../components/RegisterCameraModal';
+import { Plus, Box } from 'lucide-react';
 
 interface CentresScreenProps {
   initialCentreId?: string | null;
   currentRole?: string;
+  onNavigateToCamera?: (centreId: string, roomId?: string) => void;
 }
 
-export const CentresScreen: React.FC<CentresScreenProps> = ({ initialCentreId, currentRole = 'MINISTRY_OFFICER' }) => {
+export const CentresScreen: React.FC<CentresScreenProps> = ({ 
+  initialCentreId, 
+  currentRole = 'MINISTRY_OFFICER',
+  onNavigateToCamera 
+}) => {
   const [centres, setCentres] = useState<Centre[]>([]);
   const [selectedCentreId, setSelectedCentreId] = useState<string | null>(initialCentreId || null);
   const [centreDetail, setCentreDetail] = useState<{
@@ -40,6 +50,11 @@ export const CentresScreen: React.FC<CentresScreenProps> = ({ initialCentreId, c
   // Modals state
   const [selectedRoomForROI, setSelectedRoomForROI] = useState<any | null>(null);
   const [isAttendanceModalOpen, setIsAttendanceModalOpen] = useState(false);
+  const [isCreateCentreModalOpen, setIsCreateCentreModalOpen] = useState(false);
+  const [isCreateRoomModalOpen, setIsCreateRoomModalOpen] = useState(false);
+  const [isAddInventoryModalOpen, setIsAddInventoryModalOpen] = useState(false);
+  const [isRegisterCameraModalOpen, setIsRegisterCameraModalOpen] = useState(false);
+  const [cameraModalTargetRoom, setCameraModalTargetRoom] = useState<any | null>(null);
 
   const loadCentresList = () => {
     fetchCentres().then(data => {
@@ -138,10 +153,20 @@ export const CentresScreen: React.FC<CentresScreenProps> = ({ initialCentreId, c
         </div>
 
         {/* Action Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setIsCreateCentreModalOpen(true)}
+            className="gov-btn-secondary"
+            style={{ borderColor: '#BFDBFE', color: '#1D4ED8', backgroundColor: '#EFF6FF' }}
+          >
+            <Building2 size={15} />
+            <span>New Training Centre</span>
+          </button>
+
           <button
             onClick={() => setIsAttendanceModalOpen(true)}
             className="gov-btn-primary"
+            style={{ backgroundColor: '#2563EB' }}
           >
             <PlusCircle size={15} />
             <span>Submit Trainee Roster</span>
@@ -211,7 +236,7 @@ export const CentresScreen: React.FC<CentresScreenProps> = ({ initialCentreId, c
       )}
 
       {/* Main Split Layout: Directory (4 cols) & Digital Twin Inspector (8 cols) */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '20px' }}>
+      <div className="centres-split-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '20px' }}>
         
         {/* Left Column: Monitored Centres Directory */}
         <div className="gov-card" style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -326,7 +351,7 @@ export const CentresScreen: React.FC<CentresScreenProps> = ({ initialCentreId, c
 
               {/* Classroom Layout & ROI Configuration */}
               <div className="gov-card" style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
                   <div>
                     <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A', margin: 0 }}>
                       Classroom &amp; Lab Layouts (ROI Spatial Boundaries)
@@ -335,9 +360,17 @@ export const CentresScreen: React.FC<CentresScreenProps> = ({ initialCentreId, c
                       Calibrated polygon boundary masks for trainee dwell state calculation
                     </p>
                   </div>
+                  <button
+                    onClick={() => setIsCreateRoomModalOpen(true)}
+                    className="gov-btn-secondary"
+                    style={{ fontSize: '11px', padding: '5px 12px', color: '#4F46E5', borderColor: '#C7D2FE', backgroundColor: '#EEF2FF', display: 'flex', alignItems: 'center', gap: '5px' }}
+                  >
+                    <Plus size={13} />
+                    <span>Add Class / Lab</span>
+                  </button>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '14px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px' }}>
                   {centreDetail.rooms.map((room) => {
                     const roomCams = centreDetail.cameras.filter(c => c.room_id === room.id);
                     return (
@@ -346,56 +379,135 @@ export const CentresScreen: React.FC<CentresScreenProps> = ({ initialCentreId, c
                         style={{
                           backgroundColor: '#F8FAFC',
                           border: '1px solid #E2E8F0',
-                          borderRadius: '6px',
-                          padding: '14px',
+                          borderRadius: '8px',
+                          padding: '16px',
                           display: 'flex',
                           flexDirection: 'column',
                           justifyContent: 'space-between',
-                          gap: '12px'
+                          gap: '14px'
                         }}
                       >
                         <div>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: '#64748B' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                            <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: '#64748B', fontWeight: 600 }}>
                               {room.id}
                             </span>
-                            <span style={{ fontSize: '11px', fontWeight: 600, color: '#059669', backgroundColor: '#ECFDF5', padding: '1px 6px', borderRadius: '3px' }}>
-                              ROI Active
+                            <span style={{ fontSize: '11px', fontWeight: 600, color: '#059669', backgroundColor: '#ECFDF5', padding: '1px 7px', borderRadius: '3px', border: '1px solid #A7F3D0' }}>
+                              ROI Configured
                             </span>
                           </div>
 
-                          <div style={{ fontSize: '14px', fontWeight: 700, color: '#0F172A', marginTop: '4px' }}>
+                          <div style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A' }}>
                             {room.name}
                           </div>
-                          <div style={{ fontSize: '11px', color: '#64748B', marginTop: '2px' }}>
-                            Type: {room.room_type} · Floor: {room.floor_level}
+                          <div style={{ fontSize: '12px', color: '#64748B', marginTop: '3px' }}>
+                            Type: <strong>{room.room_type}</strong> · Floor: {room.floor_level}
                           </div>
-                          <div style={{ fontSize: '11px', color: '#2563EB', fontFamily: 'var(--font-mono)', marginTop: '4px' }}>
-                            {roomCams.length} Linked Camera Stream(s)
+
+                          {/* Linked Cameras info & badges */}
+                          <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <div style={{ fontSize: '11px', color: roomCams.length > 0 ? '#1D4ED8' : '#94A3B8', fontFamily: 'var(--font-mono)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '5px' }}>
+                              <Video size={13} />
+                              <span>{roomCams.length} Linked Camera Stream{roomCams.length === 1 ? '' : 's'}</span>
+                            </div>
+                            {roomCams.length > 0 && (
+                              <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginTop: '2px' }}>
+                                {roomCams.map(cam => (
+                                  <span
+                                    key={cam.id}
+                                    style={{
+                                      fontSize: '10px',
+                                      fontFamily: 'var(--font-mono)',
+                                      backgroundColor: '#EFF6FF',
+                                      border: '1px solid #BFDBFE',
+                                      color: '#1D4ED8',
+                                      padding: '1px 6px',
+                                      borderRadius: '3px'
+                                    }}
+                                  >
+                                    {cam.name} ({cam.id})
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
 
-                        <button
-                          onClick={() => setSelectedRoomForROI(room)}
-                          style={{
-                            backgroundColor: '#FFFFFF',
-                            border: '1px solid #CBD5E1',
-                            color: '#1D4ED8',
-                            borderRadius: '4px',
-                            padding: '6px 12px',
-                            fontSize: '11px',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '6px',
-                            boxShadow: 'var(--shadow-sm)'
-                          }}
-                        >
-                          <Crosshair size={13} />
-                          <span>Calibrate ROI Polygon</span>
-                        </button>
+                        {/* Lab Action Buttons: Open Live Camera, Link Cam, ROI */}
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                          <button
+                            onClick={() => {
+                              if (onNavigateToCamera && centreDetail) {
+                                onNavigateToCamera(centreDetail.centre.id, room.id);
+                              }
+                            }}
+                            className="gov-btn-primary"
+                            style={{
+                              flex: '1 1 auto',
+                              backgroundColor: '#2563EB',
+                              color: '#FFFFFF',
+                              padding: '7px 12px',
+                              fontSize: '11px',
+                              fontWeight: 700,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '6px',
+                              borderRadius: '5px'
+                            }}
+                            title="Open live edge camera &amp; webcam inference for this lab"
+                          >
+                            <Video size={13} />
+                            <span>Open Live Camera</span>
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              setCameraModalTargetRoom(room);
+                              setIsRegisterCameraModalOpen(true);
+                            }}
+                            className="gov-btn-secondary"
+                            style={{
+                              backgroundColor: '#F8FAFC',
+                              borderColor: '#CBD5E1',
+                              color: '#334155',
+                              padding: '7px 10px',
+                              fontSize: '11px',
+                              fontWeight: 600,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '4px',
+                              borderRadius: '5px'
+                            }}
+                            title="Link a new camera or laptop/mobile webcam to this lab"
+                          >
+                            <Plus size={12} />
+                            <span>Link Cam</span>
+                          </button>
+
+                          <button
+                            onClick={() => setSelectedRoomForROI(room)}
+                            className="gov-btn-secondary"
+                            style={{
+                              backgroundColor: '#FFFFFF',
+                              borderColor: '#CBD5E1',
+                              color: '#64748B',
+                              padding: '7px 8px',
+                              fontSize: '11px',
+                              fontWeight: 600,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '4px',
+                              borderRadius: '5px'
+                            }}
+                            title="Calibrate ROI Polygon Spatial Boundary"
+                          >
+                            <Crosshair size={12} />
+                            <span>ROI</span>
+                          </button>
+                        </div>
                       </div>
                     );
                   })}
@@ -404,7 +516,7 @@ export const CentresScreen: React.FC<CentresScreenProps> = ({ initialCentreId, c
 
               {/* Sanctioned Equipment Verification Matrix */}
               <div className="gov-card" style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
                   <div>
                     <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#0F172A', margin: 0 }}>
                       Sanctioned Physical Infrastructure Matrix
@@ -413,9 +525,16 @@ export const CentresScreen: React.FC<CentresScreenProps> = ({ initialCentreId, c
                       AI visual verification against mandated workshop hardware inventory
                     </p>
                   </div>
-                  <span style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', color: '#059669', fontWeight: 600 }}>
-                    94.2% Inventory Compliance
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <button
+                      onClick={() => setIsAddInventoryModalOpen(true)}
+                      className="gov-btn-secondary"
+                      style={{ fontSize: '11px', padding: '5px 12px', color: '#059669', borderColor: '#A7F3D0', backgroundColor: '#ECFDF5', display: 'flex', alignItems: 'center', gap: '5px' }}
+                    >
+                      <Plus size={13} />
+                      <span>Set Instrument Mandate</span>
+                    </button>
+                  </div>
                 </div>
 
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
@@ -469,12 +588,58 @@ export const CentresScreen: React.FC<CentresScreenProps> = ({ initialCentreId, c
         />
       )}
 
-      {/* Report Attendance Modal */}
+      {/* Report Attendance Modal (Set Number of Students in Roster) */}
       <ReportAttendanceModal
         isOpen={isAttendanceModalOpen}
         onClose={() => setIsAttendanceModalOpen(false)}
         centreId={selectedCentreId || 'TC-101'}
         onSubmitted={() => {
+          loadCentreDetail();
+        }}
+      />
+
+      {/* Register New Centre Modal */}
+      <CreateCentreModal
+        isOpen={isCreateCentreModalOpen}
+        onClose={() => setIsCreateCentreModalOpen(false)}
+        onCreated={(newId) => {
+          loadCentresList();
+          setSelectedCentreId(newId);
+        }}
+      />
+
+      {/* Add New Room / Class Modal */}
+      <CreateRoomModal
+        isOpen={isCreateRoomModalOpen}
+        centreId={selectedCentreId || 'TC-101'}
+        onClose={() => setIsCreateRoomModalOpen(false)}
+        onCreated={() => {
+          loadCentreDetail();
+        }}
+      />
+
+      {/* Set Equipment & Instruments Modal */}
+      <AddInventoryModal
+        isOpen={isAddInventoryModalOpen}
+        centreId={selectedCentreId || 'TC-101'}
+        rooms={centreDetail?.rooms || []}
+        onClose={() => setIsAddInventoryModalOpen(false)}
+        onAdded={() => {
+          loadCentreDetail();
+        }}
+      />
+
+      {/* Link / Register Camera to Lab Modal */}
+      <RegisterCameraModal
+        isOpen={isRegisterCameraModalOpen}
+        centreId={selectedCentreId || 'TC-101'}
+        roomId={cameraModalTargetRoom?.id}
+        roomName={cameraModalTargetRoom?.name}
+        onClose={() => {
+          setIsRegisterCameraModalOpen(false);
+          setCameraModalTargetRoom(null);
+        }}
+        onRegistered={() => {
           loadCentreDetail();
         }}
       />

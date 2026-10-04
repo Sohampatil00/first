@@ -10,16 +10,25 @@ import {
   HelpCircle,
   Activity,
   CheckCircle2,
-  Cpu
+  Cpu,
+  X
 } from 'lucide-react';
 
 interface SidebarProps {
   currentTab: string;
   setCurrentTab: (tab: string) => void;
   openAlertsCount: number;
+  mobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setCurrentTab, openAlertsCount }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ 
+  currentTab, 
+  setCurrentTab, 
+  openAlertsCount,
+  mobileOpen,
+  onCloseMobile
+}) => {
   const navItems = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'centres', label: 'Centres & Twin', icon: Building2, badge: '3' },
@@ -31,71 +40,108 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setCurrentTab, ope
   ];
 
   return (
-    <aside style={{
-      width: '272px',
-      backgroundColor: '#0F172A',
-      borderRight: '1px solid #1E293B',
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100vh',
-      position: 'sticky',
-      top: 0,
-      flexShrink: 0,
-      zIndex: 50,
-      boxShadow: '4px 0 20px rgba(0, 0, 0, 0.15)'
-    }}>
-      {/* Brand Header */}
-      <div style={{
-        height: '64px',
-        padding: '0 18px',
+    <>
+      {/* Mobile Drawer Backdrop Overlay */}
+      {mobileOpen && (
+        <div 
+          onClick={onCloseMobile}
+          className="sidebar-backdrop"
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(0, 0, 0, 0.65)',
+            backdropFilter: 'blur(3px)',
+            zIndex: 90
+          }}
+        />
+      )}
+
+      <aside className={`sidebar-aside ${mobileOpen ? 'mobile-open' : ''}`} style={{
+        width: '272px',
+        backgroundColor: '#0F172A',
+        borderRight: '1px solid #1E293B',
         display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-        backgroundColor: '#0A0F1D',
-        borderBottom: '1px solid #1E293B'
+        flexDirection: 'column',
+        height: '100vh',
+        position: 'sticky',
+        top: 0,
+        flexShrink: 0,
+        zIndex: 100,
+        boxShadow: '4px 0 20px rgba(0, 0, 0, 0.15)'
       }}>
-        {/* Ashoka / MSDE Official Emblem Icon */}
+        {/* Brand Header */}
         <div style={{
-          width: '34px',
-          height: '34px',
-          borderRadius: '6px',
-          background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
+          height: '64px',
+          padding: '0 18px',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          color: '#ffffff',
-          fontWeight: 800,
-          fontSize: '15px',
-          letterSpacing: '-0.02em',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
-          boxShadow: '0 2px 8px rgba(37, 99, 235, 0.4)'
+          justifyContent: 'space-between',
+          backgroundColor: '#0A0F1D',
+          borderBottom: '1px solid #1E293B'
         }}>
-          🇮🇳
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '15px', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>
-              CentreWatch AI
-            </span>
-            <span style={{
-              fontSize: '10px',
-              fontFamily: 'var(--font-mono)',
-              padding: '1px 5px',
-              borderRadius: '4px',
-              backgroundColor: '#1e3a8a',
-              color: '#93c5fd',
-              border: '1px solid #1d4ed8',
-              fontWeight: 600
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {/* Ashoka / MSDE Official Emblem Icon */}
+            <div style={{
+              width: '34px',
+              height: '34px',
+              borderRadius: '6px',
+              background: 'linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#ffffff',
+              fontWeight: 800,
+              fontSize: '15px',
+              letterSpacing: '-0.02em',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              boxShadow: '0 2px 8px rgba(37, 99, 235, 0.4)'
             }}>
-              v2.4
-            </span>
+              🇮🇳
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ fontSize: '15px', fontWeight: 700, color: '#ffffff', letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>
+                  CentreWatch AI
+                </span>
+                <span style={{
+                  fontSize: '10px',
+                  fontFamily: 'var(--font-mono)',
+                  padding: '1px 5px',
+                  borderRadius: '4px',
+                  backgroundColor: '#1e3a8a',
+                  color: '#93c5fd',
+                  border: '1px solid #1d4ed8',
+                  fontWeight: 600
+                }}>
+                  v2.4
+                </span>
+              </div>
+              <span style={{ fontSize: '11px', color: '#94a3b8', whiteSpace: 'nowrap' }}>
+                MSDE · Government of India
+              </span>
+            </div>
           </div>
-          <span style={{ fontSize: '11px', color: '#94a3b8', whiteSpace: 'nowrap' }}>
-            MSDE · Government of India
-          </span>
+
+          {/* Close button for mobile drawer */}
+          <button
+            onClick={onCloseMobile}
+            className="sidebar-close-btn"
+            style={{
+              display: 'none',
+              background: 'transparent',
+              border: 'none',
+              color: '#94A3B8',
+              cursor: 'pointer',
+              padding: '6px'
+            }}
+          >
+            <X size={20} />
+          </button>
         </div>
-      </div>
 
       {/* National Mesh Live Status Banner */}
       <div style={{ padding: '12px 16px 8px' }}>
@@ -132,7 +178,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setCurrentTab, ope
           return (
             <button
               key={item.id}
-              onClick={() => setCurrentTab(item.id)}
+              onClick={() => {
+                setCurrentTab(item.id);
+                if (onCloseMobile) onCloseMobile();
+              }}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -269,5 +318,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, setCurrentTab, ope
         </div>
       </div>
     </aside>
+    </>
   );
 };

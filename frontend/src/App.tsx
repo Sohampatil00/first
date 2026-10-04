@@ -20,6 +20,8 @@ export function App() {
   const [alerts, setAlerts] = useState<ComplianceEvent[]>([]);
   const [selectedAlert, setSelectedAlert] = useState<ComplianceEvent | null>(null);
   const [selectedCentreId, setSelectedCentreId] = useState<string | null>(null);
+  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState<boolean>(false);
   const [wsConnected, setWsConnected] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -105,7 +107,7 @@ export function App() {
   const handleReviewSubmit = async (
     alertId: string, 
     status: 'CONFIRMED' | 'DISMISSED' | 'UNDER_REVIEW', 
-    notes: string,
+    notes: string, 
     category?: string
   ) => {
     await reviewAlert(alertId, {
@@ -131,7 +133,9 @@ export function App() {
       <Sidebar 
         currentTab={currentTab} 
         setCurrentTab={setCurrentTab} 
-        openAlertsCount={openAlertsCount} 
+        openAlertsCount={openAlertsCount}
+        mobileOpen={mobileSidebarOpen}
+        onCloseMobile={() => setMobileSidebarOpen(false)}
       />
 
       {/* Main Content Area */}
@@ -142,9 +146,10 @@ export function App() {
           openAlertsCount={openAlertsCount}
           currentRole={currentRole}
           onRoleChange={setCurrentRole}
+          onToggleMobileMenu={() => setMobileSidebarOpen(!mobileSidebarOpen)}
         />
 
-        <main style={{ padding: '28px', flex: 1 }}>
+        <main className="app-main-content" style={{ padding: '28px', flex: 1 }}>
           {currentTab === 'overview' && (
             <OverviewScreen 
               analytics={analytics}
@@ -156,7 +161,14 @@ export function App() {
           )}
 
           {currentTab === 'centres' && (
-            <CentresScreen initialCentreId={selectedCentreId} />
+            <CentresScreen 
+              initialCentreId={selectedCentreId}
+              onNavigateToCamera={(centreId, roomId) => {
+                setSelectedCentreId(centreId);
+                setSelectedRoomId(roomId || null);
+                setCurrentTab('cameras');
+              }}
+            />
           )}
 
           {currentTab === 'alerts' && (
@@ -168,7 +180,10 @@ export function App() {
           )}
 
           {currentTab === 'cameras' && (
-            <LiveCamerasScreen />
+            <LiveCamerasScreen 
+              initialCentreId={selectedCentreId}
+              initialRoomId={selectedRoomId}
+            />
           )}
 
           {currentTab === 'analytics' && (

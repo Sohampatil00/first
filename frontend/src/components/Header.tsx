@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Bell, Shield, Wifi, RefreshCw, ChevronDown, Lock, CheckCircle2 } from 'lucide-react';
+import { Search, Bell, Shield, Wifi, RefreshCw, ChevronDown, Lock, CheckCircle2, Menu } from 'lucide-react';
 
 interface HeaderProps {
   wsConnected: boolean;
@@ -7,6 +7,7 @@ interface HeaderProps {
   openAlertsCount: number;
   currentRole: string;
   onRoleChange: (role: string) => void;
+  onToggleMobileMenu?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({ 
@@ -14,7 +15,8 @@ export const Header: React.FC<HeaderProps> = ({
   onRefresh, 
   openAlertsCount,
   currentRole,
-  onRoleChange
+  onRoleChange,
+  onToggleMobileMenu
 }) => {
   const getRoleDisplayName = (role: string) => {
     switch (role) {
@@ -48,8 +50,27 @@ export const Header: React.FC<HeaderProps> = ({
       zIndex: 40,
       boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)'
     }}>
-      {/* Left Region: Breadcrumb Trail & Privacy Protocol Pill */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '14px', minWidth: 0 }}>
+      {/* Left Region: Hamburger + Breadcrumb Trail & Privacy Protocol Pill */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+        {/* Mobile Hamburger Menu Toggle */}
+        <button
+          onClick={onToggleMobileMenu}
+          className="mobile-hamburger-btn"
+          aria-label="Toggle navigation menu"
+          style={{
+            background: 'transparent',
+            border: '1px solid #CBD5E1',
+            borderRadius: '6px',
+            padding: '6px',
+            color: '#0F172A',
+            cursor: 'pointer',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <Menu size={18} />
+        </button>
+
         {/* Territory Breadcrumb Selector */}
         <div style={{
           display: 'flex',
