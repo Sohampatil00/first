@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CentreWatch AI — System Architecture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 1920px;
+      height: 1080px;
+      overflow: hidden;
+      background: #060911;
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      color: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      padding: 32px 42px;
+      position: relative;
+    }
+
+    /* Subtle background grid & ambient glow */
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .ambient-glow-1 {
+      position: absolute;
+      top: -100px;
+      left: 100px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .ambient-glow-2 {
+      position: absolute;
+      bottom: -100px;
+      right: 200px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Header */
+    header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .header-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .meta-tag {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: rgba(56, 189, 248, 0.12);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+
+    .meta-tag.sih {
+      background: rgba(251, 191, 36, 0.12);
+      color: #fbbf24;
+      border-color: rgba(251, 191, 36, 0.25);
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff 40%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-sub {
+      font-size: 13.5px;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    .header-right {
+      display: flex;
+      gap: 10px;
+    }
+
+    .pill-highlight {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 7px 14px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .pill-highlight.cyan { color: #38bdf8; border-color: rgba(56, 189, 248, 0.3); }
+    .pill-highlight.emerald { color: #34d399; border-color: rgba(52, 211, 153, 0.3); }
+    .pill-highlight.amber { color: #fbbf24; border-color: rgba(251, 191, 36, 0.3); }
+    .pill-highlight.purple { color: #c084fc; border-color: rgba(192, 132, 252, 0.3); }
+
+    /* 4-Tier Main Architecture Grid */
+    .arch-container {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.15fr 40px 0.78fr 40px 1.15fr 40px 1.12fr;
+      align-items: stretch;
+      gap: 0;
+      margin-bottom: 20px;
+    }
+
+    .tier-box {
+      background: rgba(13, 20, 36, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 20px 18px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(12px);
+      position: relative;
+    }
+
+    .tier-box.tier-edge { border-top: 3px solid #38bdf8; }
+    .tier-box.tier-network { border-top: 3px solid #34d399; }
+    .tier-box.tier-cloud { border-top: 3px solid #fbbf24; }
+    .tier-box.tier-governance { border-top: 3px solid #c084fc; }
+
+    .tier-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .tier-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 3px;
+    }
+
+    .tier-edge .tier-label { color: #38bdf8; }
+    .tier-network .tier-label { color: #34d399; }
+    .tier-cloud .tier-label { color: #fbbf24; }
+    .tier-governance .tier-label { color: #c084fc; }
+
+    .tier-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .tier-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      color: #94a3b8;
+    }
+
+    /* Sub-Modules */
+    .module-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      flex: 1;
+    }
+
+    .module-card {
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      transition: all 0.2s ease;
+    }
+
+    .module-card:hover {
+      background: rgba(255, 255, 255, 0.045);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .module-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .module-name {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .module-tech {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #94a3b8;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .module-detail {
+      font-size: 11px;
+      color: #94a3b8;
+      line-height: 1.4;
+    }
+
+    .module-detail strong {
+      color: #e2e8f0;
+    }
+
+    /* Highlights inside modules */
+    .hl-cyan { color: #38bdf8 !important; font-weight: 700; }
+    .hl-emerald { color: #34d399 !important; font-weight: 700; }
+    .hl-amber { color: #fbbf24 !important; font-weight: 700; }
+    .hl-purple { color: #c084fc !important; font-weight: 700; }
+
+    /* Pipeline Connector Channels */
+    .pipe-channel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .pipe-line {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pipe-node {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #38bdf8;
+      font-size: 12px;
+      font-weight: 900;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+    }
+
+    .pipe-text {
+      writing-mode: vertical-lr;
+      transform: rotate(180deg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: #64748b;
+    }
+
+    /* Bottom Validation & Benchmark Bar */
+    .bottom-bar {
+      position: relative;
+      z-index: 10;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 12px 24px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 20px;
+      align-items: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .benchmark-col {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bench-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .bench-data {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .bench-value {
+      font-size: 16px;
+      font-weight: 900;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .bench-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-left">
+      <div class="header-meta">
+        <span class="meta-tag sih">Smart India Hackathon 2026 | PS 26245</span>
+        <span class="meta-tag">Ministry of Skill Development & Entrepreneurship</span>
+      </div>
+      <h1>CentreWatch AI — System Architecture</h1>
+      <div class="header-sub">Privacy-Preserving, Low-Bandwidth Edge AI Monitoring Platform for Distributed PMKVY Training Centres</div>
+    </div>
+
+    <div class="header-right">
+      <div class="pill-highlight cyan">🔒 Zero Biometrics (DPDP 2023)</div>
+      <div class="pill-highlight emerald">📶 &lt;2 KB/min Telemetry</div>
+      <div class="pill-highlight amber">💾 Local SQLite Spool Buffer</div>
+      <div class="pill-highlight purple">⚖️ Human-in-the-Loop Review</div>
+    </div>
+  </header>
+
+  <!-- MAIN 4-TIER ARCHITECTURE -->
+  <div class="arch-container">
+
+    <!-- TIER 1: EDGE SENSING & INFERENCE -->
+    <div class="tier-box tier-edge">
+      <div class="tier-header">
+        <div>
+          <div class="tier-label">Tier 1: On-Premise Edge Device</div>
+          <div class="tier-title">Training Centre Edge Daemon</div>
+        </div>
+        <span class="tier-badge">Local Mini-PC</span>
+      </div>
+
+      <div class="module-stack">
+        <div class="module-card">
+          <div class="module-top">
+            <span class="module-name">🎥 CCTV / IP Video Ingestion</span>
+            <span class="module-tech">RTSP / OpenCV</span>
+          </div>
+          <div class="module-detail">
+            Standard classroom cameras. <strong>Threaded capture</strong> drops stagnant frames to guarantee zero buffer latency.
+          </div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-top">
+            <span class="module-name">🧠 Dual Edge Vision Models</span>
+            <span class="module-tech">DEIM / YOLOv8</span>
+          </div>
+          <div class="module-detail">
+            <span class="hl-cyan">DEIM (CVPR 2025 Real-Time DETR)</span> with 300 bipartite matching query decoders (NMS-free) + <span class="hl-cyan">YOLOv8-Pose</span>.
+          </div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-top">
+            <span class="module-name">📍 Anonymous Motion Tracking</span>
+            <span class="module-tech">ByteTrack Logic</span>
+          </div>
+          <div class="module-detail">
+            Assigns <strong>temporary technical IDs</strong> across frames. <span class="hl-cyan">Zero facial identity profiling.</span>
+          </div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-top">
+            <span class="module-name">⏱️ Classroom ROI Dwell Engine</span>
+            <span class="module-tech">Ray-Casting Poly</span>
+          </div>
+          <div class="module-detail">
+            Requires <strong>dwell ≥ 180 seconds</strong> within calibrated polygon boundary; ignores hallway passersby.
+          </div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-top">
+            <span class="module-name">🛡️ DPDP Act Privacy Masking</span>
+            <span class="module-tech">Gaussian 31x31</span>
+          </div>
+          <div class="module-detail">
+            Upper 35% of trainee boxes (face area) is <span class="hl-cyan">blurred at the edge</span> before any visual frame is stored.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONNECTOR 1 -->
+    <div class="pipe-channel">
+      <div class="pipe-line">
+        <div class="pipe-node">➔</div>
+        <div class="pipe-text" style="color: #38bdf8;">Telemetry Data</div>
+      </div>
+    </div>
+
+    <!-- TIER 2: RESILIENT TRANSPORT -->
+    <div class="tier-box tier-network">
+      <div class="tier-header">
+        <div>
+          <div class="tier-label">Tier 2: Network Gateway</div>
+          <div class="tier-title">Resilient Transport Pipeline</div>
+        </div>
+        <span class="tier-badge">2G/3G/4G Aware</span>
+      </div>
+
+      <div class="module-stack">
+        <div class="module-card">
+          <div class="module-top">
+            <span class="module-name">📶 Telemetry-Only Stream</span>
+            <span class="module-tech">JSON REST</span>
+          </div>
+          <div class="module-detail">
+            Continuous video <span class="hl-emerald">never leaves the site</span>. Lightweight JSON telemetry (counts, timestamps) is sent at <span class="hl-emerald">≈1.8 KB/min</span>.
+          </div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-top">
+            <span class="module-name">⚡ Bandwidth Footprint</span>
+            <span class="module-tech">99.8% Saved</span>
+          </div>
+          <div class="module-detail">
+            Cuts data requirements from <strong>2 Mbps</strong> (raw 1080p stream) to <strong>&lt;2 KB/min</strong>, making rural deployment affordable.
+          </div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-top">
+            <span class="module-name">💾 Offline SQLite Spool</span>
+            <span class="module-tech">edge/spool.db</span>
+          </div>
+          <div class="module-detail">
+            During rural network dropouts, telemetry is <span class="hl-emerald">buffered locally</span> in an edge SQLite queue.
+          </div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-top">
+            <span class="module-name">🔄 Recovery Batch Auto-Sync</span>
+            <span class="module-tech">FIFO Batch</span>
+          </div>
+          <div class="module-detail">
+            On reconnection, events are flushed in chronological order with <span class="hl-emerald">zero telemetry data loss</span>.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONNECTOR 2 -->
+    <div class="pipe-channel">
+      <div class="pipe-line">
+        <div class="pipe-node" style="color: #34d399; box-shadow: 0 0 12px rgba(52, 211, 153, 0.3);">➔</div>
+        <div class="pipe-text" style="color: #34d399;">HTTPS REST</div>
+      </div>
+    </div>
+
+    <!-- TIER 3: CENTRAL CLOUD ENGINE -->
+    <div class="tier-box tier-cloud">
+      <div class="tier-header">
+        <div>
+          <div class="tier-label">Tier 3: Government Cloud</div>
+          <div class="tier-title">Central Backend Engine</div>
+        </div>
+        <span class="tier-badge">FastAPI & PostgreSQL</span>
+      </div>
+
+      <div class="module-stack">
+        <div class="module-card">
+          <div class="module-top">
+            <span class="module-name">🏛️ Digital Twin Registry</span>
+            <span class="module-tech">SQLAlchemy ORM</span>
+          </div>
+          <div class="module-detail">
+            Maintains national database of centres, rooms, sanctioned quotas (computers, workbenches), and rosters.
+          </div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-top">
+            <span class="module-name">⚖️ Compliance Reconciliation</span>
+            <span class="module-tech">±15% Tolerance</span>
+          </div>
+          <div class="module-detail">
+            Reconciles reported vs observed: <span class="hl-amber">NORMAL (≤15%)</span>, <span class="hl-amber">REVIEW (16-25%)</span>, <span class="hl-amber">HIGH (26-45%)</span>, <span class="hl-amber">CRITICAL (&gt;45%)</span>.
+          </div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-top">
+            <span class="module-name">🔔 Alert Engine & Deduplication</span>
+            <span class="module-tech">In-Memory Dedup</span>
+          </div>
+          <div class="module-detail">
+            Prevents notification storms by aggregating repeated observations into singular actionable incident cases.
+          </div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-top">
+            <span class="module-name">📡 WebSocket Live Push</span>
+            <span class="module-tech">FastAPI WSS</span>
+          </div>
+          <div class="module-detail">
+            Broadcasts confirmed discrepancy alerts instantly to command dashboards without client polling.
+          </div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-top">
+            <span class="module-name">🚨 SLA Auto-Escalation</span>
+            <span class="module-tech">Daemon / 24h</span>
+          </div>
+          <div class="module-detail">
+            Unadjudicated critical alerts older than 24h automatically escalate to the <span class="hl-amber">State Vigilance Directorate</span>.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONNECTOR 3 -->
+    <div class="pipe-channel">
+      <div class="pipe-line">
+        <div class="pipe-node" style="color: #fbbf24; box-shadow: 0 0 12px rgba(251, 191, 36, 0.3);">➔</div>
+        <div class="pipe-text" style="color: #fbbf24;">WebSocket Push</div>
+      </div>
+    </div>
+
+    <!-- TIER 4: COMMAND CENTRE UI -->
+    <div class="tier-box tier-governance">
+      <div class="tier-header">
+        <div>
+          <div class="tier-label">Tier 4: Monitoring Command UI</div>
+          <div class="tier-title">GovTech Command Center</div>
+        </div>
+        <span class="tier-badge">React 18 & TypeScript</span>
+      </div>
+
+      <div class="module-stack">
+        <div class="module-card">
+          <div class="module-top">
+            <span class="module-name">📊 National Overview HUD</span>
+            <span class="module-tech">Live KPI Feed</span>
+          </div>
+          <div class="module-detail">
+            Real-time compliance index, multi-tier centre drilldown, and high-priority discrepancy event streams.
+          </div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-top">
+            <span class="module-name">🗺️ Multi-Camera Spatial Fusion</span>
+            <span class="module-tech">2D Homography</span>
+          </div>
+          <div class="module-detail">
+            Maps ground contact points to room coordinates; Hungarian clustering <span class="hl-purple">eliminates double-counting</span>.
+          </div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-top">
+            <span class="module-name">🔍 Human-in-the-Loop Review</span>
+            <span class="module-tech">Adjudication Modal</span>
+          </div>
+          <div class="module-detail">
+            Officers inspect blurred snapshots and delta metrics. <span class="hl-purple">AI never issues unilateral penalties.</span>
+          </div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-top">
+            <span class="module-name">🧠 Active Learning Recalibration</span>
+            <span class="module-tech">Root Cause Tag</span>
+          </div>
+          <div class="module-detail">
+            Officer feedback tags (e.g. Early Dismissal, Lighting Glare) flag models for dwell or ROI calibration.
+          </div>
+        </div>
+
+        <div class="module-card">
+          <div class="module-top">
+            <span class="module-name">🔒 Immutable Audit Trail</span>
+            <span class="module-tech">Hash-Chained CSV</span>
+          </div>
+          <div class="module-detail">
+            Cryptographically sealed log of every officer review action with one-click export for MSDE audits.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM VALIDATION & BENCHMARKS STRIP -->
+  <div class="bottom-bar">
+    <div class="benchmark-col">
+      <div class="bench-icon">🎯</div>
+      <div class="bench-data">
+        <div class="bench-value" style="color: #38bdf8;">0.40 Trainees</div>
+        <div class="bench-label">Attendance MAE (Target &lt;1.5)</div>
+      </div>
+    </div>
+
+    <div class="benchmark-col">
+      <div class="bench-icon">✅</div>
+      <div class="bench-data">
+        <div class="bench-value" style="color: #34d399;">100.0%</div>
+        <div class="bench-label">Accuracy within ±1 Trainee</div>
+      </div>
+    </div>
+
+    <div class="benchmark-col">
+      <div class="bench-icon">📦</div>
+      <div class="bench-data">
+        <div class="bench-value" style="color: #fbbf24;">0.981 F1</div>
+        <div class="bench-label">Infrastructure Asset F1 (1.00 Prec)</div>
+      </div>
+    </div>
+
+    <div class="benchmark-col">
+      <div class="bench-icon">🛡️</div>
+      <div class="bench-data">
+        <div class="bench-value" style="color: #c084fc;">0.0% False Accusations</div>
+        <div class="bench-label">Camera Tamper Optical Guard</div>
+      </div>
+    </div>
+
+    <div class="benchmark-col">
+      <div class="bench-icon">⚡</div>
+      <div class="bench-data">
+        <div class="bench-value" style="color: #38bdf8;">99.8% Bandwidth Saved</div>
+        <div class="bench-label">Telemetry &lt;2 KB/min vs 2 Mbps</div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -35,11 +35,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from fastapi.responses import FileResponse
+
 # Mount evidence snapshots & video storage
 os.makedirs(EVIDENCE_DIR, exist_ok=True)
 os.makedirs("datasets", exist_ok=True)
 app.mount("/api/evidence", StaticFiles(directory=EVIDENCE_DIR), name="evidence")
 app.mount("/api/videos", StaticFiles(directory="datasets"), name="videos")
+
+# Mount compiled GovTech frontend dashboard if dist exists
+if os.path.exists("frontend/dist/assets"):
+    app.mount("/assets", StaticFiles(directory="frontend/dist/assets"), name="frontend_assets")
 
 # Include Routers
 app.include_router(centres_router)
@@ -57,8 +63,17 @@ def root():
         "status": "healthy",
         "service": "AI Training Centre Monitoring API",
         "version": "1.0.0",
-        "docs_url": "/docs"
+        "docs_url": "/docs",
+        "dashboard_url": "/dashboard" if os.path.exists("frontend/dist/index.html") else "http://localhost:3000"
     }
+
+@app.get("/dashboard", response_class=FileResponse)
+@app.get("/dashboard/{full_path:path}", response_class=FileResponse)
+def serve_dashboard():
+    dist_index = os.path.join("frontend", "dist", "index.html")
+    if os.path.exists(dist_index):
+        return FileResponse(dist_index)
+    return FileResponse("frontend/index.html")
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):

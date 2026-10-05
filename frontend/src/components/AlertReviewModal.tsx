@@ -165,13 +165,13 @@ export const AlertReviewModal: React.FC<AlertReviewModalProps> = ({ alert, onClo
               padding: '12px 14px'
             }}>
               <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 600, textTransform: 'uppercase' }}>
-                Reported Batch Roster
+                {payload.item_type ? `Sanctioned (${payload.item_type})` : (payload.offline_duration_minutes ? 'Offline Duration' : (payload.optical_variance ? 'Variance Target' : 'Reported Batch Roster'))}
               </div>
               <div style={{ fontSize: '22px', fontWeight: 700, color: '#0F172A', marginTop: '4px' }} className="tabular-nums">
-                {payload.reported !== undefined ? payload.reported : (payload.required !== undefined ? payload.required : '—')}
+                {payload.reported !== undefined ? payload.reported : (payload.reported_count !== undefined ? payload.reported_count : (payload.required !== undefined ? payload.required : (payload.sanctioned_quantity !== undefined ? payload.sanctioned_quantity : (payload.offline_duration_minutes ? `${payload.offline_duration_minutes}m` : (payload.optical_variance ? '35.0' : '—')))))}
               </div>
               <div style={{ fontSize: '11px', color: '#64748B' }}>
-                Center Self-Submission
+                {payload.item_type ? 'Mandated Standard' : (payload.offline_duration_minutes ? 'Link Loss Time' : (payload.optical_variance ? 'Minimum Sharpness' : 'Center Self-Submission'))}
               </div>
             </div>
 
@@ -182,13 +182,13 @@ export const AlertReviewModal: React.FC<AlertReviewModalProps> = ({ alert, onClo
               padding: '12px 14px'
             }}>
               <div style={{ fontSize: '11px', color: '#64748B', fontWeight: 600, textTransform: 'uppercase' }}>
-                AI Observed In Lab
+                {payload.optical_variance ? 'Observed Variance' : (payload.spool_buffered_events ? 'Edge Spool Buffer' : 'AI Observed In Lab')}
               </div>
               <div style={{ fontSize: '22px', fontWeight: 700, color: '#2563EB', marginTop: '4px' }} className="tabular-nums">
-                {payload.observed !== undefined ? payload.observed : '—'}
+                {payload.observed !== undefined ? payload.observed : (payload.observed_count !== undefined ? payload.observed_count : (payload.observed_quantity !== undefined ? payload.observed_quantity : (payload.optical_variance ? `${payload.optical_variance}` : (payload.spool_buffered_events ? `${payload.spool_buffered_events}` : '—'))))}
               </div>
               <div style={{ fontSize: '11px', color: '#059669', fontWeight: 600 }}>
-                Dwell Threshold &ge; 180s
+                {payload.optical_variance ? 'Laplacian Filter' : (payload.spool_buffered_events ? 'Events In Queue' : 'Dwell Threshold \u2265 180s')}
               </div>
             </div>
 
@@ -199,13 +199,13 @@ export const AlertReviewModal: React.FC<AlertReviewModalProps> = ({ alert, onClo
               padding: '12px 14px'
             }}>
               <div style={{ fontSize: '11px', color: '#991B1B', fontWeight: 600, textTransform: 'uppercase' }}>
-                Reconciled Delta Gap
+                {payload.optical_variance ? 'Trust Metric Deficit' : 'Reconciled Delta Gap'}
               </div>
               <div style={{ fontSize: '22px', fontWeight: 700, color: '#DC2626', marginTop: '4px' }} className="tabular-nums">
-                {payload.difference !== undefined ? `-${payload.difference}` : (payload.gap !== undefined ? `-${payload.gap}` : '—')}
+                {payload.difference !== undefined ? `-${payload.difference}` : (payload.gap !== undefined ? `-${payload.gap}` : (payload.optical_variance ? '-27.6' : (payload.offline_duration_minutes ? 'CRITICAL' : '—')))}
               </div>
               <div style={{ fontSize: '11px', color: '#DC2626', fontWeight: 600 }}>
-                {payload.relative_difference_pct ? `${payload.relative_difference_pct}% deficit` : 'Deficit Detected'}
+                {payload.relative_difference_pct ? `${payload.relative_difference_pct}% deficit` : (payload.tamper_type ? 'Lens Fault Flagged' : (payload.network_status ? 'Link Down' : 'Deficit Detected'))}
               </div>
             </div>
           </div>

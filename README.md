@@ -63,10 +63,12 @@ This automated runner will:
 - Simulate an offline network drop, queue events in SQLite, restore network, and flush batch sync.
 - Run the accuracy evaluation benchmark and output the report.
 
-### 2. Live Application Endpoints
+### 2. Live Application Endpoints & Documentation
 - **Command Centre Dashboard:** [http://localhost:3000](http://localhost:3000)
 - **FastAPI Backend Swagger Docs:** [http://localhost:8001/docs](http://localhost:8001/docs)
-- **Model Evaluation Report:** [docs/EVALUATION_REPORT.md](file:///Users/sohampatil/Documents/SIH%202.0/docs/EVALUATION_REPORT.md)
+- **Detailed System Working & Architecture Flow:** [PROJECT_WORKING_FEATURES_FLOW.md](file:///c:/Shashank/Hackathon/SIH/SIH26245/first/PROJECT_WORKING_FEATURES_FLOW.md)
+- **Model Evaluation Report:** [docs/EVALUATION_REPORT.md](file:///c:/Shashank/Hackathon/SIH/SIH26245/first/docs/EVALUATION_REPORT.md)
+- **SIH Jury Presentation Guide:** [docs/JURY_PRESENTATION_GUIDE.md](file:///c:/Shashank/Hackathon/SIH/SIH26245/first/docs/JURY_PRESENTATION_GUIDE.md)
 
 ---
 

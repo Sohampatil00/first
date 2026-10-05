@@ -40,11 +40,14 @@ export const AnalyticsScreen: React.FC<AnalyticsScreenProps> = ({ analytics, ale
     { day: 'Sun', compliance: 92.4, alerts: 3 },
   ];
 
-  // State-wise performance breakdown
+  // State-wise performance breakdown across all monitored MSDE Hubs
   const regionalPerformance = [
+    { state: 'Karnataka', centres: 1, compliance: '98.1%', status: 'High Compliance', delta: '+1.8%' },
+    { state: 'Delhi NCT', centres: 1, compliance: '96.2%', status: 'High Compliance', delta: '+2.4%' },
+    { state: 'Rajasthan', centres: 1, compliance: '95.5%', status: 'Compliant', delta: '+0.9%' },
     { state: 'Maharashtra', centres: 1, compliance: '91.5%', status: 'Compliant', delta: '+1.2%' },
-    { state: 'Delhi NCT', centres: 1, compliance: '94.8%', status: 'High Compliance', delta: '+2.4%' },
-    { state: 'Jharkhand', centres: 1, compliance: '78.2%', status: 'Action Required', delta: '-3.1%' },
+    { state: 'Madhya Pradesh', centres: 1, compliance: '88.0%', status: 'Action Required', delta: '-1.5%' },
+    { state: 'Jharkhand', centres: 1, compliance: '78.4%', status: 'Action Required', delta: '-3.1%' },
   ];
 
   const handleExportCSV = () => {
@@ -346,7 +349,7 @@ export const AnalyticsScreen: React.FC<AnalyticsScreenProps> = ({ analytics, ale
               State and Union Territory aggregation with rolling delta
             </div>
           </div>
-          <span className="status-badge info">3 JURISDICTIONS ACTIVE</span>
+          <span className="status-badge info">6 JURISDICTIONS ACTIVE</span>
         </div>
         <table className="gov-table">
           <thead>

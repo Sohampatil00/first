@@ -224,31 +224,60 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({
               <rect width="100%" height="100%" fill="url(#tac-grid)" />
 
               {/* Connecting Nodes across States */}
-              <line x1="28%" y1="58%" x2="48%" y2="35%" stroke="rgba(56, 189, 248, 0.4)" strokeWidth="1.5" strokeDasharray="4 4" />
-              <line x1="48%" y1="35%" x2="72%" y2="52%" stroke="rgba(56, 189, 248, 0.4)" strokeWidth="1.5" strokeDasharray="4 4" />
+              <line x1="190" y1="75" x2="270" y2="48" stroke="rgba(56, 189, 248, 0.35)" strokeWidth="1.5" strokeDasharray="3 3" />
+              <line x1="270" y1="48" x2="300" y2="115" stroke="rgba(56, 189, 248, 0.35)" strokeWidth="1.5" strokeDasharray="3 3" />
+              <line x1="300" y1="115" x2="440" y2="105" stroke="rgba(56, 189, 248, 0.35)" strokeWidth="1.5" strokeDasharray="3 3" />
+              <line x1="190" y1="75" x2="170" y2="135" stroke="rgba(56, 189, 248, 0.35)" strokeWidth="1.5" strokeDasharray="3 3" />
+              <line x1="300" y1="115" x2="170" y2="135" stroke="rgba(56, 189, 248, 0.35)" strokeWidth="1.5" strokeDasharray="3 3" />
+              <line x1="170" y1="135" x2="250" y2="185" stroke="rgba(56, 189, 248, 0.35)" strokeWidth="1.5" strokeDasharray="3 3" />
+              <line x1="300" y1="115" x2="250" y2="185" stroke="rgba(56, 189, 248, 0.35)" strokeWidth="1.5" strokeDasharray="3 3" />
 
-              {/* Pune Hub TC-101 (Maharashtra) */}
-              <g transform="translate(140, 130)" style={{ cursor: 'pointer' }} onClick={() => onSelectCentre('TC-101')}>
-                <circle cx="0" cy="0" r="14" fill="rgba(37, 99, 235, 0.25)" stroke="#38BDF8" strokeWidth="1.5" />
-                <circle cx="0" cy="0" r="5" fill="#38BDF8" />
-                <text x="18" y="4" fill="#E2E8F0" fontSize="11" fontWeight="bold" fontFamily="monospace">TC-101 (Pune Hub)</text>
-                <text x="18" y="16" fill="#38BDF8" fontSize="9" fontFamily="monospace">ONLINE · 24ms</text>
+              {/* Delhi Apex TC-102 (NCT Delhi) */}
+              <g transform="translate(270, 48)" style={{ cursor: 'pointer' }} onClick={() => onSelectCentre('TC-102')}>
+                <circle cx="0" cy="0" r="13" fill="rgba(34, 197, 94, 0.25)" stroke="#22C55E" strokeWidth="1.5" />
+                <circle cx="0" cy="0" r="4.5" fill="#22C55E" />
+                <text x="16" y="3" fill="#E2E8F0" fontSize="10.5" fontWeight="bold" fontFamily="monospace">TC-102 (Delhi PMKK)</text>
+                <text x="16" y="14" fill="#4ADE80" fontSize="8.5" fontFamily="monospace">COMPLIANT · GDA LAB</text>
               </g>
 
-              {/* Delhi Hub TC-102 (NCT Delhi) */}
-              <g transform="translate(240, 75)" style={{ cursor: 'pointer' }} onClick={() => onSelectCentre('TC-102')}>
-                <circle cx="0" cy="0" r="14" fill="rgba(34, 197, 94, 0.25)" stroke="#22C55E" strokeWidth="1.5" />
-                <circle cx="0" cy="0" r="5" fill="#22C55E" />
-                <text x="18" y="4" fill="#E2E8F0" fontSize="11" fontWeight="bold" fontFamily="monospace">TC-102 (Delhi Apex)</text>
-                <text x="18" y="16" fill="#4ADE80" fontSize="9" fontFamily="monospace">COMPLIANT</text>
+              {/* Jaipur Hub TC-106 (Rajasthan) */}
+              <g transform="translate(190, 75)" style={{ cursor: 'pointer' }} onClick={() => onSelectCentre('TC-106')}>
+                <circle cx="0" cy="0" r="11" fill="rgba(56, 189, 248, 0.2)" stroke="#38BDF8" strokeWidth="1.2" />
+                <circle cx="0" cy="0" r="4" fill="#38BDF8" />
+                <text x="-120" y="3" fill="#E2E8F0" fontSize="10" fontWeight="bold" fontFamily="monospace">TC-106 (Jaipur)</text>
+                <text x="-120" y="14" fill="#38BDF8" fontSize="8.5" fontFamily="monospace">ACTIVE · CAD JEWELRY</text>
+              </g>
+
+              {/* Bhopal Regional TC-105 (Madhya Pradesh) */}
+              <g transform="translate(300, 115)" style={{ cursor: 'pointer' }} onClick={() => onSelectCentre('TC-105')}>
+                <circle cx="0" cy="0" r="12" fill="rgba(245, 158, 11, 0.25)" stroke="#F59E0B" strokeWidth="1.5" />
+                <circle cx="0" cy="0" r="4" fill="#F59E0B" />
+                <text x="16" y="3" fill="#E2E8F0" fontSize="10.5" fontWeight="bold" fontFamily="monospace">TC-105 (Bhopal)</text>
+                <text x="16" y="14" fill="#FBBF24" fontSize="8.5" fontFamily="monospace">SEWING DEFICIT (-4)</text>
               </g>
 
               {/* Ranchi Hub TC-103 (Jharkhand) */}
-              <g transform="translate(360, 115)" style={{ cursor: 'pointer' }} onClick={() => onSelectCentre('TC-103')}>
-                <circle cx="0" cy="0" r="14" fill="rgba(239, 68, 68, 0.25)" stroke="#EF4444" strokeWidth="1.5" />
-                <circle cx="0" cy="0" r="5" fill="#EF4444" />
-                <text x="18" y="4" fill="#E2E8F0" fontSize="11" fontWeight="bold" fontFamily="monospace">TC-103 (Ranchi)</text>
-                <text x="18" y="16" fill="#F87171" fontSize="9" fontFamily="monospace">DISCREPANCY DETECTED</text>
+              <g transform="translate(440, 105)" style={{ cursor: 'pointer' }} onClick={() => onSelectCentre('TC-103')}>
+                <circle cx="0" cy="0" r="13" fill="rgba(239, 68, 68, 0.25)" stroke="#EF4444" strokeWidth="1.5" />
+                <circle cx="0" cy="0" r="4.5" fill="#EF4444" />
+                <text x="16" y="3" fill="#E2E8F0" fontSize="10.5" fontWeight="bold" fontFamily="monospace">TC-103 (Ranchi ITI)</text>
+                <text x="16" y="14" fill="#F87171" fontSize="8.5" fontFamily="monospace">CAM OFFLINE · SPOOLING</text>
+              </g>
+
+              {/* Pune Flagship Hub TC-101 (Maharashtra) */}
+              <g transform="translate(170, 135)" style={{ cursor: 'pointer' }} onClick={() => onSelectCentre('TC-101')}>
+                <circle cx="0" cy="0" r="14" fill="rgba(37, 99, 235, 0.25)" stroke="#38BDF8" strokeWidth="1.5" />
+                <circle cx="0" cy="0" r="5" fill="#38BDF8" />
+                <text x="-120" y="3" fill="#E2E8F0" fontSize="10.5" fontWeight="bold" fontFamily="monospace">TC-101 (Pune Hub)</text>
+                <text x="-120" y="14" fill="#38BDF8" fontSize="8.5" fontFamily="monospace">ATTENDANCE GAP (-40%)</text>
+              </g>
+
+              {/* Bengaluru Robotics TC-104 (Karnataka) */}
+              <g transform="translate(250, 185)" style={{ cursor: 'pointer' }} onClick={() => onSelectCentre('TC-104')}>
+                <circle cx="0" cy="0" r="12" fill="rgba(34, 197, 94, 0.25)" stroke="#22C55E" strokeWidth="1.5" />
+                <circle cx="0" cy="0" r="4.5" fill="#22C55E" />
+                <text x="16" y="3" fill="#E2E8F0" fontSize="10.5" fontWeight="bold" fontFamily="monospace">TC-104 (Bengaluru)</text>
+                <text x="16" y="14" fill="#4ADE80" fontSize="8.5" fontFamily="monospace">ROBOTICS · COMPLIANT</text>
               </g>
             </svg>
 

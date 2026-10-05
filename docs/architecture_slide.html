@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CentreWatch AI — SIH Jury Architecture Slide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #070b14;
+      --card-bg: rgba(15, 23, 42, 0.9);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --cyan: #38bdf8;
+      --emerald: #34d399;
+      --amber: #fbbf24;
+      --purple: #c084fc;
+      --rose: #fb7185;
+      --border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.12) 0px, transparent 40%),
+        radial-gradient(at 100% 100%, rgba(52, 211, 153, 0.08) 0px, transparent 40%),
+        radial-gradient(at 50% 50%, rgba(192, 132, 252, 0.05) 0px, transparent 50%);
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
+
+    /* 16:9 Presentation Canvas */
+    .slide-wrapper {
+      width: 1400px;
+      max-width: 98vw;
+      aspect-ratio: 16 / 9;
+      background: rgba(11, 17, 33, 0.98);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 20px;
+      box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.8), 0 0 50px rgba(56, 189, 248, 0.12);
+      padding: 34px 44px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Top Badges for Judges */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .title-group h1 {
+      font-size: 27px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff 40%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .title-group p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      font-weight: 500;
+    }
+
+    .judge-pills {
+      display: flex;
+      gap: 10px;
+    }
+
+    .pill {
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid transparent;
+      letter-spacing: 0.2px;
+    }
+
+    .pill.cyan { background: rgba(56, 189, 248, 0.12); color: var(--cyan); border-color: rgba(56, 189, 248, 0.3); }
+    .pill.emerald { background: rgba(52, 211, 153, 0.12); color: var(--emerald); border-color: rgba(52, 211, 153, 0.3); }
+    .pill.amber { background: rgba(251, 191, 36, 0.12); color: var(--amber); border-color: rgba(251, 191, 36, 0.3); }
+    .pill.purple { background: rgba(192, 132, 252, 0.12); color: var(--purple); border-color: rgba(192, 132, 252, 0.3); }
+
+    /* 5-Stage Pipeline */
+    .pipeline-grid {
+      display: grid;
+      grid-template-columns: 1fr 28px 1.25fr 28px 0.9fr 28px 1.15fr 28px 1.15fr;
+      align-items: stretch;
+      flex: 1;
+      gap: 0;
+      margin-bottom: 20px;
+    }
+
+    .stage-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .stage-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .stage-card.s1 { border-top: 3px solid var(--cyan); }
+    .stage-card.s2 { border-top: 3px solid #38bdf8; background: rgba(15, 23, 42, 0.95); }
+    .stage-card.s3 { border-top: 3px solid var(--emerald); }
+    .stage-card.s4 { border-top: 3px solid var(--amber); }
+    .stage-card.s5 { border-top: 3px solid var(--purple); }
+
+    .stage-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-bottom: 8px;
+      align-self: flex-start;
+    }
+
+    .s1 .stage-badge { background: rgba(56, 189, 248, 0.15); color: var(--cyan); }
+    .s2 .stage-badge { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; }
+    .s3 .stage-badge { background: rgba(52, 211, 153, 0.15); color: var(--emerald); }
+    .s4 .stage-badge { background: rgba(251, 191, 36, 0.15); color: var(--amber); }
+    .s5 .stage-badge { background: rgba(192, 132, 252, 0.15); color: var(--purple); }
+
+    .stage-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .stage-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    /* Items inside card */
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      flex: 1;
+    }
+
+    .feature-row {
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+
+    .feature-row strong {
+      font-size: 12px;
+      color: #f1f5f9;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .feature-row span {
+      font-size: 10px;
+      color: #94a3b8;
+      line-height: 1.35;
+      display: block;
+    }
+
+    /* Arrows */
+    .arrow-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .arrow-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--cyan);
+      font-weight: bold;
+    }
+
+    /* Bottom Q&A Cards (Addresses Jury Questions) */
+    .jury-qa-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 12px 16px;
+    }
+
+    .qa-box {
+      border-left: 2px solid var(--cyan);
+      padding-left: 10px;
+    }
+
+    .qa-box.emerald { border-left-color: var(--emerald); }
+    .qa-box.amber { border-left-color: var(--amber); }
+    .qa-box.purple { border-left-color: var(--purple); }
+
+    .qa-q {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #cbd5e1;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .qa-a {
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      margin-top: 2px;
+    }
+
+    .qa-sub {
+      font-size: 10px;
+      color: #94a3b8;
+      margin-top: 1px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="slide-wrapper">
+    <!-- Header -->
+    <div class="top-bar">
+      <div class="title-group">
+        <h1>CentreWatch AI — System Architecture</h1>
+        <p>Problem Statement 26245 | Ministry of Skill Development and Entrepreneurship (MSDE)</p>
+      </div>
+
+      <div class="judge-pills">
+        <div class="pill cyan">🔒 Zero Facial Biometrics (DPDP 2023)</div>
+        <div class="pill emerald">📶 &lt;2 KB/min Telemetry (99.8% Saved)</div>
+        <div class="pill amber">💾 SQLite Offline Spool Buffer</div>
+        <div class="pill purple">⚖️ Human-in-the-Loop Adjudication</div>
+      </div>
+    </div>
+
+    <!-- 5-Stage Diagram -->
+    <div class="pipeline-grid">
+
+      <!-- STAGE 1: SENSING -->
+      <div class="stage-card s1">
+        <span class="stage-badge">Stage 1</span>
+        <div class="stage-title">🎥 Video Sensing</div>
+        <div class="stage-sub">Classroom & Workshop</div>
+        <div class="feature-list">
+          <div class="feature-row">
+            <strong>CCTV / RTSP Feeds</strong>
+            <span>Standard IP cameras, no specialized hardware required.</span>
+          </div>
+          <div class="feature-row">
+            <strong>Threaded Capture</strong>
+            <span>Drop-frame buffer drain eliminates OpenCV lag.</span>
+          </div>
+          <div class="feature-row">
+            <strong>Camera Trust Check</strong>
+            <span>Laplacian blur & glare tests catch blocked/smeared lenses.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow -->
+      <div class="arrow-col"><div class="arrow-icon">➔</div></div>
+
+      <!-- STAGE 2: EDGE AI & PRIVACY -->
+      <div class="stage-card s2">
+        <span class="stage-badge">Stage 2</span>
+        <div class="stage-title">⚡ Edge AI & Privacy</div>
+        <div class="stage-sub">On-Premise Mini-PC Daemon</div>
+        <div class="feature-list">
+          <div class="feature-row">
+            <strong>DEIM (CVPR 2025) / YOLO</strong>
+            <span>Real-time DETR with 300 bipartite query decoders; NMS-free.</span>
+          </div>
+          <div class="feature-row">
+            <strong>ByteTrack Tracking</strong>
+            <span>Assigns anonymous technical session IDs across frames.</span>
+          </div>
+          <div class="feature-row">
+            <strong>Classroom ROI Dwell</strong>
+            <span>Requires ≥180s inside polygon; ignores hallway foot traffic.</span>
+          </div>
+          <div class="feature-row">
+            <strong>Surgical Face Blur</strong>
+            <span>Top 35% of trainee boxes Gaussian-blurred before storage.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow -->
+      <div class="arrow-col"><div class="arrow-icon">➔</div></div>
+
+      <!-- STAGE 3: DATA PIPELINE -->
+      <div class="stage-card s3">
+        <span class="stage-badge">Stage 3</span>
+        <div class="stage-title">📡 Resilient Transport</div>
+        <div class="stage-sub">Low-Bandwidth Pipeline</div>
+        <div class="feature-list">
+          <div class="feature-row">
+            <strong>Lightweight Telemetry</strong>
+            <span>Only JSON counts & metrics (≈1.8 KB/min). Video stays local.</span>
+          </div>
+          <div class="feature-row">
+            <strong>Offline Spool Buffer</strong>
+            <span>2G/3G outages queue events into local SQLite spool.db.</span>
+          </div>
+          <div class="feature-row">
+            <strong>Recovery Auto-Sync</strong>
+            <span>Chronological batch flush upon reconnection; zero data loss.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow -->
+      <div class="arrow-col"><div class="arrow-icon">➔</div></div>
+
+      <!-- STAGE 4: CLOUD BACKEND -->
+      <div class="stage-card s4">
+        <span class="stage-badge">Stage 4</span>
+        <div class="stage-title">☁️ Central Backend</div>
+        <div class="stage-sub">FastAPI & PostgreSQL</div>
+        <div class="feature-list">
+          <div class="feature-row">
+            <strong>Digital Twin Registry</strong>
+            <span>Stores sanctioned equipment mandates and official rosters.</span>
+          </div>
+          <div class="feature-row">
+            <strong>Reconciliation Engine</strong>
+            <span>Compares reported vs observed with ±15% tolerance policy.</span>
+          </div>
+          <div class="feature-row">
+            <strong>WebSocket Broadcast</strong>
+            <span>Real-time discrepancy push to officers without polling.</span>
+          </div>
+          <div class="feature-row">
+            <strong>SLA Auto-Escalation</strong>
+            <span>Unreviewed critical alerts route to state vigilance after 24h.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arrow -->
+      <div class="arrow-col"><div class="arrow-icon">➔</div></div>
+
+      <!-- STAGE 5: GOVERNANCE -->
+      <div class="stage-card s5">
+        <span class="stage-badge">Stage 5</span>
+        <div class="stage-title">🖥️ Command UI</div>
+        <div class="stage-sub">React 18 & TypeScript</div>
+        <div class="feature-list">
+          <div class="feature-row">
+            <strong>National KPI Overview</strong>
+            <span>State-wide compliance index, live feeds, and deficit trends.</span>
+          </div>
+          <div class="feature-row">
+            <strong>Multi-Camera Fusion</strong>
+            <span>2D top-down ground floor map resolves camera overlap.</span>
+          </div>
+          <div class="feature-row">
+            <strong>Evidence Review Modal</strong>
+            <span>Side-by-side blurred snapshot inspection & confirm/dismiss.</span>
+          </div>
+          <div class="feature-row">
+            <strong>Immutable Audit Trail</strong>
+            <span>Hash-chained logs of all officer decisions with CSV export.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Q&A Strip: Instant Judge Answers -->
+    <div class="jury-qa-strip">
+      <div class="qa-box">
+        <div class="qa-q">Jury Question 1: Trainee Privacy?</div>
+        <div class="qa-a">Zero Face Recognition</div>
+        <div class="qa-sub">No biometrics extracted. Faces blurred at edge (DPDP Act).</div>
+      </div>
+
+      <div class="qa-box emerald">
+        <div class="qa-q">Jury Question 2: Rural Bandwidth?</div>
+        <div class="qa-a">99.8% Bandwidth Saved</div>
+        <div class="qa-sub">Continuous video stays local; only &lt;2 KB/min JSON transmitted.</div>
+      </div>
+
+      <div class="qa-box amber">
+        <div class="qa-q">Jury Question 3: Network Drops?</div>
+        <div class="qa-a">Local SQLite Spool Buffer</div>
+        <div class="qa-sub">Events queued on edge device; auto-synced upon reconnect.</div>
+      </div>
+
+      <div class="qa-box purple">
+        <div class="qa-q">Jury Question 4: Penalty Disputes?</div>
+        <div class="qa-a">Human-in-the-Loop Adjudication</div>
+        <div class="qa-sub">Officers verify blurred snapshots before any action is confirmed.</div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
